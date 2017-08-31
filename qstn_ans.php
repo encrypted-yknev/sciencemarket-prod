@@ -306,10 +306,8 @@ include "header.php";
 			<?php } 
 						else	{
 					?>
-			<span class="badge upvote-ans-badge">
 				<span class="glyphicon glyphicon-thumbs-up"></span>
 				<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span>
-			</span>
 				<?php } ?>
 		</span>
 		<span class="vote-sec">
@@ -323,10 +321,8 @@ include "header.php";
 		<?php } 
 					else	{
 				?>
-		<span class="badge downvote-ans-badge">
 			<span class="glyphicon glyphicon-thumbs-down"></span>
 			<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
-		</span>
 			<?php } ?>
 		</span>
 		<a class="comment-link" href="javascript:void(0)" onclick="showComment('comment-box-<?php echo $ansid; ?>')">Comment</a>
