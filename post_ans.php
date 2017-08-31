@@ -2,11 +2,12 @@
 session_start();
 
 include "connectDb.php";
-
+include "forum/functions/get_time.php";
 $ans_desc=$_REQUEST["ans"];
 $qid=$_REQUEST["qid"];
 $posted_by=$_REQUEST["postedBy"];
-
+$slashes = $_REQUEST['slashes'];
+$flag = $_REQUEST['flag'];
 if(!empty($ans_desc))	{
 	$user_ans=htmlspecialchars(trim($ans_desc),ENT_QUOTES);
 	try	{
@@ -24,20 +25,29 @@ if(!empty($ans_desc))	{
 											values ('".$notify_text."','".$posted_by."',0)";
 				$stmt_push_notify = $conn->prepare($sql_push_notifications);
 				$stmt_push_notify->execute();
-				if($stmt_push_notify->rowCount() > 0)
-					echo "<strong>Thank you! Your answer has been posted.</strong></br>";
-				else
-					echo "Some error occurred. We are trying to fix the issues";
+				if($stmt_push_notify->rowCount() > 0)	{
+					$check=true;
+					include "disp_ans_enter.php";
+				}
+				else	{
+					$check=false;
+					include "disp_ans_enter.php";
+				}
 			}
 			catch(PDOException $e)	{
 				
 			}
 		}
 		else	{
-			if($stmt_post_ans->rowCount() > 0)
-				echo "<strong>Thank you! Your answer has been posted.</strong></br>";
-			else
-				echo "Some error occurred. We are trying to fix the issues";
+			if($stmt_post_ans->rowCount() > 0)	{
+				$check=true;
+				include "disp_ans_enter.php";
+			}
+				
+			else{
+				$check=false;
+				include "disp_ans_enter.php";
+			}
 		}
 		/* delete old notifications for user who posted an answer  */
 		
