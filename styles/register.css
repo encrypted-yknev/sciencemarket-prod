@@ -1,0 +1,90 @@
+@media (max-width:770px)	{
+	div#reg-container	{
+		width:100%;
+	}
+}
+
+.err{
+	/*background:#FDD8D8;*/
+	/*border:1px solid red;*/
+}
+
+table{
+	background:rgba(255,255,255,0.9) !important;
+	width:600px;
+	border:1px solid #fff;
+}
+
+.col-3-data	{
+	/*margin-left:4px;*/
+	/*padding:2%;*/
+	padding:4px;
+	margin-top:10px;
+	/*border:1px solid black;*/
+}
+.message-section {
+	margin-top:6px;
+}
+#ok-icon	{
+	display:none;
+}
+ body	{
+	background-color:#F0F0F0 !important;
+	font-family: 'Ubuntu', sans-serif;
+} 
+
+#reg-container	{
+	width:800px;
+	background:rgba(255,255,255,0.9);
+	border:1px solid #ddd;
+	border-radius:5px;
+	padding:2%;
+	margin-left:auto;
+	margin-right:auto;
+} 
+
+#button-section	{
+	text-align:center;
+}
+.inp-txt	{
+	height:30px;
+	border-radius:3px;
+	border:1px solid gray;
+}
+td	{
+	background:#fff;
+	height:50px;
+	font-size:1.1em;
+}
+
+tr	{
+}
+#reg-button,#res-button	{
+	background-color:#008CBA;
+	color:#fff;
+	border:none;
+}
+
+
+#result-msg	{
+	color:red;
+}
+.reg-inp	{
+	width:100px;
+}
+
+#main-err-message	{
+	margin-left:auto;
+	margin-right:auto;
+	width:220px;
+	text-align:center;
+	color:#B90000;
+	background-color:#FFECEC;
+}
+.form-label	{
+	font-weight:lighter;
+	font-size:15px;
+}
+#page-caption	{
+	text-align:justify;
+}

@@ -1,0 +1,27 @@
+body	{
+	background: !important;
+}
+
+#left-column,#mid-column,#right-column	{
+	background:#FDFDFD;
+	border-radius:5px;
+	border:2px solid #fff;
+	min-height:300px;
+}
+
+
+#success-msg	{
+	background:#FBFCFC;
+	font-weight:bold;
+	border:1px solid #61B0B5;
+}
+/*
+.container	{
+	position:relative;
+	top:100px;
+}*/
+
+#preview-image		{
+	border:1px solid black;
+	/*min-height:200px;*/
+}

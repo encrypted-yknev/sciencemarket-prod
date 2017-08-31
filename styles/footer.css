@@ -1,0 +1,18 @@
+#footer	{
+	width:100%;
+	background:#191970;
+	display:block;
+	float:left;
+	box-sizing:inherit;
+	margin-top:20px;
+}
+
+#footer:before,#footer:after	{
+	content:"";
+	display:table;
+	clear:both;
+}
+#footText{
+	color:#fff;
+	text-align:center;
+}
