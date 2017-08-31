@@ -91,7 +91,7 @@
 	color:#000;
 }
 
-.toggle-ans-sec	{
+.toggle-ans-sec,.toggle-top-ans-sec	{
 	display:none;
 }
 .ans-hidden-sec	{
