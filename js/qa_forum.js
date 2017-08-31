@@ -12,7 +12,7 @@ $(document).ready(function()	{
 	
 }); 
 
-function postAnswer(e,slashes,val,qid,postedBy)	{
+function postAnswer(e,slashes,val,qid,postedBy,flag)	{
 	var keyCode = e.keyCode || e.which;
 	if(keyCode == 13 && val.trim()!="")	{
 		$.ajax({
@@ -21,7 +21,9 @@ function postAnswer(e,slashes,val,qid,postedBy)	{
 			data:{
 				"ans":val,
 				"qid":qid,
-				"postedBy":postedBy
+				"postedBy":postedBy,
+				"slashes":slashes,
+				"flag":flag
 			},
 			beforeSend:function()	{
 				$("#ans-"+qid).attr("disabled","disabled");
@@ -30,13 +32,44 @@ function postAnswer(e,slashes,val,qid,postedBy)	{
 				//$("#ans-"+qid).removeAttr("disabled");
 				$("#ans-"+qid).hide();
 				document.getElementById("ans-"+qid).value="";
-				document.getElementById("ans-msg-"+qid).innerHTML=res;
+				if(flag == 0)
+					document.getElementById("toggle-ans-sec-"+qid).innerHTML=res;
+				else if(flag == 1)	
+					document.getElementById("toggle-top-ans-sec-"+qid).innerHTML=res;
 			}
 		});
 	}
 }
-function toggleAns(eventId)	{
-	$("div#"+eventId).slideToggle();
+function toggleAns(qid,x)	{
+	if(x == 0)	{
+		var query1 = $("#toggle-ans-sec-"+qid).is(':visible');
+		var query2 = $("#toggle-top-ans-sec-"+qid).is(':visible');
+		if(query1 == true)	{
+			$("#toggle-ans-sec-"+qid).slideUp();
+		}
+		else if(query2 == true)	{
+			$("#toggle-top-ans-sec-"+qid).hide();
+			$("#toggle-ans-sec-"+qid).show();
+		}
+		else	{
+			$("#toggle-ans-sec-"+qid).slideDown();
+		}
+	}
+	else if(x == 1)	{
+		var query1 = $("#toggle-top-ans-sec-"+qid).is(':visible');
+		var query2 = $("#toggle-ans-sec-"+qid).is(':visible');
+		if(query1 == true)	{
+			$("#toggle-top-ans-sec-"+qid).slideUp();
+		}
+		else if(query2 == true)	{
+			$("#toggle-ans-sec-"+qid).hide();
+			$("#toggle-top-ans-sec-"+qid).show();
+		}
+		else	{
+			$("#toggle-top-ans-sec-"+qid).slideDown();
+		}
+	}
+	//$("div#"+eventId).slideToggle();
 }
 
 function showQstn(flag)	{
