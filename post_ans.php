@@ -15,8 +15,8 @@ if(!empty($ans_desc))	{
 			$qstn_title = $row_titl['qstn_titl'];
 		$sql_ans_ins="insert into answers (ans_desc,qstn_id,posted_by) 
 						values ('".$user_ans."',".$qid.",'".$_SESSION["user"]."')";
-		$conn->exec($sql_ans_ins);
-		
+		$stmt_post_ans = $conn->prepare($sql_ans_ins);
+		$stmt_post_ans->execute();
 		if($posted_by != $_SESSION['user'])	{
 			$notify_text = addslashes("<a href = 'qstn_ans.php?qid=".$qid."'  class='list-group-item'>".$_SESSION['user']." posted an answer to your question on <strong>".$qstn_title."</strong></a>");
 			try		{
@@ -32,6 +32,12 @@ if(!empty($ans_desc))	{
 			catch(PDOException $e)	{
 				
 			}
+		}
+		else	{
+			if($stmt_post_ans->rowCount() > 0)
+				echo "<strong>Thank you! Your answer has been posted.</strong></br>";
+			else
+				echo "Some error occurred. We are trying to fix the issues";
 		}
 		/* delete old notifications for user who posted an answer  */
 		
