@@ -176,44 +176,74 @@ function increaseCount(id,userid,func,rootLocation,voteCheckCount)	{
 		} */
 	});
 }
-function increaseAnsCount(id,userid,func,rootLocation,voteCheckCount)	{
+function increaseAnsCount(id,userid,func,rootLocation,voteCheckCount,flag)	{
 	var sectionId;
 	if(func=="0")	{
-		sectionId="#up-vote-ans-"+id;
+		if(flag == 0)
+			sectionId="#up-vote-ans-"+id;
+		else if(flag == 1)
+			sectionId="#up-vote-top-ans-"+id;
 		var upVoteVal = parseInt($(sectionId).text());
 	}
 	else if(func=="1")	{
-		sectionId="#down-vote-ans-"+id;
+		if(flag == 0)
+			sectionId="#down-vote-ans-"+id;
+		else if(flag == 1)
+			sectionId="#down-vote-top-ans-"+id;
 		var downVoteVal = parseInt($(sectionId).text());
 	}
 	
 	if(func=="0")	{
 		if(voteCheckCount > 0)	{
-			$("#glyph-up-ans-"+id).removeClass("glyph-ans-upvoted");
+			if(flag==0)	{
+				$("#glyph-up-ans-"+id).removeClass("glyph-ans-upvoted");
+				$("#upvote-value-ans-"+id).val("0");
+			}
+			else if(flag==1)	{
+				$("#glyph-up-top-ans-"+id).removeClass("glyph-ans-upvoted");
+				$("#upvote-value-top-ans-"+id).val("0");
+			}
 			requestType="D";
-			$("#upvote-value-ans-"+id).val("0");
+			
 			$(sectionId).text(upVoteVal-1);
 		}
 		else	{
-			$("#glyph-up-ans-"+id).addClass("glyph-ans-upvoted");
+			if(flag==0)	{
+				$("#glyph-up-ans-"+id).addClass("glyph-ans-upvoted");
+				$("#upvote-value-ans-"+id).val("1");
+			}
+			else if(flag==1)	{
+				$("#glyph-up-top-ans-"+id).addClass("glyph-ans-upvoted");
+				$("#upvote-value-top-ans-"+id).val("1");
+			}
 			requestType="A";
-			$("#upvote-value-ans-"+id).val("1");
 			$(sectionId).text(upVoteVal+1);
 		}
 	}
 	else if(func=="1")	{
 		if(voteCheckCount > 0)	{
-			$("#glyph-down-ans-"+id).removeClass("glyph-ans-downvoted");
+			if(flag==0)	{
+				$("#glyph-down-ans-"+id).removeClass("glyph-ans-downvoted");
+				$("#downvote-value-ans-"+id).val("0");
+			}
+			else if(flag==1)	{
+				$("#glyph-down-top-ans-"+id).removeClass("glyph-ans-downvoted");
+				$("#downvote-value-top-ans-"+id).val("0");
+			}
 			requestType="D";
-			$("#downvote-value-ans-"+id).val("0");
 			$(sectionId).text(downVoteVal-1);
 		}
 		else	{
-			$("#glyph-down-ans-"+id).addClass("glyph-ans-downvoted");
+			if(flag==0)	{
+				$("#glyph-down-ans-"+id).addClass("glyph-ans-downvoted");
+				$("#downvote-value-ans-"+id).val("1");
+			}
+			else if(flag==1)	{
+				$("#glyph-down-top-ans-"+id).addClass("glyph-ans-downvoted");
+				$("#downvote-value-top-ans-"+id).val("1");
+			}
 			requestType="A";
-			$("#downvote-value-ans-"+id).val("1");
 			$(sectionId).text(downVoteVal+1);
-			
 		}
 	}
 	$.ajax({
