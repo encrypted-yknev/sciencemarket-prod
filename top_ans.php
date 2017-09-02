@@ -54,7 +54,7 @@
 									if($ans_user != $_SESSION['user'])	{
 								?>
 							<a href="javscript:void(0)" class="vote-link-area" 
-								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,0,'<?php echo $slashes; ?>', document.getElementById('upvote-value-ans-<?php echo $ansid; ?>').value,1)">
+								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,0,'<?php echo $slashes; ?>', document.getElementById('upvote-value-top-ans-<?php echo $ansid; ?>').value,1)">
 								<span id="glyph-up-top-ans-<?php echo $ansid; ?>" class="glyphicon glyphicon-thumbs-up <?php echo ($count_row_0 > 0)?"glyph-ans-upvoted":"";  ?>"></span>
 							<span id="up-vote-top-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></a>
 							<?php } 
@@ -69,7 +69,7 @@
 									if($ans_user != $_SESSION['user'])	{
 								?>
 							<a href="javscript:void(0)" class="vote-link-area" 
-								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,1,'<?php echo $slashes; ?>',document.getElementById('downvote-value-ans-<?php echo $ansid; ?>').value,1)">
+								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,1,'<?php echo $slashes; ?>',document.getElementById('downvote-value-top-ans-<?php echo $ansid; ?>').value,1)">
 								<span id="glyph-down-top-ans-<?php echo $ansid; ?>"  class="glyphicon glyphicon-thumbs-down <?php echo ($count_row_1 > 0)?"glyph-ans-downvoted":"";  ?>"></span>
 							<span id="down-vote-top-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></a>
 						<?php } 
