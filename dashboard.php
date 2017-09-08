@@ -178,54 +178,39 @@ catch(PDOException	$e)	{
 		</div></br>
 		<div class="row">
 			<div class="col-sm-2" id="main-side-column" style="background:#FBFBFB;">
-			<?php 
-				/* try	{
-					$sql_fetch_topics="select topic_id,topic_desc from topics where parent_topic = 0";
-					foreach($conn->query($sql_fetch_topics) as $row_topics)	{
-						echo 
-						'<li class="side-menu-topics"><a href="javascript:void(0)" 
-						onclick="showSubTopics(\'sub-topic-'.$row_topics['topic_id'].'\')">'.$row_topics['topic_desc'].'</a></li>';
-						try	{
-							$sql_fetch_sub_topic="select topic_id,topic_desc from topics where parent_topic=".$row_topics['topic_id'];
-							echo '<div class="sub-topic-section" id="sub-topic-'.$row_topics['topic_id'].'">';
-							foreach($conn->query($sql_fetch_sub_topic) as $row_sub_topics)	{
-								echo '<li class="side-menu-sub-topics">'.$row_sub_topics['topic_desc'].'</li>';
-							}
-							echo '</div>';
-						}
-						catch(PDOException $e)	{
-							echo 'Error fetching sub-topics';
-						}
-						
-					}
-				}
-				catch(PDOException $e)	{
-					echo 'Error fetching topics';
-				} */
-			?>
-				<div class="row">
-					<div class="col-sm-7">
-						<img src="<?php echo $_SESSION["pro_img"]; ?>" class="img-thumbnail img-responsive" alt="profile image" width="204" height="150"> 
+				<div class="row" id="first-row">
+					<div class="profile-picture">
+						<a id="profile-img" href="profile.php" title="Go to my profile">
+							<div class="side-user-img" style="background-image:url('<?php echo $_SESSION["pro_img"];?>'); background-size:cover;">
+							</div>
+						</a>
 					</div>
-					<div class="col-sm-5 side-data-section">
+				</div>
+				<div class="row" id="second-row">
+					<div class="side-data-section">
 						</br>
-						<span class="vote-section">
-							<span class="glyphicon glyphicon-circle-arrow-up"></span>
-							<span class="vote-count-section"><?php echo $_SESSION["up_votes"]; ?></span>
-						</span></br>
-						<span class="vote-section">
-							<span class="glyphicon glyphicon-circle-arrow-down"></span>
-							<span class="vote-count-section"><?php echo $_SESSION["down_votes"]; ?></span>
-						</span></br>
-						
+						<div id="vote-section">
+							<div class="" id="vote-up">
+								<div id="upvote-logo"></div>&nbsp;
+								<span class="vote-count-section" style="font-size:12px;"><strong><?php echo $_SESSION["up_votes"]; ?></strong></span>
+							</div>
+							
+							<div class="" id="vote-down">
+								<div id="downvote-logo"></div>&nbsp;
+								<span class="vote-count-section" style="font-size:12px;"><strong><?php echo $_SESSION["down_votes"]; ?></strong></span>
+							</div></br>
+						</div>
 					</div>
-				</div></br>
-				<div class="row">
+				</div>
+				</br>
+				<div class="row" id="third-row">
 					<div class="col-sm-8">
+						<div id="user-data">
 						<div class="side-menu-links">Questions</div>
 						<div class="side-menu-links">Answers</div>
 						<div class="side-menu-links">Followers</div>
 						<div class="side-menu-links">Following</div>
+						</div>
 						<div class="side-menu-links">
 							<span id="interest-text">Your interests</span>
 							<span id="interest-tabs">
@@ -245,7 +230,6 @@ catch(PDOException	$e)	{
 								?>
 							</span>
 						</div>
-						<div class="side-menu-links"><a href="profile.php">My Profile</a></div>
 					</div>
 					<div class="col-sm-4">
 						<div class="side-menu-links"><?php echo $count_qstn; ?></div>
@@ -257,7 +241,7 @@ catch(PDOException	$e)	{
 					</div>
 				</div>
 			</div>
-			<div class="col-sm-6">
+			<div class="col-sm-6" id="middle-container">
 				<?php
 				try	{
 					$query_string="";
