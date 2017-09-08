@@ -245,3 +245,39 @@
 	background:url(../img/forward.png) no-repeat scroll 7px 7px;
 	padding-left:30px;
 } */
+
+.side-user-img	{
+	margin-left:auto;
+	margin-right:auto;
+	text-align:center;
+	box-shadow:0px 0px 3px rgba(0,0,0,0.5);
+	width:150px;
+	height:150px;
+	border-radius:80px;
+}
+.side-user-img:hover	{
+	filter:opacity(50%);
+	-webkit-filter:opacity(50%);
+}
+#upvote-logo,#downvote-logo	{
+	width:20px;
+	height:20px;
+	border-radius:20px;
+	float:left;
+}
+
+#upvote-logo	{
+	background-color:#BEFFA6;
+	margin-left:40px;
+}
+#downvote-logo	{
+	background-color:#FFB5B5;
+	margin-left:10px;
+}
+
+#vote-up,#vote-down	{
+	float:left;
+}
+#user-data	{
+	font-family: 'Ubuntu', sans-serif;
+}
