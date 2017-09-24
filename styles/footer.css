@@ -1,6 +1,8 @@
 #footer	{
+	
 	width:100%;
-	background:#191970;
+	height:100px;
+	background:#008CBA;
 	display:block;
 	float:left;
 	box-sizing:inherit;
