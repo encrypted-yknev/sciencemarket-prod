@@ -12,7 +12,7 @@ $(document).ready(function()	{
 				$("#alert-msg").html("<span class='alert-msg-section'>No more tags allowed!</span>");
 				$(".q-tags").attr("disabled","disabled");
 			}
-				
+			x=x.replace(/ /g,"-");
 			$("#tag-res").append('<span class="tag-name">'+x+'</span>');
 			$("#tag-value").append(x+" ");
 			$(this).focus();
@@ -64,7 +64,14 @@ $(document).ready(function()	{
 	$('.q-tags').on('keypress', function(e) {
 		var keyCode = e.keyCode || e.which;
 		if(keyCode == 13)	{
-			$(this).blur();
+			var x=document.getElementById("user-qstn-tags").value;
+			if(x.length > 20)	{
+				$("#alert-msg").html("<span class='alert-msg-section'>Tag must be < 20 chars</span>");
+			}
+			else	{
+				x.replace(/ /g,"-");
+				$(this).blur();
+			}
 		}
 	});
 	
@@ -149,14 +156,14 @@ function postQuestion(topic,title,desc,page,tags)	{
 		}
 	);
 }
-function getSubTopics(topic_name)	{
+function getSubTopics(topic_id)	{
 	$.ajax(
 		{
 			type:"post",
 			url:"get_sub_topics.php",
 			data:
 			{
-				"topic":topic_name
+				"topic":topic_id
 			},
 			success:function(result)	{
 				$("#q-sub-topic").html(result);
