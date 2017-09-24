@@ -1,7 +1,7 @@
 <?php 
 		try	{
 			$sql_show_some_ans = "select * from (select ans_id,ans_desc,up_votes,down_votes,posted_by,created_ts from answers where 
-								   qstn_id = ".$qid." order by created_ts desc limit 3) a order by created_ts asc";
+								   qstn_id = ".$qid." order by created_ts desc limit 5) a order by created_ts asc";
 			$sql_count_ans = "select count(1) from answers where qstn_id = ".$qid;
 			
 			$stmt_show_some_ans=$conn->prepare($sql_show_some_ans);
@@ -53,10 +53,10 @@
 						<?php 
 									if($ans_user != $_SESSION['user'])	{
 								?>
-							<a href="javscript:void(0)" class="vote-link-area" 
-								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,0,'<?php echo $slashes; ?>', document.getElementById('upvote-value-ans-<?php echo $ansid; ?>').value)">
+							<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
+								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,0,'<?php echo $slashes; ?>', document.getElementById('upvote-value-ans-<?php echo $ansid; ?>').value,0)">
 								<span id="glyph-up-ans-<?php echo $ansid; ?>" class="glyphicon glyphicon-thumbs-up <?php echo ($count_row_0 > 0)?"glyph-ans-upvoted":"";  ?>"></span>
-							<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></a>
+							<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></span>
 							<?php } 
 										else	{
 									?>
@@ -68,45 +68,72 @@
 						<?php 
 									if($ans_user != $_SESSION['user'])	{
 								?>
-							<a href="javscript:void(0)" class="vote-link-area" 
-								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,1,'<?php echo $slashes; ?>',document.getElementById('downvote-value-ans-<?php echo $ansid; ?>').value)">
+							<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
+								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,1,'<?php echo $slashes; ?>',document.getElementById('downvote-value-ans-<?php echo $ansid; ?>').value,0)">
 								<span id="glyph-down-ans-<?php echo $ansid; ?>"  class="glyphicon glyphicon-thumbs-down <?php echo ($count_row_1 > 0)?"glyph-ans-downvoted":"";  ?>"></span>
-							<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></a>
+							<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></span>
 						<?php } 
 									else	{
 								?>
 							<span class="glyphicon glyphicon-thumbs-down"></span>
 							<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
 							<?php } ?>
-						</span>
+						</span>&nbsp;&nbsp;
+						<a id="comment-recent-link-<?php echo $ansid; ?>" class="comment-link" href="javascript:void(0)" onclick="showComment(0,<?php echo $ansid; ?>)">Show comments</a>
 						</div>
+						<div class="comment-section" id="comment-recent-<?php echo $ansid; ?>"> 
+						</br>
+						<input type="text" class="form-control comment-inp" id="comment-ans-<?php echo $ansid; ?>" placeholder="Leave comment" 
+						onkeypress=""/>
+						
+						</br>
+						<button type="button" class="btn btn-primary" style="padding: 1px 2px;" 
+						onclick="addComment(0,<?php echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)">Comment</button></br></br>
+						
+						<div id="comment-area-<?php echo $ansid; ?>" style="margin-left:30px;margin-right:30px;border-left:2px solid #195971;background-color:#F7F7F7;border-top:1px solid #F3F3F3;border-bottom:1px solid #F3F3F3;border-right:1px solid #F3F3F3;">
+						<?php
+							try	{
+								$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid;
+								foreach($conn->query($sql_fetch_comment) as $row_cmnt)	{
+									$comment_id=$row_cmnt['comment_id'];
+									$comment=$row_cmnt['comment_desc'];
+									$posted_by=$row_cmnt['posted_by'];
+									$created_ts = $row_cmnt['created_ts'];
+									echo '<div class="user-comment-sec" id="comment-'.$comment_id.'">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date($created_ts).'</span></div>';
+								}
+							}
+							catch(PDOException $e)	{
+								echo "Internal server error";
+							}
+						?>
+						</div>
+					</div></br>
 					</div>
 					<?php
-				}
-				$sql_count_ans = "select count(1) as ans_count from answers where qstn_id = ".$qid;
-				$stmt_count_ans = $conn->prepare($sql_count_ans);
-				$stmt_count_ans->execute();
-				$res_count=$stmt_count_ans->fetch();
-				$answer_count=$res_count['ans_count'];
-				if($answer_count <= 3)
-					echo '</br><a href="'.$slashes.'qstn_ans.php?qid='.$qid.'">View answers...</a>';
-				else
-					echo '</br><a href="'.$slashes.'qstn_ans.php?qid='.$qid.'">View '.($answer_count-3).' more answers...</a>';
+				} ?>
+				
+			<?php
 			}
-			else	{
+			/* else	{
 				echo "<div class='no-ans-section'>No answers to this question yet. Be the first one to answer.
 						<a href='".$slashes."qstn_ans.php?qid=".$qid."'>Click here</a></div>";
-			}
+			} */
 				
 		}
 		catch(PDOException $e) {
 			echo "Some error occured. We are working on it and will get back to you. Sorry for the inconvenience caused ".$e->getMessage();
 		}
+		try	{
+			$ans_id_list=array();
+			$ans_id_str="";
+			$sql_store_ansid="select ans_id from answers where 
+								   qstn_id = ".$qid." order by created_ts desc";
+			foreach($conn->query($sql_store_ansid) as $row_store_ansid)
+				array_push($ans_id_list,$row_store_ansid['ans_id']);
+			$ans_id_str=implode($ans_id_list,"|");
+		}
+		catch(PDOException $e) {
+		}
 	?>
-	</br>
-	<div style="font-size:12px; color:#65A668;" class "ans-msg" id="ans-msg-<?php echo $qid; ?>" ></div>
-	<div class="user-ans-section">
-		<input type="text" class="form-control ans-inp" id="ans-<?php echo $qid; ?>" placeholder="Your answer here" 
-		onkeypress="postAnswer(event,'<?php echo $slashes; ?>',this.value,<?php echo $qid.",'".$posted_by."'"; ?>,0)"/>
-		</br>
-	</div>
+	<input id="ans-list-qid-<?php echo $qid; ?>" type="hidden" value="<?php echo $ans_id_str; ?>" />
+	<input id="scroll-flag-<?php echo $qid; ?>" type="hidden" value="1" />
