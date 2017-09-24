@@ -73,7 +73,7 @@ function get_time_diff($timestamp_ans)	{
 	$hr2=substr($timestamp_cur,11,2);
 	$min2=substr($timestamp_cur,14,2);
 	$sec2=substr($timestamp_cur,17,2);
-
+	
 	if($year1 == $year2)	{
 		if($month1 == $month2)	{
 			if($day1 == $day2)	{
@@ -219,10 +219,10 @@ try	{
 		<?php 
 					if($postedby != $_SESSION['user'])	{
 				?>
-			<a href="javscript:void(0)" class="vote-link-area" 
+			<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
 				onclick="increaseCount('<?php echo $ansid."','".$postedby."'";?>,0,document.getElementById('upvote-value-ans-<?php echo $ansid; ?>').value)">
 				<span id="glyph-up-ans-<?php echo $ansid; ?>" class="glyphicon glyphicon-thumbs-up <?php echo ($count_row_0 > 0)?"glyph-ans-upvoted":"";  ?>"></span>
-			<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></a>
+			<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></span>
 			<?php } 
 						else	{
 					?>
@@ -234,10 +234,10 @@ try	{
 		<?php 
 					if($postedby != $_SESSION['user'])	{
 				?>
-			<a href="javscript:void(0)" class="vote-link-area" 
+			<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
 				onclick="increaseCount('<?php echo $ansid."','".$postedby."'";?>,1,document.getElementById('downvote-value-ans-<?php echo $ansid; ?>').value)">
 				<span id="glyph-down-ans-<?php echo $ansid; ?>"  class="glyphicon glyphicon-thumbs-down <?php echo ($count_row_1 > 0)?"glyph-ans-downvoted":"";  ?>"></span>
-			<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></a>
+			<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></span>
 		<?php } 
 					else	{
 				?>
