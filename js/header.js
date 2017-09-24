@@ -22,6 +22,7 @@ $(document).ready(function()	{
 	}); 
 });
 
+
  function fetchQuestions(txt,slashes)	{
 	$("#srch-result").show();
 	$.ajax({
