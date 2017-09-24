@@ -11,19 +11,19 @@ if(isset($_SESSION["logged_in"]))	{
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Science Market - Home | Online portal to stay connected with peers.</title>
+<title>Science Market - Home | Where people discuss and collaborate with experts</title>
 <meta name="description" content="Science Market is an online market place to connect with peers, people, groups or expert. Discuss topics in question answer forum, connect with experts under expert connect, collaborate with people and provide favours." >
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="styles/header.css">
 <link rel="stylesheet" type="text/css" href="/styles/login.css" >
 <link rel="stylesheet" type="text/css" href="styles/footer.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="js/login.js"></script>
 <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
 
 </head>
 <body>
-
-<?php #include "header.php"; ?>
 
 <?php
 include "connectDb.php";
@@ -53,15 +53,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 	
 	if($checked==true)	{
 		try	{
-			$sql="select encrypt_pwd from users where user_id='".$userid."'";
+			$sql="select status,encrypt_pwd from users where user_id='".$userid."'";
 			$stmt=$conn->prepare($sql);
 			$stmt->execute();
 			$row=$stmt->fetch();
 			
 			$pwddb=$row['encrypt_pwd'];
+			$status=$row['status'];
 			
 			#check is user entered the correct password.
-			if(md5($pwd)!=$pwddb)	{
+			if(strtoupper($status) != 'A')	{
+				$message = "User account has been de-activated";
+				$success=false;
+			}
+			else if(md5($pwd)!=$pwddb)	{
 				$message="Invalid credentials";
 				$success=false;
 			}
@@ -104,8 +109,6 @@ function processData($text)	{
 			</form>
 		</div>
 	<!--</div>-->
-
-<?php #include "footer.php" ?>
 
 </body>
 </html>
