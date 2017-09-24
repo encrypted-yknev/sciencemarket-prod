@@ -26,12 +26,14 @@ if(!empty($ans_desc))	{
 				$stmt_push_notify = $conn->prepare($sql_push_notifications);
 				$stmt_push_notify->execute();
 				if($stmt_push_notify->rowCount() > 0)	{
-					$check=true;
-					include "disp_ans_enter.php";
+					#$check=true;
+					#include "disp_ans_enter.php";
+					echo 1;
 				}
 				else	{
-					$check=false;
-					include "disp_ans_enter.php";
+					#$check=false;
+					#include "disp_ans_enter.php";
+					echo 0;
 				}
 			}
 			catch(PDOException $e)	{
@@ -40,13 +42,15 @@ if(!empty($ans_desc))	{
 		}
 		else	{
 			if($stmt_post_ans->rowCount() > 0)	{
-				$check=true;
-				include "disp_ans_enter.php";
+				#$check=true;
+				#include "disp_ans_enter.php";
+				echo 1;
 			}
 				
 			else{
-				$check=false;
-				include "disp_ans_enter.php";
+				#$check=false;
+				#include "disp_ans_enter.php";
+				echo 0;
 			}
 		}
 		/* delete old notifications for user who posted an answer  */
@@ -71,10 +75,10 @@ if(!empty($ans_desc))	{
 		$stmt_push_notifications_1->execute();
 	}
 	catch(PDOException $e)	{
-		echo "Error posting answer";
+		echo -1;
 	}
 }
 else 	{
-	echo "Please write some answer";
+	echo -2;
 }
 ?>
