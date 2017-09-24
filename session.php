@@ -1,5 +1,6 @@
 <?php
 
+
 try 	{
 	$sql_fetch_user_details="select user_id,
 									disp_name,
