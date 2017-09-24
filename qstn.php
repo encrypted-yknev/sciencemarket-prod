@@ -1,19 +1,21 @@
 <?php
 session_start();
 if(!$_SESSION["logged_in"])	{
-	header("location:login.php");
+	header("location:index.php");
 }
+
 include "connectDb.php";
+date_default_timezone_set("Europe/London");
 $message="";
 
-$q_topic=$q_titl=$q_desc="";
+$q_topic_id=$q_titl=$q_desc=$topic_id="";
 if ($_SERVER["REQUEST_METHOD"] == "POST")	{
-	$q_topic=htmlspecialchars(stripslashes(trim($_POST['sub_topic'])));
+	$q_topic_id=(int)htmlspecialchars(stripslashes(trim($_POST['sub_topic'])));
 	$q_titl=htmlspecialchars(stripslashes(trim($_POST['qtitl'])));
 	$q_desc=trim($_POST['qdesc']);
 	$tags=htmlspecialchars(stripslashes(trim($_POST['tags'])));
 	#check for empty field)
-	if(!empty($q_topic) && !empty($q_titl) && !empty($q_desc) && !empty($tags))	{
+	if(!empty($q_topic_id) && !empty($q_titl) && !empty($q_desc) && !empty($tags))	{
 		$tag_list=explode(" ",$tags);
 		$tag_count=count($tag_list);
 		foreach($tag_list as $tag_name)	{
@@ -30,11 +32,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 			}
 		}
 		try	{
-			$sql="select topic_id from topics where topic_desc='".$q_topic."'";
-			foreach($conn->query($sql) as $row)	
-				$topic_id=$row["topic_id"];
+			
 			$sql="insert into questions (`qstn_titl`, `qstn_desc`, `qstn_status`, `topic_id`, `posted_by`)
-				values('".$q_titl."', '".$q_desc."','A',".$topic_id.",'".$_SESSION["user"]."')";
+				values('".$q_titl."', '".$q_desc."','A',".$q_topic_id.",'".$_SESSION["user"]."')";
+			
 			$conn->exec($sql);
 		}
 		catch(PDOException $e)	{
@@ -60,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 					$message = '<div class="alert alert-danger">Error occured while posting question</div>';
 				}
 			}
-			header("location:forum");
+			header("location:forum/myposts/");
 			
 		}
 		catch(PDOException $e)	{
@@ -73,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 }
 	
 	function get_time_diff($timestamp_ans)	{
-	date_default_timezone_set("Asia/Kolkata");
+#	date_default_timezone_set("Asia/Kolkata");
 
 	$timestamp_cur=date("Y-m-d H:i:sa");
 	/* echo $timestamp_ans."</br>"; 
@@ -217,18 +218,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 			<form id="qstn-form" name="ask-qstn-form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
 				Select topic:
 				<select class="inp-box" id="q-topic" name="qtopic" onchange="getSubTopics(this.value)" onfocus="getInputInfo(1)">
-					<option value="selected"></option>
+					<option value="" selected>--- Select topic ---</option>
 					<?php
-						$sql="select topic_desc,topic_id from topics where parent_topic=0";
-						foreach($conn->query($sql) as $row)	{
-							echo "<option>".$row["topic_desc"]."</option>";
+						try	{	
+							$sql="select topic_code,topic_desc,topic_id from topics where parent_topic=0";
+							foreach($conn->query($sql) as $row)	{
+								$row_topic_id=$row["topic_id"];
+								$row_topic_desc=$row["topic_desc"];
+								echo '<option value="'.$row_topic_id.'">'.$row_topic_desc.'</option>';
+							}
+						}
+						catch(PDOException $e)	{
+							
 						}
 					?>
 				</select></br></br>
 				Select sub-topic:
 					
 				<select class="inp-box" id="q-sub-topic" value="<?php echo $q_topic; ?>" name="sub_topic" onfocus="getInputInfo(2)">
-					<option></option>
+					<option value="" selected>--- Select sub-topics ---</option>
 				</select></br></br>
 				Question title : <input class="inp-box" id="q-titl" type="text" value="<?php echo $q_titl; ?>" name="qtitl" onfocus="getInputInfo(3)"
 				onkeyup="showQstnResults(this.value)"/></br></br>
@@ -241,7 +249,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 				<span id="q-msg"></span></br></br>
 				Choose at-least 1 tag and max 4 tags : 
 				<div id="tag">
-					<input class="q-tags" type="text" name="q_tags" placeholder="Add tags. Press ENTER"  onfocus="getInputInfo(5)"/>&emsp;
+					<input class="q-tags" id="user-qstn-tags" type="text" name="q_tags" placeholder="Add tags. Press ENTER"  onfocus="getInputInfo(5)"/>&emsp;
 					<span id="alert-msg"></span></br></br>
 				</div>
 				<div id="tag-res"></div></br>
