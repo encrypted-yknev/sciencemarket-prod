@@ -110,7 +110,7 @@ catch(PDOException	$e)	{
 <script type="text/javascript" src="js/dashboard.js"></script>
 <script type="text/javascript" src="js/qa_forum.js"></script>
 <script type="text/javascript" src="js/header.js"></script></head>
-<body onload="refreshNotify()">
+<body onload="refreshNotify()" onscroll="getHeight()">
 <div id="block"></div>
 <?php include "header.php"; ?>
 	
@@ -295,7 +295,7 @@ catch(PDOException	$e)	{
 			</div>
 			<div class="col-sm-4">
 				<div id="notification-section">
-					<div><strong>Notifications</strong></div></br>
+					<div id="notify-caption"><strong>Notifications</strong></div></br>
 					<div id="show-notify-section"></div>
 				</div></br>
 				<!--
@@ -305,6 +305,7 @@ catch(PDOException	$e)	{
 				</div>-->
 			</div>
 		</div>
-	</div>
+	</div></br></br>
+	<?php include "footer.php"; ?>
 </body>
 </html>
