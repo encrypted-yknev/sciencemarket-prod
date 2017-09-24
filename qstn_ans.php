@@ -61,6 +61,7 @@ function get_user_date($time)	{
 <title>Science Market - Answer question</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" type="text/css" href="styles/header.css">
+<link rel="stylesheet" type="text/css" href="styles/footer.css">
 <link rel="stylesheet" type="text/css" href="styles/qstn_ans.css">
 <link rel="stylesheet" type="text/css" href="styles/qstn.css">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
@@ -79,7 +80,8 @@ function get_user_date($time)	{
 $qid=$_GET["qid"];
 
 function get_time_diff($timestamp_ans)	{
-	date_default_timezone_set("Asia/Kolkata");
+	date_default_timezone_set("UTC");
+	echo $timestamp_ans."</br>";
 	$timestamp_cur=date("Y-m-d H:i:sa");
 	
 	$year1=substr($timestamp_ans,0,4);
@@ -299,10 +301,10 @@ include "header.php";
 		<?php 
 					if($postedby != $_SESSION['user'])	{
 				?>
-			<a href="javscript:void(0)" class="vote-link-area" 
+			<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
 				onclick="increaseCount('<?php echo $ansid."','".$postedby."'";?>,0,document.getElementById('upvote-value-ans-<?php echo $ansid; ?>').value)">
 				<span id="glyph-up-ans-<?php echo $ansid; ?>" class="glyphicon glyphicon-thumbs-up <?php echo ($count_row_0 > 0)?"glyph-ans-upvoted":"";  ?>"></span>
-			<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></a>
+			<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></span>
 			<?php } 
 						else	{
 					?>
@@ -314,10 +316,10 @@ include "header.php";
 		<?php 
 					if($postedby != $_SESSION['user'])	{
 				?>
-			<a href="javscript:void(0)" class="vote-link-area" 
+			<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
 				onclick="increaseCount('<?php echo $ansid."','".$postedby."'";?>,1,document.getElementById('downvote-value-ans-<?php echo $ansid; ?>').value)">
 				<span id="glyph-down-ans-<?php echo $ansid; ?>"  class="glyphicon glyphicon-thumbs-down <?php echo ($count_row_1 > 0)?"glyph-ans-downvoted":"";  ?>"></span>
-			<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></a>
+			<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></span>
 		<?php } 
 					else	{
 				?>
@@ -361,10 +363,9 @@ catch(PDOException $e)	{
 ?>
 	</div>
 </div>
-<div class="col-sm-4"></div>
-<div>
-
-<?php #include "footer.php"; ?>
+<div class="col-sm-4">hello world</div>
+</div>
+<?php include "footer.php"; ?>
 
 </body>
 </html>
