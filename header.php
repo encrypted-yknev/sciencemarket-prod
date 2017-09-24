@@ -85,3 +85,4 @@ else if($count_slash==4)
 		<span>No results</span>
 	</div>
 </div>
+<button id = "go-top-btn" class="btn btn-primary" onclick="window.scrollTo(0,0)">△</button>
