@@ -294,3 +294,12 @@ li	{
 	height:30px;
 	text-decoration:none;
 }
+
+#go-top-btn	{
+	display:none;
+	border-radius:40px;
+	position:fixed;
+	bottom:10px;
+	right:10px;
+	z-index:3;
+}
