@@ -1,14 +1,19 @@
 <?php 
 		try	{
-			if($flag == 0)	{
-				$sql_show_some_ans = "select * from (select ans_id,ans_desc,up_votes,down_votes,posted_by,created_ts from answers where 
-									   qstn_id = ".$qid." order by created_ts desc limit 4) a order by created_ts asc";
-			}
-			else if($flag == 1)	{
-				$sql_show_some_ans = "select ans_id,ans_desc,up_votes,down_votes,posted_by,created_ts from answers where 
-									   qstn_id = ".$qid." order by up_votes desc,down_votes asc limit 4
-									   ";
-			}
+			$sql_show_some_ans = "select a.ans_id,
+												   a.ans_desc,
+												   a.up_votes,
+												   a.down_votes,
+												   a.posted_by,
+												   a.created_ts 
+										   from answers a
+										   inner join questions b 
+										   on a.qstn_id=b.qstn_id
+										   left outer join comments c
+										   on a.ans_id=c.ans_id
+										   where b.qstn_id=".$qid."
+										   order by a.created_ts desc,c.created_ts desc
+										   limit 3";
 			$sql_count_ans = "select count(1) from answers where qstn_id = ".$qid;
 			
 			$stmt_show_some_ans=$conn->prepare($sql_show_some_ans);
@@ -31,7 +36,7 @@
 					$row_pic = $stmt_get_user_pic->fetch();
 					$ans_user_pic = $slashes.$row_pic['pro_img_url'];
 					?>
-					<div class="ans-hidden-sec" id="ans-hidden-sec-<?php echo $ansid; ?>">
+					<div class="ans-front-hidden-sec" id="ans-front-sec-<?php echo $ansid; ?>">
 						<div class="photo-ans-sec" style="background-image:url('<?php echo $ans_user_pic; ?>'); background-size:cover;"></div>
 							
 						<div class="auth-text-section">
@@ -52,53 +57,73 @@
 							$count_row_1 = $sql_row_1['vote_count'];
 								
 							?>
-							<input type="hidden" id="upvote-value-ans-<?php echo $ansid; ?>" value="<?php echo $count_row_0; ?>" />
-							<input type="hidden" id="downvote-value-ans-<?php echo $ansid; ?>" value="<?php echo $count_row_1; ?>" />
+							<input type="hidden" id="upvote-front-value-ans-<?php echo $ansid; ?>" value="<?php echo $count_row_0; ?>" />
+							<input type="hidden" id="downvote-front-value-ans-<?php echo $ansid; ?>" value="<?php echo $count_row_1; ?>" />
 							
 						<div class="voting-links">
 							<span class="vote-sec">
 						<?php 
 									if($ans_user != $_SESSION['user'])	{
 								?>
-							<a href="javscript:void(0)" class="vote-link-area" 
-								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,0,'<?php echo $slashes; ?>', document.getElementById('upvote-value-ans-<?php echo $ansid; ?>').value)">
-								<span id="glyph-up-ans-<?php echo $ansid; ?>" class="glyphicon glyphicon-thumbs-up <?php echo ($count_row_0 > 0)?"glyph-ans-upvoted":"";  ?>"></span>
-							<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></a>
+							<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
+								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,0,'<?php echo $slashes; ?>', document.getElementById('upvote-front-value-ans-<?php echo $ansid; ?>').value,2)">
+								<span id="glyph-front-up-ans-<?php echo $ansid; ?>" class="glyphicon glyphicon-thumbs-up <?php echo ($count_row_0 > 0)?"glyph-ans-upvoted":"";  ?>"></span>
+							<span id="up-vote-front-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></span>
 							<?php } 
 										else	{
 									?>
 								<span class="glyphicon glyphicon-thumbs-up"></span>
-								<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span>
+								<span id="up-vote-front-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span>
 								<?php } ?>
 						</span>
 						<span class="vote-sec">
 						<?php 
 									if($ans_user != $_SESSION['user'])	{
 								?>
-							<a href="javscript:void(0)" class="vote-link-area" 
-								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,1,'<?php echo $slashes; ?>',document.getElementById('downvote-value-ans-<?php echo $ansid; ?>').value)">
-								<span id="glyph-down-ans-<?php echo $ansid; ?>"  class="glyphicon glyphicon-thumbs-down <?php echo ($count_row_1 > 0)?"glyph-ans-downvoted":"";  ?>"></span>
-							<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></a>
+							<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
+								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,1,'<?php echo $slashes; ?>',document.getElementById('downvote-front-value-ans-<?php echo $ansid; ?>').value,2)">
+								<span id="glyph-front-down-ans-<?php echo $ansid; ?>"  class="glyphicon glyphicon-thumbs-down <?php echo ($count_row_1 > 0)?"glyph-ans-downvoted":"";  ?>"></span>
+							<span id="down-vote-front-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></span>
 						<?php } 
 									else	{
 								?>
 							<span class="glyphicon glyphicon-thumbs-down"></span>
-							<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
+							<span id="down-vote-front-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
 							<?php } ?>
 						</span>
+						&nbsp;&nbsp;
+						<a id="comment-link-<?php echo $ansid; ?>" class="comment-link" href="javascript:void(0)" onclick="showComment(2,<?php echo $ansid; ?>)">Show comments</a>
 						</div>
+						<div class="comment-section" id="comment-front-<?php echo $ansid; ?>">
+						</br>
+						<input type="text" class="form-control comment-inp" id="comment-front-ans-<?php echo $ansid; ?>" placeholder="Leave comment" 
+						onkeypress=""/>
+						
+						</br>
+						<button type="button" class="btn btn-primary" style="padding: 1px 2px;" 
+						onclick="addComment(2,<?php echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)">Comment</button></br></br>
+						
+						<div id="comment-area-front-<?php echo $ansid; ?>" style="margin-left:30px;margin-right:30px;border-left:2px solid #195971;background-color:#F7F7F7;border-top:1px solid #F3F3F3;border-bottom:1px solid #F3F3F3;border-right:1px solid #F3F3F3;">
+						<?php
+							try	{
+								$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid;
+								foreach($conn->query($sql_fetch_comment) as $row_cmnt)	{
+									$comment_id=$row_cmnt['comment_id'];
+									$comment=$row_cmnt['comment_desc'];
+									$posted_by=$row_cmnt['posted_by'];
+									$created_ts = $row_cmnt['created_ts'];
+									echo '<div class="user-comment-sec" id="comment-front-'.$comment_id.'">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date($created_ts).'</span></div>';
+								}
+							}
+							catch(PDOException $e)	{
+								echo "Internal server error";
+							}
+						?>
+						</div>
+					</div></br>									
 					</div>
 					<?php
 				}
-				$sql_count_ans = "select count(1) as ans_count from answers where qstn_id = ".$qid;
-				$stmt_count_ans = $conn->prepare($sql_count_ans);
-				$stmt_count_ans->execute();
-				$res_count=$stmt_count_ans->fetch();
-				$answer_count=$res_count['ans_count'];
-				if($answer_count <= 3)
-					echo '</br><a href="'.$slashes.'qstn_ans.php?qid='.$qid.'">View answers...</a>';
-				else
-					echo '</br><a href="'.$slashes.'qstn_ans.php?qid='.$qid.'">View '.($answer_count-3).' more answers...</a>';
 			}
 			else	{
 				echo "<div class='no-ans-section'>No answers to this question yet. Be the first one to answer.
@@ -107,19 +132,6 @@
 				
 		}
 		catch(PDOException $e) {
-			echo "Some error occured. We are working on it and will get back to you. Sorry for the inconvenience caused ".$e->getMessage();
+			echo "Some error occured. We are working on it and will get back to you. Sorry for the inconvenience caused ";
 		}
 	?>
-	</br>
-	<?php if($check == true)	{
-		?>
-	<div style="font-size:12px; color:#65A668;" class "ans-msg" id="ans-msg-<?php echo $qid; ?>" >
-		<strong>Thank you! Your answer has been posted.</strong></br>
-	</div>
-	<?php } else	{
-		
-		?>
-	<div style="font-size:12px; color:#65A668;" class "ans-msg" id="ans-msg-<?php echo $qid; ?>" >
-		<strong>Some error occurred. We are trying to fix the issues</strong></br>
-	</div>
-	<?php	}	?>
