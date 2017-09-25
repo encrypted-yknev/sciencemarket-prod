@@ -134,20 +134,25 @@ function postAnswer(e,slashes,val,qid,postedBy,flag)	{
 			success:function(res)	{
 				//$("#ans-"+qid).removeAttr("disabled");
 				$("#ans-"+qid).hide();
-				document.getElementById("ans-"+qid).value="";
 				var txt="";
-				/* if(flag == 0)
-					document.getElementById("toggle-ans-sec-"+qid).innerHTML=res;
-				else if(flag == 1)	
-					document.getElementById("toggle-top-ans-sec-"+qid).innerHTML=res; */
-				if(res == 1)	
-					txt="Thank you! Your answer has been posted";
-				else if(res == 0)
+				document.getElementById("ans-"+qid).value="";
+				
+				if($("#toggle-ans-sec-"+qid).is(':visible'))
+					$("#toggle-ans-sec-"+qid).hide();
+				else if($("#toggle-top-ans-sec-"+qid).is(':visible'))
+					$("#toggle-top-ans-sec-"+qid).hide();
+				
+				$("#front-top-qstn-"+qid).show();
+				if(res == 0)
 					txt="Some error occurred. We are trying to fix the issues";
 				else if(res == -1)
 					txt="Internal server error";
 				else if(res == -2)
 					txt="Please type an answer";
+				else	{
+					document.getElementById("front-top-qstn-"+qid).innerHTML=res;
+					txt="Thank you! Your answer has been posted";
+				}
 				$("#ans-msg-"+qid).text(txt);
 			}
 		});
