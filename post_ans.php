@@ -27,8 +27,7 @@ if(!empty($ans_desc))	{
 				$stmt_push_notify->execute();
 				if($stmt_push_notify->rowCount() > 0)	{
 					#$check=true;
-					#include "disp_ans_enter.php";
-					echo 1;
+					include "disp_ans_enter.php";
 				}
 				else	{
 					#$check=false;
@@ -43,8 +42,7 @@ if(!empty($ans_desc))	{
 		else	{
 			if($stmt_post_ans->rowCount() > 0)	{
 				#$check=true;
-				#include "disp_ans_enter.php";
-				echo 1;
+				include "disp_ans_enter.php";
 			}
 				
 			else{
