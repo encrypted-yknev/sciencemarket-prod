@@ -52,6 +52,7 @@
 			<li class="side-menu"><a href="<?php echo $slashes_cur; ?>relevant" class="list-group-item" >Relevant</a></li>
 			<li class="side-menu"><a href="<?php echo $slashes_cur; ?>upvoted" class="list-group-item" >Most upvoted</a></li>
 			<li class="side-menu"><a href="<?php echo $slashes_cur; ?>recent" class="list-group-item" >Recent </a></li>
+			<li class="side-menu"><a href="<?php echo $slashes_cur; ?>trending" class="list-group-item" >User activity based</a></li>
 			<li class="side-menu" id="side-menu-media-opt4"><a href="javascript:void(0)" class="list-group-item" onclick="showTopics('side-menu-topics')" >+ Topic based</a>
 				<?php
 				try	{
@@ -99,11 +100,13 @@
 			</div>
 		</div></br>
 		<div class="row">
-			<div class="col-sm-2" id="side-qstn-cat" style="background-color:#F1F1F1;">
+			<div class="col-sm-2" id="side-qstn-cat">
+			<div id="fixed-div-layout">
 				<li class="side-menu"><a href="<?php echo $slashes_cur; ?>myposts">My Posts</a></li>
 				<li class="side-menu"><a href="<?php echo $slashes_cur; ?>relevant" >Relevant</a></li>
 				<li class="side-menu"><a href="<?php echo $slashes_cur; ?>upvoted" >Most upvoted</a></li>
 				<li class="side-menu"><a href="<?php echo $slashes_cur; ?>recent" >Recent </a></li>
+				<li class="side-menu"><a href="<?php echo $slashes_cur; ?>trending" >User activity based </a></li>
 				<li class="side-menu" id="side-menu-opt4"><a href="javascript:void(0)" onclick="showTopics('side-menu-topics')" >+ Topic based</a>
 					<?php
 					try	{
@@ -133,4 +136,5 @@
 					} 
 					?>
 				</li>
+			</div>
 			</div>
