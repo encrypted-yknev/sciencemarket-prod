@@ -189,7 +189,8 @@ while($start_qstn <= $end_qstn)	{
 				<div id="front-top-qstn-<?php echo $qid; ?>">
 				<?php
 					try	{
-						$sql_fetch_top_ans="select a.ans_id,
+						$sql_fetch_top_ans="select distinct
+												   a.ans_id,
 												   a.ans_desc,
 												   a.up_votes,
 												   a.down_votes,
@@ -289,7 +290,7 @@ while($start_qstn <= $end_qstn)	{
 									<button type="button" class="btn btn-primary" style="padding: 1px 2px;" 
 									onclick="addComment(2,<?php echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)">Comment</button></br></br>
 									
-									<div id="comment-area-front-<?php echo $ansid; ?>" style="margin-left:30px;margin-right:30px;border-left:2px solid #195971;background-color:#F7F7F7;border-top:1px solid #F3F3F3;border-bottom:1px solid #F3F3F3;border-right:1px solid #F3F3F3;">
+									<div class="comments-list" id="comment-area-front-<?php echo $ansid; ?>" style="">
 									<?php
 										try	{
 											$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid;
