@@ -90,7 +90,7 @@
 						<button type="button" class="btn btn-primary" style="padding: 1px 2px;" 
 						onclick="addComment(1,<?php echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)">Comment</button></br></br>
 						
-						<div id="comment-area-top-<?php echo $ansid; ?>" style="margin-left:30px;margin-right:30px;border-left:2px solid #195971;background-color:#F7F7F7;border-top:1px solid #F3F3F3;border-bottom:1px solid #F3F3F3;border-right:1px solid #F3F3F3;">
+						<div class="comments-list" id="comment-area-top-<?php echo $ansid; ?>" >
 						<?php
 							try	{
 								$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid;
