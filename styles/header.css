@@ -299,7 +299,9 @@ li	{
 	display:none;
 	border-radius:40px;
 	position:fixed;
-	bottom:10px;
+	bottom:20px;
 	right:10px;
 	z-index:3;
+	height:40px;
+	width:40px;
 }
