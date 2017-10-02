@@ -3,6 +3,12 @@ session_start();
 
 include "connectDb.php";
 include "forum/functions/get_time.php";
+function convert_utc_to_local($utc_timestamp)	{
+	$date_utc=new DateTime($utc_timestamp,new DateTimeZone('UTC'));
+	$date_utc->setTimeZone(new DateTimeZone($_COOKIE['user_tz']));
+	$date_final = $date_utc->format('Y-m-d H:i:s');
+	return $date_final;
+}
 $ans_desc=$_REQUEST["ans"];
 $qid=$_REQUEST["qid"];
 $posted_by=$_REQUEST["postedBy"];
@@ -20,6 +26,16 @@ if(!empty($ans_desc))	{
 		$stmt_post_ans->execute();
 		if($posted_by != $_SESSION['user'])	{
 			$notify_text = addslashes("<a href = 'qstn_ans.php?qid=".$qid."'  class='list-group-item'>".$_SESSION['user']." posted an answer to your question on <strong>".$qstn_title."</strong></a>");
+			
+			/* Build JSON for notification config 	*/
+			$myObj->post_type = "A";
+			$myObj->user_id = $_SESSION['user'];
+			$myObj->ans_config->ans_posted_by = $_SESSION['user'];
+			$myObj->qstn_config->qstn_id = $qid;
+			$myObj->qstn_config->qstn_posted_by = $posted_by;
+
+			$myJSON = json_encode($myObj);
+			/* end of build*/
 			try		{
 				$sql_push_notifications = "insert into notifications(notify_text,user_id,view_flag)
 											values ('".$notify_text."','".$posted_by."',0)";
