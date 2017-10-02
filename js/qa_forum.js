@@ -19,7 +19,7 @@ $(document).ready(function()	{
 	}
 }); 
 function getHeight()	{
-	var x=document.body.scrollTop;
+	var x=$(document).scrollTop();
 	if(x >= 52)	{
 		$("#header-container").css("position","fixed");
 		$("#header-container").css("width","100%");
@@ -614,6 +614,7 @@ function addComment(token,root,ansid,ans_posted_by,qid,qstn_posted_by)	{
 			beforeSend:function()	{
 			},
 			success:function(result)	{
+				document.getElementById(idRes).scrollTop=0;
 				$("#"+idRes).html(result);
 				document.getElementById(commentInpId).value="";
 				$("#"+commentInpId).removeAttr("disabled");
@@ -624,33 +625,86 @@ function addComment(token,root,ansid,ans_posted_by,qid,qstn_posted_by)	{
 }
 function showComment(token,ansid)	{
 	if(token == 0)	{
-		$("#comment-recent-"+ansid).toggle();
 		var query1 = $("#comment-recent-"+ansid).is(':visible');
 		if(query1)	{
-			$("#comment-recent-link-"+ansid).text("Hide comments");
+			$("#comment-recent-"+ansid).hide();
+			$("#comment-recent-link-"+ansid).text("Show comments");
 		}
 		else	{
-			$("#comment-recent-link-"+ansid).text("Show comments");
+			$("#comment-recent-"+ansid).show();
+			$("#comment-recent-link-"+ansid).text("Hide comments");
 		}
 	}
 	else if(token == 1)	{
-		$("#comment-top-"+ansid).toggle();
 		var query1 = $("#comment-top-"+ansid).is(':visible');
 		if(query1)	{
-			$("#comment-top-link-"+ansid).text("Hide comments");
+			$("#comment-top-"+ansid).hide();
+			$("#comment-top-link-"+ansid).text("Show comments");
 		}
 		else	{
-			$("#comment-top-link-"+ansid).text("Show comments");
+			$("#comment-top-"+ansid).show();
+			$("#comment-top-link-"+ansid).text("Hide comments");
 		}
 	}
 	else if(token == 2)	{
-		$("#comment-front-"+ansid).toggle();
 		var query1 = $("#comment-front-"+ansid).is(':visible');
 		if(query1)	{
-			$("#comment-link-"+ansid).text("Hide comments");
-		}
-		else	{
+			$("#comment-front-"+ansid).hide();
 			$("#comment-link-"+ansid).text("Show comments");
 		}
+		else	{
+			$("#comment-front-"+ansid).show();
+			$("#comment-link-"+ansid).text("Hide comments");
+		}
 	}
+}
+
+function loadMoreComments(token,root,ansid)	{
+	var childNodes="",cidList="";
+	if(token == 0)	{
+		childNodes=$("#comment-area-"+ansid+" .user-comment-sec").length;
+		cidList=document.getElementById("cid-recent-section-"+ansid).value;
+	}
+	else if(token == 1)	{
+		childNodes=$("#comment-area-top-"+ansid+" .user-comment-sec").length;
+		cidList=document.getElementById("cid-top-section-"+ansid).value;
+	}
+	else if(token == 2)	{
+		childNodes=$("#comment-area-front-"+ansid+" .user-comment-sec").length;
+		cidList=document.getElementById("cid-front-section-"+ansid).value;
+	}
+	$.ajax({
+		type:"post",
+		url:root+"fetch_comments.php",
+		data:
+		{
+			"flag":token,
+			"ansid":ansid,
+			"cid_list":cidList,
+			"element_count":childNodes
+		},
+		success:function(res)	{
+			if(token == 0)	{
+				if(res==0)	{
+					$("#comment-load-recent-text-"+ansid).hide();
+				}
+				else
+					$("#comment-area-"+ansid).append(res);
+			}
+			if(token == 1)	{
+				if(res==0)	{
+					$("#comment-load-top-text-"+ansid).hide();
+				}
+				else
+					$("#comment-area-top-"+ansid).append(res);
+			}
+			if(token == 2)	{
+				if(res==0)	{
+					$("#comment-load-front-text-"+ansid).hide();
+				}
+				else
+					$("#comment-area-front-"+ansid).append(res);
+			}
+		}
+	});
 }
