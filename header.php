@@ -1,9 +1,6 @@
 <?php
-/* session_start();
-if(!$_SESSION["logged_in"])	{
-	echo "Please login </br>";
-	header("location:login.php");
-} */
+if(isset($_COOKIE['user_tz']))
+	date_default_timezone_set($_COOKIE['user_tz']);
 
 include "connectDb.php";
 function get_color()	{
@@ -20,6 +17,13 @@ function get_color()	{
 		case 9: return "#8E44AD";
 		case 10: return "#2E4053";
 	}
+}
+
+function convert_utc_to_local($utc_timestamp)	{
+	$date_utc=new DateTime($utc_timestamp,new DateTimeZone('UTC'));
+	$date_utc->setTimeZone(new DateTimeZone($_COOKIE['user_tz']));
+	$date_final = $date_utc->format('Y-m-d H:i:s');
+	return $date_final;
 }
 
 $url_path = $_SERVER['PHP_SELF'];
@@ -85,4 +89,4 @@ else if($count_slash==4)
 		<span>No results</span>
 	</div>
 </div>
-<button id = "go-top-btn" class="btn btn-primary" onclick="window.scrollTo(0,0)">△</button>
+<button id = "go-top-btn" class="btn btn-primary" onclick="window.scrollTo(0,0)">&#9650;</button>
