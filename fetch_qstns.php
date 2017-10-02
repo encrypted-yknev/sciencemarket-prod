@@ -4,7 +4,12 @@ session_start();
 include "connectDb.php";
 include "forum/functions/get_time.php";
 include "forum/functions/get_time_offset.php";
-
+function convert_utc_to_local($utc_timestamp)	{
+	$date_utc=new DateTime($utc_timestamp,new DateTimeZone('UTC'));
+	$date_utc->setTimeZone(new DateTimeZone($_COOKIE['user_tz']));
+	$date_final = $date_utc->format('Y-m-d H:i:s');
+	return $date_final;
+}
 $qstn_list="";
 if(isset($_REQUEST['qstn_list']))	{
 	$qstn_list=explode("|",$_REQUEST['qstn_list']);
@@ -99,7 +104,7 @@ while($start_qstn <= $end_qstn)	{
 				</div>
 				<div class="auth-section">
 					<?php
-						echo $posted_by." . ".get_user_date($created_ts);
+						echo $posted_by." . ".get_user_date(convert_utc_to_local($created_ts));
 					?>
 				</div></br>
 				<a class="titl-link" href="<?php echo $slashes.'qstn_ans.php?qid='.$qid ?>"><?php echo $row["qstn_titl"]; ?></a>&emsp;
@@ -299,7 +304,7 @@ while($start_qstn <= $end_qstn)	{
 												$comment=$row_cmnt['comment_desc'];
 												$posted_by=$row_cmnt['posted_by'];
 												$created_ts = $row_cmnt['created_ts'];
-												echo '<div class="user-comment-sec" id="comment-front-'.$comment_id.'">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date($created_ts).'</span></div>';
+												echo '<div class="user-comment-sec" id="comment-front-'.$comment_id.'">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
 											}
 										}
 										catch(PDOException $e)	{
