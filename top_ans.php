@@ -28,7 +28,7 @@
 						<div class="photo-ans-sec" style="background-image:url('<?php echo $ans_user_pic; ?>'); background-size:cover;"></div>
 							
 						<div class="auth-text-section">
-							<?php echo '<strong>'.$ans_user.'</strong> - <span class="time-sec">'.get_user_date($ans_ts).'</span>'; ?></br>
+							<?php echo '<strong>'.$ans_user.'</strong> - <span class="time-sec">'.get_user_date(convert_utc_to_local($ans_ts)).'</span>'; ?></br>
 						</div></br>
 						<div class="ans-text-section"><?php echo $ans."</br>"; ?></div></br>
 						<?php 
@@ -87,26 +87,52 @@
 						onkeypress=""/>
 						
 						</br>
-						<button type="button" class="btn btn-primary" style="padding: 1px 2px;" 
+						<button type="button" class="btn btn-primary" style="padding: 2px 2px; font-size:12px;"
 						onclick="addComment(1,<?php echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)">Comment</button></br></br>
 						
 						<div class="comments-list" id="comment-area-top-<?php echo $ansid; ?>" >
 						<?php
 							try	{
-								$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid;
-								foreach($conn->query($sql_fetch_comment) as $row_cmnt)	{
-									$comment_id=$row_cmnt['comment_id'];
-									$comment=$row_cmnt['comment_desc'];
-									$posted_by=$row_cmnt['posted_by'];
-									$created_ts = $row_cmnt['created_ts'];
-									echo '<div class="user-comment-sec" id="comment-top-'.$comment_id.'">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date($created_ts).'</span></div>';
+								$comment_array=array();
+								$comment_id_str="";
+								$sql_fetch_comment_ids="select comment_id from comments where ans_id=".$ansid." order by created_ts desc";
+								$stmt_fetch_comment_ids=$conn->prepare($sql_fetch_comment_ids);
+								$stmt_fetch_comment_ids->execute();
+								if($stmt_fetch_comment_ids->rowCount() > 0)	{
+									while($row = $stmt_fetch_comment_ids->fetch())	{
+										$cmt_id=$row['comment_id'];
+										array_push($comment_array,$cmt_id);
+									}
+									$comment_id_str=implode("|",$comment_array);
+								}
+								
+								$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid." order by created_ts desc limit 5";
+								$stmt_fetch_comment=$conn->prepare($sql_fetch_comment);
+								$stmt_fetch_comment->execute();
+								if($stmt_fetch_comment->rowCount() > 0)	{
+									while($row_cmnt = $stmt_fetch_comment->fetch())	{
+										$comment_id=$row_cmnt['comment_id'];
+										$comment=$row_cmnt['comment_desc'];
+										$posted_by=$row_cmnt['posted_by'];
+										$created_ts = $row_cmnt['created_ts'];
+										echo '<div class="user-comment-sec" id="comment-list-top-'.$comment_id.'">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
+									}
+								}
+								else	{
+									echo "No comments in this answer yet";
 								}
 							}
 							catch(PDOException $e)	{
 								echo "Internal server error";
 							}
 						?>
-						</div>
+						</div></br>
+						<?php
+						$comment_count = $stmt_fetch_comment_ids->rowCount();
+						if($comment_count > 5)
+							echo "<span id='comment-load-top-text-".$ansid."' href='javascript:void(0)' onclick='loadMoreComments(1,\"".$slashes."\",".$ansid.")' class='show-comment-text'>View more comments</span>";
+						?>
+						<input id="cid-top-section-<?php echo $ansid; ?>" type="hidden" value="<?php echo $comment_id_str; ?>"/>
 					</div></br>
 						
 					</div>
