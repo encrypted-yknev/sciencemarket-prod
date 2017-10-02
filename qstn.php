@@ -5,7 +5,6 @@ if(!$_SESSION["logged_in"])	{
 }
 
 include "connectDb.php";
-date_default_timezone_set("Europe/London");
 $message="";
 
 $q_topic_id=$q_titl=$q_desc=$topic_id="";
