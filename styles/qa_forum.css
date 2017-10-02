@@ -99,7 +99,7 @@
 .toggle-ans-sec,.toggle-top-ans-sec	{
 	display:none;
 	overflow-y:scroll;
-	max-height:350px;
+	max-height:450px;
 }
 .ans-hidden-sec,.ans-front-hidden-sec,.ans-hidden-top-sec{
 	background-color:#FDFDFD;
@@ -279,6 +279,7 @@
 	padding-bottom:3px;
 	font-size:12px;
 	/*margin-top:10px;*/
+	border:2px solid #fff;
 }
 
 .comment-section	{
@@ -301,4 +302,13 @@
 	border-top:1px solid #F3F3F3;
 	border-bottom:1px solid #F3F3F3;
 	border-right:1px solid #F3F3F3;
+	max-height:220px;
+	overflow-y:auto;
+}
+
+.show-comment-text	{
+	font-size:13px;
+	cursor:pointer;
+	color:#337ab7;
+	
 }
