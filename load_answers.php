@@ -56,7 +56,6 @@ function get_user_date($time)	{
 	
 }
 function get_time_diff($timestamp_ans)	{
-	date_default_timezone_set("Asia/Kolkata");
 	$timestamp_cur=date("Y-m-d H:i:sa");
 	
 	$year1=substr($timestamp_ans,0,4);
@@ -192,7 +191,7 @@ try	{
 	<div class="ans-section" id="user-answer-<?php echo $ansid; ?>">
 		<div class="ans-user-img" style="background-image:url('<?php echo $image; ?>'); background-size:cover;"></div>
 		<div class="auth-time-section">
-			<?php echo $postedby." ".get_user_date($createdts); ?>
+			<?php echo $postedby." ".get_user_date(convert_utc_to_local($createdts)); ?>
 		</div>
 		</br>
 		<div class="main-ans-block">
