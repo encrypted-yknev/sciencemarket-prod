@@ -5,6 +5,12 @@ if(!$_SESSION["logged_in"])	{
 	header("location:login.php");
 }
 include "connectDb.php";
+function convert_utc_to_local($utc_timestamp)	{
+	$date_utc=new DateTime($utc_timestamp,new DateTimeZone('UTC'));
+	$date_utc->setTimeZone(new DateTimeZone($_COOKIE['user_tz']));
+	$date_final = $date_utc->format('Y-m-d H:i:s');
+	return $date_final;
+}
 function get_user_date($time)	{
 	$date = substr($time,8,2);
 	$month = substr($time,5,2);
@@ -134,12 +140,12 @@ catch(PDOException $e)	{
 }
 
 try	{
-	$sql_fetch_comment="select comment_desc,posted_by,created_ts from comments where ans_id=".$ans_id;
+	$sql_fetch_comment="select comment_desc,posted_by,created_ts from comments where ans_id=".$ans_id." order by created_ts desc";
 	foreach($conn->query($sql_fetch_comment) as $row_cmnt)	{
 		$comment=$row_cmnt['comment_desc'];
 		$posted_by=$row_cmnt['posted_by'];
 		$created_ts=$row_cmnt['created_ts'];
-		echo '<div class="user-comment-sec">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date($created_ts).'</span></div>';
+		echo '<div class="user-comment-sec">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
 	}
 }
 catch(PDOException $e)	{
