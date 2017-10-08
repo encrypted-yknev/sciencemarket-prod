@@ -8,7 +8,6 @@ include "forum/functions/get_time.php";
 
 
 function get_time_diff($timestamp_ans)	{
-	date_default_timezone_set("Asia/Kolkata");
 	$timestamp_cur=date("Y-m-d H:i:sa");
 	
 	$year1=substr($timestamp_ans,0,4);
@@ -255,26 +254,44 @@ catch(PDOException	$e)	{
 					}
 					$query_string=substr($query_string,0,strlen($query_string)-1);
 					if(strlen(trim($query_string)) != 0)	{
-						$sql="select distinct
-									 a.qstn_id,
+						$sql="select t.qstn_id,
+									 t.qstn_titl,
+									 t.qstn_desc,
+									 t.posted_by,
+									 t.up_votes,
+									 t.down_votes,
+									 t.topic_id,
+									 t.created_ts,
+									(case when t.answer_ts >= t.comment_ts then t.answer_ts
+											else t.comment_ts
+									   end) score	
+							from 
+							(select  a.qstn_id,
 									 a.qstn_titl,
 									 a.qstn_desc,
 									 a.posted_by,
 									 a.up_votes,
 									 a.down_votes,
 									 a.topic_id,
-									 a.created_ts 
+									 a.created_ts,
+									coalesce(max(UNIX_TIMESTAMP(d.created_ts)),0) as answer_ts,
+									coalesce(max(UNIX_TIMESTAMP(e.created_ts)),0) as comment_ts
 							 from questions a 
 							   inner join qstn_tags b
 							   on a.qstn_id=b.qstn_id
 							   inner join tags c 
 							   on b.tag_id=c.tag_id 
+							   left outer join answers d 
+							   on d.qstn_id = a.qstn_id 
+							   left outer join comments e 
+							   on e.ans_id = d.ans_id
 							   where a.posted_by <> '".$_SESSION['user']."' and
 							   (c.tag_name REGEXP ('".$query_string."')
 							   or a.qstn_titl REGEXP ('".$query_string."')
 							   or a.qstn_desc REGEXP ('".$query_string."'))
-							   
-							   order by a.created_ts desc";
+							   group by a.qstn_id 
+							   order by a.created_ts desc) t
+							   order by score desc";
 							   
 								include "forum/fetch_answers1.php";
 								if($stmt->rowCount() <=0)	{
@@ -296,6 +313,18 @@ catch(PDOException	$e)	{
 			<div class="col-sm-4">
 				<div id="notification-section">
 					<div id="notify-caption"><strong>Notifications</strong></div></br>
+					<div id="notify-header">
+						<table>
+							<th>
+								<td id="notify-col1" class="table-notify-header" >
+									<span id="notify-count-text"><strong><span id="notify-read-count"></span> unread notifcations</strong></span>
+								</td>
+								<td class="table-notify-header" >
+									<button id="read-button" class="btn btn-primary" onclick="updateNotify(-1)">Mark all read</button>
+								</td>
+							</th>
+						</table>
+					</div></br>
 					<div id="show-notify-section"></div>
 				</div></br>
 				<!--
