@@ -49,14 +49,16 @@ else if($count_slash==4)
 						}
 						
 						try	{
-							$sql_fetch_votes="select pro_img_url,up_votes,down_votes from users where user_id='".$posted_by."'";
+							$sql_fetch_votes="select description,disp_name,pro_img_url,up_votes,down_votes from users where user_id='".$posted_by."'";
 							foreach($conn->query($sql_fetch_votes) as $row_user)
 								$img_url=$slashes.$row_user["pro_img_url"];
 								$up_user_votes=$row_user["up_votes"];
 								$down_user_votes=$row_user["down_votes"];
+								$disp_name = $row_user['disp_name'];
+								$desc = $row_user['description'];
 						}
 						catch(PDOException	$e)	{
-							echo "Error fetching user votes!</br>";
+							
 						}
 					
 					?>
@@ -66,9 +68,113 @@ else if($count_slash==4)
 				</div>
 				<div class="auth-section">
 					<?php
-						echo $posted_by." . ".get_user_date($created_ts);
+						echo "<span id='qstn-posted-".$qid."' onmouseover='showUserCard(0,".$qid.")'>".$posted_by."</span> . ".
+						get_user_date(convert_utc_to_local($created_ts));
 					?>
 				</div></br>
+				<div class="user-card-section" id="user-card-<?php echo $qid; ?>" onmouseover="showUserCard(2,<?php echo $qid; ?>)" onmouseout="showUserCard(1,<?php echo $qid; ?>)">
+					<div class="user-card-image" style="background-image:url('<?php echo $img_url; ?>'); background-size:cover;" >
+					</div>
+					<div class="user-name-card">
+						<span><strong><?php echo $disp_name; ?></strong></span>
+						<span style="font-size:12px;">(<?php echo $posted_by; ?>)</span>
+					</div>
+					<div class="card-top-bar"></div></br>
+					<!--<p class="about-user-card"><?php #echo $desc; ?></p>
+					<div class="card-more-text"><a class="">more</a></div></br>-->
+					<div class="vote-section-card">
+						<div class="vote-up-card">
+							<div class="upvote-logo"></div>&nbsp;
+							<span class="vote-count-section" style="font-size:12px;"><strong><?php echo $up_user_votes; ?></strong></span>
+						</div>
+						
+						<div class="vote-down-card">
+							<div class="downvote-logo"></div>&nbsp;
+							<span class="vote-count-section" style="font-size:12px;"><strong><?php echo $down_user_votes; ?></strong></span>
+						</div>
+						<div class="line-follow-card">
+							<div class="follow-logo"></div>&nbsp;
+							<span class="vote-count-section" style="font-size:12px;">
+								<strong>
+								<?php 
+								try	{
+									$sql_count_followers="select count(1) as cnt_follower from followers where following_user_id='".$posted_by."'";
+									foreach($conn->query($sql_count_followers) as $row_cnt_follow)
+										$cnt_folow=$row_cnt_follow['cnt_follower'];
+								}
+								catch(PDOException $e)	{
+									
+								}
+								echo $cnt_folow.($cnt_folow>1?' followers':" follower"); ?>
+								</strong>
+							</span>
+						</div><br>
+					</div></br>
+					<div class="interest-user-card">
+					<?php
+						try	{
+							$sql_fetch_interest = "select tag_name from tags t1 inner join user_tags t2
+													on t1.tag_id = t2.tag_id 
+													where t2.user_id = '".$posted_by."'";
+							$stmt_fetch_interest = $conn->prepare($sql_fetch_interest);
+							$stmt_fetch_interest->execute();
+							
+							if($stmt_fetch_interest->rowCount() > 0)	{
+								echo 'Interests - ';
+								while($row_interest=$stmt_fetch_interest->fetch())	{
+									echo "<span class='badge interest-badge'>".$row_interest['tag_name']."</span>&nbsp;";
+								}
+								
+							}
+							else	{
+								echo "No interests added";
+							}
+						}
+						catch(PDOException $e)	{
+							
+						}
+					?>
+					</div></br>
+					
+					<div class="follow-user-card">
+						<?php
+						try	{
+								$sql_check_follower = "select count(1) as count from followers where user_id='".$_SESSION['user']."' and following_user_id='".$posted_by."'";
+								$stmt_check_follower = $conn->prepare($sql_check_follower);
+								$stmt_check_follower->execute();
+								$row_user_count = $stmt_check_follower->fetch();
+								$count_follower = $row_user_count['count'];
+								if($count_follower > 0)	{
+									$follow_class="btn btn-primary disabled btn-disabled";
+									$unfollow_class="btn btn-danger";
+									$is_follower=1;
+									$click_attr_fol="";
+									$click_attr_unfol="onclick='updateFollower(\"".$posted_by."\",1,".$qid.")'";
+								}
+								else	{
+									$follow_class="btn btn-primary";
+									$unfollow_class="btn btn-danger disabled btn-disabled";
+									$is_follower=0;	
+									$click_attr_fol="onclick='updateFollower(\"".$posted_by."\",0,".$qid.")'";
+									$click_attr_unfol="";
+								}
+							}
+							catch(PDOException $e)	{
+								
+							}
+							?>
+							<button id="follow-<?php echo $qid; ?>" type="button" class="<?php echo $follow_class; ?>"<?php echo$click_attr_fol; ?>>Follow</button>&emsp;
+							<button id="unfollow-<?php echo $qid; ?>" type="button" class="<?php echo $unfollow_class; ?>" <?php echo$click_attr_unfol; ?>>UnFollow</button>
+					</div></br>
+					<div class="follow-msg-section" id="follow-message-<?php echo $qid; ?>"></div></br>
+					<!--
+					<div class="vote-data-card">
+						<span class="label label-success label-text">Upvotes&nbsp;<span style="background-color:#fff;color:#5cb85c;margin:2px;padding:1px;"><?php #echo $up_user_votes; ?></span></span>
+						<span class="label label-danger label-text">Downvotes&nbsp;<span style="background-color:#fff;color:#d9534f;margin:2px;padding:1px;"><?php #echo $down_user_votes; ?></span></span>
+					</div>-->
+				</div>
+				
+				</br>
 				<a class="titl-link" href="<?php echo $slashes.'qstn_ans.php?qid='.$qid ?>"><?php echo $row["qstn_titl"]; ?></a>&emsp;
 				<span id="qstn-ans-count"></span>
 				<p id="qstn-desc"><?php echo $row["qstn_desc"]; ?></p>
@@ -194,7 +300,7 @@ else if($count_slash==4)
 									<div class="photo-ans-sec" style="background-image:url('<?php echo $ans_user_pic; ?>'); background-size:cover;"></div>
 										
 									<div class="auth-text-section">
-										<?php echo '<strong>'.$ans_user.'</strong> - <span class="time-sec">'.get_user_date($ans_ts).'</span>'; ?></br>
+										<?php echo '<strong>'.$ans_user.'</strong> - <span class="time-sec">'.get_user_date(convert_utc_to_local($ans_ts)).'</span>'; ?></br>
 									</div></br>
 									<div class="ans-text-section"><?php echo $ans."</br>"; ?></div></br>
 									<?php 
@@ -254,27 +360,55 @@ else if($count_slash==4)
 									onkeypress=""/>
 									
 									</br>
-									<button type="button" class="btn btn-primary" style="padding: 1px 2px;" 
+									<button type="button" class="btn btn-primary" style="padding: 2px 2px; font-size:12px;"
 									onclick="addComment(2,<?php echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)">Comment</button></br></br>
 									
 									<div class="comments-list" id="comment-area-front-<?php echo $ansid; ?>" >
 									<?php
 										try	{
-											$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid;
-											foreach($conn->query($sql_fetch_comment) as $row_cmnt)	{
-												$comment_id=$row_cmnt['comment_id'];
-												$comment=$row_cmnt['comment_desc'];
-												$posted_by=$row_cmnt['posted_by'];
-												$created_ts = $row_cmnt['created_ts'];
-												echo '<div class="user-comment-sec" id="comment-front-'.$comment_id.'">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date($created_ts).'</span></div>';
+											$comment_array=array();
+											$comment_id_str="";
+											$sql_fetch_comment_ids="select comment_id from comments where ans_id=".$ansid." order by created_ts desc";
+											$stmt_fetch_comment_ids=$conn->prepare($sql_fetch_comment_ids);
+											$stmt_fetch_comment_ids->execute();
+											if($stmt_fetch_comment_ids->rowCount() > 0)	{
+												while($row = $stmt_fetch_comment_ids->fetch())	{
+													$cmt_id=$row['comment_id'];
+													array_push($comment_array,$cmt_id);
+												}
+												$comment_id_str=implode("|",$comment_array);
+											}
+											
+											$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where 	ans_id=".$ansid." order by created_ts desc limit 5";
+											$stmt_fetch_comment=$conn->prepare($sql_fetch_comment);
+											$stmt_fetch_comment->execute();
+											
+											if($stmt_fetch_comment->rowCount() > 0)	{
+												while($row_cmnt = $stmt_fetch_comment->fetch())	{
+													$comment_id=$row_cmnt['comment_id'];
+													$comment=$row_cmnt['comment_desc'];
+													$cmnt_posted_by=$row_cmnt['posted_by'];
+													$created_ts = $row_cmnt['created_ts'];
+													echo '<div class="user-comment-sec" id="comment-list-front-'.$comment_id.'">'.$comment.' - <strong>'.$cmnt_posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
+												}
+											}
+											else	{
+												echo "No comments in this answer yet";
 											}
 										}
 										catch(PDOException $e)	{
 											echo "Internal server error";
 										}
 									?>
-									</div>
-								</div></br>									
+									</div></br>
+									<?php
+									$comment_count = $stmt_fetch_comment_ids->rowCount();
+									if($comment_count > 5)
+										echo "<span id='comment-load-front-text-".$ansid."' href='javascript:void(0)' onclick='loadMoreComments(2,\"".$slashes."\",".$ansid.")' class='show-comment-text'>View more comments</span>";
+									?>
+									<input id="cid-front-section-<?php echo $ansid; ?>" type="hidden" value="<?php echo $comment_id_str; ?>"/>
+								</div>
+								</br>									
 								</div>
 								<?php
 							}
