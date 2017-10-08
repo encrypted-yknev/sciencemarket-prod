@@ -113,9 +113,9 @@
 									while($row_cmnt = $stmt_fetch_comment->fetch())	{
 										$comment_id=$row_cmnt['comment_id'];
 										$comment=$row_cmnt['comment_desc'];
-										$posted_by=$row_cmnt['posted_by'];
+										$cmnt_posted_by=$row_cmnt['posted_by'];
 										$created_ts = $row_cmnt['created_ts'];
-										echo '<div class="user-comment-sec" id="comment-list-recent-'.$comment_id.'">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
+										echo '<div class="user-comment-sec" id="comment-list-recent-'.$comment_id.'">'.$comment.' - <strong>'.$cmnt_posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
 									}
 								}
 								else	{
