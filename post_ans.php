@@ -24,35 +24,33 @@ if(!empty($ans_desc))	{
 						values ('".$user_ans."',".$qid.",'".$_SESSION["user"]."')";
 		$stmt_post_ans = $conn->prepare($sql_ans_ins);
 		$stmt_post_ans->execute();
+		
+		/* Build JSON for notification config for user who posted the question 	*/
+			$myObj=array();
+			$myObj["post_type"] = "A";
+			$myObj["user_id"] = $_SESSION['user'];
+			$myObj["ans_config"]["ans_posted_by"] = $_SESSION['user'];
+			$myObj["qstn_config"]["qstn_id"] = $qid;
+			$myObj["qstn_config"]["qstn_posted_by"] = $posted_by;
+
+			$myJSON = json_encode($myObj);
+		/* end of build*/
+		
 		if($posted_by != $_SESSION['user'])	{
 			$notify_text = addslashes("<a href = 'qstn_ans.php?qid=".$qid."'  class='list-group-item'>".$_SESSION['user']." posted an answer to your question on <strong>".$qstn_title."</strong></a>");
 			
-			/* Build JSON for notification config 	*/
-			$myObj->post_type = "A";
-			$myObj->user_id = $_SESSION['user'];
-			$myObj->ans_config->ans_posted_by = $_SESSION['user'];
-			$myObj->qstn_config->qstn_id = $qid;
-			$myObj->qstn_config->qstn_posted_by = $posted_by;
-
-			$myJSON = json_encode($myObj);
-			/* end of build*/
-			try		{
-				$sql_push_notifications = "insert into notifications(notify_text,user_id,view_flag)
-											values ('".$notify_text."','".$posted_by."',0)";
-				$stmt_push_notify = $conn->prepare($sql_push_notifications);
-				$stmt_push_notify->execute();
-				if($stmt_push_notify->rowCount() > 0)	{
-					#$check=true;
-					include "disp_ans_enter.php";
-				}
-				else	{
-					#$check=false;
-					#include "disp_ans_enter.php";
-					echo 0;
-				}
+			$sql_push_notifications = "insert into notifications(notify_confg,user_id,view_flag)
+										values ('".$myJSON."','".$posted_by."',0)";
+			$stmt_push_notify = $conn->prepare($sql_push_notifications);
+			$stmt_push_notify->execute();
+			if($stmt_push_notify->rowCount() > 0)	{
+				#$check=true;
+				include "disp_ans_enter.php";
 			}
-			catch(PDOException $e)	{
-				
+			else	{
+				#$check=false;
+				#include "disp_ans_enter.php";
+				echo 0;
 			}
 		}
 		else	{
@@ -82,9 +80,10 @@ if(!empty($ans_desc))	{
 			$stmt_final_remove->execute();
 		}	
 		/* end of delete */
+		
 		$notify_text = addslashes("<a href = 'qstn_ans.php?qid=".$qid."' class='list-group-item'><strong>".$_SESSION['user']."</strong> also posted an answer on <strong>".$posted_by."'s</strong> question on <strong>".$qstn_title."</strong></a>");
-		$sql_push_notifications_1 = "insert into notifications(notify_text,user_id,view_flag)
-								   select distinct '".$notify_text."',posted_by,0 from answers where qstn_id = ".$qid." and posted_by <> '".$_SESSION['user']."'";
+		$sql_push_notifications_1 = "insert into notifications(notify_confg,user_id,view_flag)
+								   select distinct '".$myJSON."',posted_by,0 from answers where qstn_id = ".$qid." and posted_by <> '".$_SESSION['user']."' and posted_by <> '".$posted_by."'";
 		$stmt_push_notifications_1 = $conn->prepare($sql_push_notifications_1);
 		$stmt_push_notifications_1->execute();
 	}
