@@ -30,7 +30,31 @@
 	}); */
 }); 
 
+function updateNotify(notify_id)	{
 	
+	$.ajax({
+		type:"post",
+		url:"notifications.php",
+		data:
+		{
+			"notify_typ":"UPDATE",
+			"notify_id":notify_id
+		},
+		success:function(res)	{
+			if(res==1)	{
+				if(notify_id != -1)		{
+					$("#notify-message-"+notify_id).removeClass("list-view-on");
+					var countEle = $("#show-notify-section .list-view-on").length;
+					$("#notify-read-count").html(countEle);
+				}
+				else	{
+					//$(".list-group.item").removeClass("list-view-on");
+					$("#notify-read-count").html(0);
+				}
+			}
+		}
+	});
+}	
 function loadNotify()	{
 	$(document).ready(function()	{
 		$.ajax({
@@ -43,6 +67,8 @@ function loadNotify()	{
 			success:function(result)	{
 				$("#show-notify-section").html(result);
 				$("#show-notify-section-mobile").html(result);
+				var countEle = $("#show-notify-section .list-view-on").length;
+				$("#notify-read-count").html(countEle);
 			}
 		});
 	});
