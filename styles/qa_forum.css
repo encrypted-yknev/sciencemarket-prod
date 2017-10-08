@@ -312,3 +312,118 @@
 	color:#337ab7;
 	
 }
+
+.user-card-section	{
+	min-width:300px;
+	max-width:300px;
+	max-height:250px;
+	overflow-x:auto;
+	overflow-y:auto;
+	position:absolute;
+	/*top:10px;
+	left:100px;*/
+	background-color:rgba(255,255,255,1);
+	display:none;
+	border:1px solid #ddd;
+	z-index:100;
+    box-shadow: 0 0 10px 0 #ababab;
+}
+
+.user-card-image	{
+	width:40px;
+	height:40px;
+	border-radius:30px;
+	float:left;
+	margin-left:10px;
+	margin-top:5px;
+}
+.user-name-card	{
+	color:#fff;
+	margin-left:10px;
+	margin-top:5px;
+	float:left;
+}
+
+.card-top-bar	{
+	background-color:#008CBA;
+	height:30px;
+}
+
+.interest-user-card	{
+	text-align:center;
+	font-size:13px;
+	margin-left:10px;
+}
+.about-user-card{
+	text-align:center;
+	font-size:12px;
+	float:left;
+	width:200px;
+	margin-left:20px;
+	margin-right:20px;
+	white-space: nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+.card-more-text	{
+	float:left;
+	font-size:12px;
+}
+
+.vote-data-card	{
+	text-align:center;
+}
+
+.label-text	{
+	height:20px;
+}
+
+.interest-badge	{
+	background-color:#17A589 !important;
+	border-radius:2px !important;
+}
+
+.upvote-logo,.downvote-logo,.follow-logo	{
+	width:20px;
+	height:20px;
+	border-radius:20px;
+	float:left;
+}
+.vote-up-card,.vote-down-card,.line-follow-card	{
+	float:left;
+	text-align:center;
+	margin-left:10px;
+	margin-right:auto;
+}
+.upvote-logo	{
+	background-color:#BEFFA6;
+}
+.downvote-logo	{
+	background-color:#FFB5B5;
+}
+.follow-logo	{	
+	background-color:#AAE8FF;
+}
+
+.vote-section-card	{
+	text-align:center;
+	margin-left:auto;
+	margin-right:auto;
+}
+.follow-user-card{
+	text-align:center;
+}
+.follow-user-card button	{
+	font-size:12px;
+	padding:1px 5px;
+	text-align:center;
+}
+.btn-disabled	{
+	background-color:#ddd !important;
+	border:none !important;
+}
+
+.follow-msg-section	{
+	text-align:center;
+	font-size:12px;
+}
