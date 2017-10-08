@@ -708,3 +708,41 @@ function loadMoreComments(token,root,ansid)	{
 		}
 	});
 }
+
+function showUserCard(token,qid)	{
+	if(token == 0)	{
+		$("#user-card-"+qid).fadeIn(200);
+	}
+	else if(token == 1)	{
+		$("#user-card-"+qid).delay(300).fadeOut('fast');
+	}
+	else if(token == 2)	{
+		$("#user-card-"+qid).stop(true,false).show();
+	}
+} 
+function updateFollower(userid,flag,id)	{
+	$.ajax({
+		type:"post",
+		url:"updt_follower.php",
+		data:
+		{
+			"user_id":userid,
+			"flag":flag
+		},
+		success:function(result)	{
+			if(flag == 0)	{
+				$("#unfollow-"+id).removeClass("disabled btn-disabled");
+				$("#follow-"+id).addClass("disabled btn-disabled");
+				$("#follow-"+id).removeAttr("onclick");
+				$("#unfollow-"+id).attr("onclick","updateFollower('"+userid+"',1,'"+id+"')");
+			}
+			else if(flag == 1)	{
+				$("#follow-"+id).removeClass("disabled btn-disabled");
+				$("#unfollow-"+id).addClass("disabled btn-disabled");
+				$("#follow-"+id).attr("onclick","updateFollower('"+userid+"',0,'"+id+"')");
+				$("#unfollow-"+id).removeAttr("onclick");
+			}
+			$("#follow-message-"+id).html(result);
+		}
+	});
+}
