@@ -82,15 +82,29 @@ try	{
 	
 	$notify_text = addslashes("<a href = 'qstn_ans.php?qid=".$qid."#user-answer-".$ans_id."' class='list-group-item'><strong>".$_SESSION['user']."</strong> commented on your answer</a>");
 	$notify_text_qstn = addslashes("<a href = 'qstn_ans.php?qid=".$qid."#user-answer-".$ans_id."' class='list-group-item'><strong>".$_SESSION['user']."</strong> commented on <strong>".$posted_by."'s</strong> answer for your question on <strong>".$qstn_titl."</strong></a>");
+	
+	/* Build JSON for notification config for users who posted that question 	*/
+		$myObj=array();
+		$myObj["post_type"] = "C";
+		$myObj["user_id"] = $_SESSION['user'];
+		$myObj["ans_config"]["ans_id"] = $ans_id;
+		$myObj["ans_config"]["ans_posted_by"] = $posted_by;
+		$myObj["qstn_config"]["qstn_id"] = $qid;
+		$myObj["qstn_config"]["qstn_posted_by"] = $q_post_by;
+		$myJSON = json_encode($myObj);
+	/* end of build*/
+	
 	try		{
-		/* push notification for user who posted the answer */
+		/* push notification for user who posted the answer and question */
 		if($posted_by != $_SESSION['user'])	{
-			$sql_push_notifications = "insert into notifications(notify_text,user_id,view_flag)
-									   values('".$notify_text."','".$posted_by."',0)";
-			$sql_push_notifications_q = "insert into notifications(notify_text,user_id,view_flag)
-									   values('".$notify_text_qstn."','".$q_post_by."',0)";
+			$sql_push_notifications = "insert into notifications(notify_confg,user_id,view_flag)
+									   values('".$myJSON."','".$posted_by."',0)";
 			$stmt_push_notifications = $conn->prepare($sql_push_notifications);
 			$stmt_push_notifications->execute();
+		}
+		if($q_post_by != $_SESSION['user'] and $q_post_by != $posted_by)	{
+			$sql_push_notifications_q = "insert into notifications(notify_confg,user_id,view_flag)
+									   values('".$myJSON."','".$q_post_by."',0)";
 			$stmt_push_notifications_q = $conn->prepare($sql_push_notifications_q);
 			$stmt_push_notifications_q->execute();
 		}
@@ -109,9 +123,11 @@ try	{
 			$stmt_final_remove->execute();
 		}	
 		/* end of delete */
+		
 		$notify_text = addslashes("<a href = 'qstn_ans.php?qid=".$qid."#user-answer-".$ans_id."' class='list-group-item'><strong>".$_SESSION['user']."</strong> also commented on <strong>".$posted_by."'s</strong> answer</a>");
-		$sql_push_notifications_1 = "insert into notifications(notify_text,user_id,view_flag)
-								   select distinct '".$notify_text."',posted_by,0 from comments where ans_id = ".$ans_id." and posted_by <> '".$_SESSION['user']."'";
+		
+		$sql_push_notifications_1 = "insert into notifications(notify_confg,user_id,view_flag)
+								   select distinct '".$myJSON."',posted_by,0 from comments where ans_id = ".$ans_id." and posted_by <> '".$_SESSION['user']."' and posted_by <> '".$posted_by."' and posted_by <> '".$q_post_by."'";
 		$stmt_push_notifications_1 = $conn->prepare($sql_push_notifications_1);
 		$stmt_push_notifications_1->execute();
 			
