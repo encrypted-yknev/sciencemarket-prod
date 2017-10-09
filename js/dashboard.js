@@ -48,7 +48,8 @@ function updateNotify(notify_id)	{
 					$("#notify-read-count").html(countEle);
 				}
 				else	{
-					//$(".list-group.item").removeClass("list-view-on");
+					/*if ($("#show-notify-section .list-group-item").hasClass('list-view-on'))
+						$("#show-notify-section .list-group-item").removeClass("list-view-on");*/
 					$("#notify-read-count").html(0);
 				}
 			}
