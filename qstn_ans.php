@@ -1,10 +1,10 @@
 <?php 
 session_start();
 if(!$_SESSION["logged_in"])	{
-	echo "Please login </br>";
-	header("location:login.php");
+	header("location:index.php");
 }
 include "connectDb.php";
+
 function get_user_date($time)	{
 	$date = substr($time,8,2);
 	$month = substr($time,5,2);
@@ -38,14 +38,6 @@ function get_user_date($time)	{
 		default : $mth_str = "";
 		break;
 	}
-	/* if(substr($date,1,1) == '1' and $date != "11")
-		$post_date_str = "ST";
-	else if(substr($date,1,1) == '2' and $date != "12")
-		$post_date_str = "ND";
-	else if(substr($date,1,1) == '3' and $date != "13")
-		$post_date_str = "RD";
-	else 
-		$post_date_str = "TH"; */
 	
 	if($date == date('d') and $month == date('m') and $year == date('Y') and substr($time,11,5) == date("H:i"))
 		return 'few seconds ago';
@@ -55,33 +47,8 @@ function get_user_date($time)	{
 	return $mth_str.' '.$date.', '.$year;
 	
 }
-?>
-<html>
-<head>
-<title>Science Market - Answer question</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" type="text/css" href="styles/header.css">
-<link rel="stylesheet" type="text/css" href="styles/footer.css">
-<link rel="stylesheet" type="text/css" href="styles/qstn_ans.css">
-<link rel="stylesheet" type="text/css" href="styles/qstn.css">
-<link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
-<link rel="stylesheet" href="styles/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script type = "text/javascript" src = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
-<script type="text/javascript" src="js/qna.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/header.js"></script></head>
-</head>
-<body>
-<div id="block"></div>
-
-<?php
-
-$qid=$_GET["qid"];
-
 function get_time_diff($timestamp_ans)	{
-	date_default_timezone_set("UTC");
-	echo $timestamp_ans."</br>";
+	
 	$timestamp_cur=date("Y-m-d H:i:sa");
 	
 	$year1=substr($timestamp_ans,0,4);
@@ -142,6 +109,44 @@ function get_time_diff($timestamp_ans)	{
 		$string=substr($string,0,strlen($string)-1);
 	return $value.' '.$string.' ago';
 }
+if(isset($_GET['qid']))
+	$qid=$_GET["qid"];
+
+?>
+<html>
+<head>
+<title>
+	Science Market - <?php 
+		try	{
+			$sql_fetch_qstn_titl="select qstn_titl from questions where qstn_id = ".$qid;
+			$stmt_fetch_qstn_titl = $conn->prepare($sql_fetch_qstn_titl);
+			$stmt_fetch_qstn_titl->execute();
+			$row_qstn_titl=$stmt_fetch_qstn_titl->fetch();
+			echo $row_qstn_titl['qstn_titl'];
+		}
+		catch(PDOException $e)	{
+			echo "Answer question";
+		}
+	?>
+</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="styles/header.css">
+<link rel="stylesheet" type="text/css" href="styles/footer.css">
+<link rel="stylesheet" type="text/css" href="styles/qstn_ans.css">
+<link rel="stylesheet" type="text/css" href="styles/qstn.css">
+<link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+<link rel="stylesheet" href="styles/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type = "text/javascript" src = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/qna.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/header.js"></script></head>
+</head>
+<body>
+<div id="block"></div>
+
+<?php
+
 include "header.php";
 ?>
 
@@ -192,8 +197,8 @@ include "header.php";
 		<ul class="nav nav-pills nav-stacked">
 			<li><a href="profile.php" ><span class="glyphicon glyphicon-user" ></span>&nbsp;My Profile</a></li>
 			<li><a href="dashboard.php"><span class="glyphicon glyphicon-home" ></span>&nbsp;Dashboard</a></li>
-			<li><a href="qa_forum.php" ><span class="glyphicon glyphicon-question-sign"></span>&nbsp;Q/A Forum</a></li>
-			<li><a href="" ><span class="glyphicon glyphicon-transfer" ></span>&nbsp;Expert Connect</a></li>
+			<li><a href="forum" ><span class="glyphicon glyphicon-question-sign"></span>&nbsp;Q/A Forum</a></li>
+			<li><a href="expert_connect.php" ><span class="glyphicon glyphicon-transfer" ></span>&nbsp;Expert Connect</a></li>
 			<li><a href="" ><span class="glyphicon glyphicon-refresh" ></span>&nbsp;Collaborate</a></li>
 			<li><a href="" ><span class="glyphicon glyphicon-gift" ></span>&nbsp;Favours</a></li>
 			<li><a href="logout.php"><span class="glyphicon glyphicon-off"></span>&nbsp;Logout</a></li>
@@ -201,25 +206,29 @@ include "header.php";
 	</div>
 	</br>	
 	<div class="col-sm-8">
-	<?php
 	
-
+	
+	<?php
 	try	{
-		$sql_qstn="select qstn_id,qstn_titl,qstn_desc,qstn_status,topic_id,posted_by,created_ts,last_updt_ts from questions where qstn_id='".$qid."'";
+		$sql_qstn="select qstn_id,qstn_titl,qstn_desc,qstn_status,topic_id,posted_by,created_ts,last_updt_ts from questions where qstn_id=".$qid;
 		foreach($conn->query($sql_qstn) as $row_qstn)	{
 			$posted_by=$row_qstn["posted_by"];
 			
 			try	{
-				$sql_fetch_disp_name="select disp_name from users where user_id='".$posted_by."'";
-				foreach($conn->query($sql_fetch_disp_name) as $row_user_detls)
+				$sql_fetch_disp_name="select disp_name,pro_img_url from users where user_id='".$posted_by."'";
+				foreach($conn->query($sql_fetch_disp_name) as $row_user_detls)	{
 					$disp_name=$row_user_detls["disp_name"];
+					$img_url=$row_user_detls["pro_img_url"];
+				}
 			}
 			catch(PDOException $e)	{
 				echo 'Error fetching user details';
 			}
 			?>
+			<div class="user-qstn-image" style="background-image:url('<?php echo $img_url; ?>'); background-size:cover;" >
+					</div>
 			<span id="q-titl-area"><hgroup><?php echo $row_qstn["qstn_titl"]; ?></hgroup></span>
-			<span id="q-sub-titl"><?php echo "Asked by - ".$disp_name; ?></span>
+			<span id="q-sub-titl"><strong><?php echo $posted_by; ?></strong></span>
 			</br>
 			<div class="panel panel-default">
 			  <div class="panel-body"><?php echo $row_qstn["qstn_desc"]; ?></div>
@@ -254,7 +263,7 @@ include "header.php";
 	<div id="ans_container">
 	<?php
 	try	{
-	$sql_ans = "select ans_id,ans_desc,up_votes,down_votes,posted_by,created_ts,last_updt_ts from answers where qstn_id='".$qid."' order by created_ts desc";
+	$sql_ans = "select ans_id,ans_desc,up_votes,down_votes,posted_by,created_ts,last_updt_ts from answers where qstn_id=".$qid." order by created_ts desc";
 	foreach($conn->query($sql_ans) as $row_ans)	{
 		$ansid=$row_ans["ans_id"];
 		$upvotes=$row_ans["up_votes"];
@@ -271,12 +280,12 @@ include "header.php";
 	<div class="ans-section" id="user-answer-<?php echo $ansid; ?>">
 		<div class="ans-user-img" style="background-image:url('<?php echo $image; ?>'); background-size:cover;"></div>
 		<div class="auth-time-section">
-			<?php echo $postedby." ".get_time_diff($createdts); ?>
+			<?php echo $postedby." ".get_time_diff(convert_utc_to_local($createdts)); ?>
 		</div>
 		</br>
 		<div class="main-ans-block">
 			<?php echo $row_ans["ans_desc"]; ?>
-		</div>
+		</div></br>
 		<?php 
 		
 			$sql_check_up_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
@@ -327,7 +336,7 @@ include "header.php";
 			<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
 			<?php } ?>
 		</span>
-		<a class="comment-link" href="javascript:void(0)" onclick="showComment('comment-box-<?php echo $ansid; ?>')">Comment</a>
+		<a class="comment-link" href="javascript:void(0)" onclick="showComment('comment-box-<?php echo $ansid; ?>')">View comments</a>
 		</br>
 		<div class="comment-box" id="comment-box-<?php echo $ansid; ?>"></br>	
 			<textarea class="form-control" rows="2" id="comment-<?php echo $ansid; ?>" placeholder="Your comment goes here..."></textarea></br>
@@ -342,9 +351,9 @@ include "header.php";
 					foreach($conn->query($sql_fetch_comment) as $row_cmnt)	{
 						$comment_id=$row_cmnt['comment_id'];
 						$comment=$row_cmnt['comment_desc'];
-						$posted_by=$row_cmnt['posted_by'];
+						$cmnt_posted_by=$row_cmnt['posted_by'];
 						$created_ts = $row_cmnt['created_ts'];
-						echo '<div class="user-comment-sec" id="comment-'.$comment_id.'">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date($created_ts).'</span></div>';
+						echo '<div class="user-comment-sec" id="comment-'.$comment_id.'">'.$comment.' - <strong>'.$cmnt_posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
 					}
 				}
 				catch(PDOException $e)	{
@@ -358,12 +367,12 @@ include "header.php";
 	}
 }
 catch(PDOException $e)	{
-	echo "Some error occured ".$e->getMessage();
+	echo "Some error occured";
 }
 ?>
 	</div>
 </div>
-<div class="col-sm-4">hello world</div>
+<div class="col-sm-4"></div>
 </div>
 <?php include "footer.php"; ?>
 
