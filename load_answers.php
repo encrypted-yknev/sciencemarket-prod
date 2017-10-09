@@ -1,10 +1,25 @@
 <?php
 session_start();
 if(!$_SESSION["logged_in"])	{
-	echo "Please login </br>";
-	header("location:login.php");
+	header("location:index.php");
 }
 include "connectDb.php";
+
+function convert_utc_to_local($utc_timestamp)	{
+	
+	try	{
+		$date_utc=new DateTime($utc_timestamp,new DateTimeZone('UTC'));
+		if(isset($_COOKIE['user_tz']))
+			$date_utc->setTimeZone(new DateTimeZone($_COOKIE['user_tz']));	
+		else
+			$date_utc->setTimeZone(new DateTimeZone('UTC'));	
+		$date_final = $date_utc->format('Y-m-d H:i:s');
+		return $date_final;
+	}
+	catch(Exception $e)	{
+		echo 'Some error occurred';
+	}
+}
 function get_user_date($time)	{
 	$date = substr($time,8,2);
 	$month = substr($time,5,2);
@@ -130,12 +145,22 @@ if(!empty($ans_desc))	{
 		$sql_ans_ins="insert into answers (ans_desc,qstn_id,posted_by) 
 						values ('".$user_ans."',".$qid.",'".$_SESSION["user"]."')";
 		$conn->exec($sql_ans_ins);
-		$notify_text = addslashes("<a href = 'qstn_ans.php?qid=".$qid."'  class='list-group-item' >".$_SESSION['user']." posted an answer to your question on <strong>".$qstn_title."</strong></a>");
+		
+		/* Build JSON for notification config for user who posted the question 	*/
+			$myObj=array();
+			$myObj["post_type"] = "A";
+			$myObj["user_id"] = $_SESSION['user'];
+			$myObj["ans_config"]["ans_posted_by"] = $_SESSION['user'];
+			$myObj["qstn_config"]["qstn_id"] = $qid;
+			$myObj["qstn_config"]["qstn_posted_by"] = $posted_by;
+
+			$myJSON = json_encode($myObj);
+		/* end of build*/
 		
 		if($posted_by != $_SESSION['user'])	{
 			try		{
-				$sql_push_notifications = "insert into notifications(notify_text,user_id,view_flag)
-											values ('".$notify_text."','".$posted_by."',0)";
+				$sql_push_notifications = "insert into notifications(notify_confg,user_id,view_flag)
+											values ('".$myJSON."','".$posted_by."',0)";
 				$stmt_push_notify = $conn->prepare($sql_push_notifications);
 				$stmt_push_notify->execute();
 			}
@@ -158,9 +183,9 @@ if(!empty($ans_desc))	{
 			$stmt_final_remove->execute();
 		}	
 		/* end of delete */
-		$notify_text = addslashes("<a href = 'qstn_ans.php?qid=".$qid."' class='list-group-item'><strong>".$_SESSION['user']."</strong> also posted an answer on <strong>".$posted_by."'s</strong> question on <strong>".$qstn_title."</strong></a>");
-		$sql_push_notifications_1 = "insert into notifications(notify_text,user_id,view_flag)
-								   select distinct '".$notify_text."',posted_by,0 from answers where qstn_id = ".$qid." and posted_by <> '".$_SESSION['user']."'";
+		
+		$sql_push_notifications_1 = "insert into notifications(notify_confg,user_id,view_flag)
+								   select distinct '".$myJSON."',posted_by,0 from answers where qstn_id = ".$qid." and posted_by <> '".$_SESSION['user']."' and posted_by <> '".$posted_by."'";
 		$stmt_push_notifications_1 = $conn->prepare($sql_push_notifications_1);
 		$stmt_push_notifications_1->execute();
 	}
@@ -196,7 +221,7 @@ try	{
 		</br>
 		<div class="main-ans-block">
 			<?php echo $row_ans["ans_desc"]; ?>
-		</div>
+		</div></br>
 		<?php 
 			$sql_check_up_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
 								and post_type='A' and vote_type=0 and post_id=".$ansid;
@@ -248,7 +273,7 @@ try	{
 		<div class="comment-box" id="comment-box-<?php echo $ansid; ?>"></br>	
 			<textarea class="form-control" rows="2" id="comment-<?php echo $ansid; ?>" placeholder="Your comment goes here..."></textarea></br>
 			<button type="button" class="btn btn-primary" style="padding: 1px 2px;" 
-			onclick="addComment(<?php echo $ansid; ?>,document.getElementById('comment-<?php echo $ansid; ?>').value,'comment-area-<?php echo $ansid; ?>')">Comment</button>
+			onclick="addComment(<?php echo $ansid; ?>,document.getElementById('comment-<?php echo $ansid; ?>').value,'comment-area-<?php echo $ansid; ?>','<?php echo $postedby; ?>',<?php echo $qid; ?>,'<?php echo $posted_by; ?>')">Comment</button>
 			</br>
 			<div class="col-sm-11" id="comment-area-<?php echo $ansid; ?>">
 			<?php
