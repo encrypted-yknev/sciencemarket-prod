@@ -156,7 +156,7 @@ catch(PDOException $e)	{
 }
 
 try	{
-	$sql_fetch_comment="select comment_desc,posted_by,created_ts from comments where ans_id=".$ans_id." order by created_ts desc";
+	$sql_fetch_comment="select comment_desc,posted_by,created_ts from comments where ans_id=".$ans_id." order by created_ts asc";
 	foreach($conn->query($sql_fetch_comment) as $row_cmnt)	{
 		$comment=$row_cmnt['comment_desc'];
 		$posted_by=$row_cmnt['posted_by'];
