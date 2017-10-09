@@ -18,9 +18,13 @@ body	{
 	font-size:1.3em;
 	font-weight:bold;
 }
+#q-titl-area hgroup	{
+	margin-left:50px;
+}
 #q-sub-titl	{
 	font-size:0.8em;
 	color:#919191;
+	margin-left:10px;
 }
 #q-desc-area	{
 	background-color:#FCFAF9;
@@ -97,6 +101,7 @@ body	{
 .main-ans-block	{
 	text-align:justify;
 	margin-left:40px;
+	font-size:13px;
 }
 
 #ans-desc-area	{
@@ -130,7 +135,7 @@ body	{
 }
 
 .comment-box {
-	/*display:none;*/
+	display:none;
 	overflow-y:auto;
 }
 
@@ -196,4 +201,14 @@ body	{
 .downvote-ans-badge	{
 	border-radius:4px !important;
 	background-color:#d9534f !important;
+}
+.comment-link	{
+	font-size:13px;
+}
+
+.user-qstn-image	{
+	width:40px;
+	height:40px;
+	border-radius:30px;
+	float:left;
 }
