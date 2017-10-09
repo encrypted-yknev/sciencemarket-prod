@@ -76,8 +76,10 @@ else if($count_slash==4)
 					<div class="user-card-image" style="background-image:url('<?php echo $img_url; ?>'); background-size:cover;" >
 					</div>
 					<div class="user-name-card">
+						<a style="color:#fff;" href="<?php echo $slashes; ?>profile.php?user=<?php echo $posted_by; ?>">
 						<span><strong><?php echo $disp_name; ?></strong></span>
 						<span style="font-size:12px;">(<?php echo $posted_by; ?>)</span>
+						</a>
 					</div>
 					<div class="card-top-bar"></div></br>
 					<!--<p class="about-user-card"><?php #echo $desc; ?></p>
@@ -379,7 +381,7 @@ else if($count_slash==4)
 												$comment_id_str=implode("|",$comment_array);
 											}
 											
-											$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where 	ans_id=".$ansid." order by created_ts desc limit 5";
+											$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where 	ans_id=".$ansid." order by created_ts asc limit 5";
 											$stmt_fetch_comment=$conn->prepare($sql_fetch_comment);
 											$stmt_fetch_comment->execute();
 											
