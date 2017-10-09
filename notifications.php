@@ -70,8 +70,11 @@ if(strcmp($notify_typ,"DISPLAY") == 0)	{
 						if($_SESSION['user'] == $qstn_posted_by)	{
 							$notify_text = '<strong>'.$user_notify_array['user_id'].'</strong> answered your question on <strong>'.$qstn_titl_notify.'</strong>';
 						}
-						else	{
+						else if($user_notify_array['user_id'] != $qstn_posted_by)	{
 							$notify_text = '<strong>'.$user_notify_array['user_id'].'</strong> answered <strong>'.$qstn_posted_by.'\'s</strong> question on <strong>'.$qstn_titl_notify.'</strong>';
+						}
+						else {
+							$notify_text = '<strong>'.$user_notify_array['user_id'].'</strong> answered a question on <strong>'.$qstn_titl_notify.'</strong>';
 						}
 					}
 					else if($user_notify_array['post_type'] == 'C')	{
