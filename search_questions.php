@@ -19,7 +19,7 @@ try	{
 	else	{
 		while($result = $stmt_fetch_qstns->fetch())	{
 			echo "<div class='qstn-list'>";
-			echo "<strong><a href='".$slashes."qstn.php?qid=".$result['qstn_id']."'>".$result['qstn_titl']."</a></strong></br>";
+			echo "<strong><a href='".$slashes."qstn_ans.php?qid=".$result['qstn_id']."'>".$result['qstn_titl']."</a></strong></br>";
 			echo "<span class='srch-qstn-desc'>".$result['qstn_desc']."</span>";
 			echo "</div>";
 		}
