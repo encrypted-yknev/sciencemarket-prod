@@ -586,14 +586,17 @@ function addComment(token,root,ansid,ans_posted_by,qid,qstn_posted_by)	{
 	if(token == 0)	{
 		commentInpId="comment-ans-"+ansid;
 		idRes = "comment-area-"+ansid;
+		loadTextId = "comment-load-recent-text-"+ansid;
 	}
 	else if(token == 1)	{
 		commentInpId="comment-top-ans-"+ansid;
 		idRes = "comment-area-top-"+ansid;
+		loadTextId = "comment-load-top-text-"+ansid;
 	}
 	else if(token == 2)	{
 		commentInpId="comment-front-ans-"+ansid;
 		idRes = "comment-area-front-"+ansid;
+		loadTextId = "comment-load-front-text-"+ansid;
 	}
 	var commentVal = document.getElementById(commentInpId).value;
 	
@@ -614,8 +617,11 @@ function addComment(token,root,ansid,ans_posted_by,qid,qstn_posted_by)	{
 			beforeSend:function()	{
 			},
 			success:function(result)	{
-				document.getElementById(idRes).scrollTop=0;
 				$("#"+idRes).html(result);
+				var scrollHeight = document.getElementById(idRes).scrollHeight;
+				var clientHeight = document.getElementById(idRes).clientHeight;
+				document.getElementById(idRes).scrollTop=(scrollHeight-clientHeight);
+				$("#"+loadTextId).hide();
 				document.getElementById(commentInpId).value="";
 				$("#"+commentInpId).removeAttr("disabled");
 			}
