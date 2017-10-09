@@ -106,7 +106,7 @@
 									$comment_id_str=implode("|",$comment_array);
 								}
 								
-								$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid." order by created_ts desc limit 5";
+								$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid." order by created_ts asc limit 5";
 								$stmt_fetch_comment=$conn->prepare($sql_fetch_comment);
 								$stmt_fetch_comment->execute();
 								if($stmt_fetch_comment->rowCount() > 0)	{
