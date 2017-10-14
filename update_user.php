@@ -27,14 +27,14 @@ if($request_type==1)	{
 		$userid=$_SESSION['user'];
 		if($stmt->rowCount() >= 0)	{
 			include "session.php";
-			echo "<div class='alert alert-success'>Details updated successfully</div>";
+			echo "<div class='alert alert-success msg-profile'>Details updated successfully</div>";
 		}
 		else	{
-			echo "<div class='alert alert-danger'>Some error occurred</div>";
+			echo "<div class='alert alert-danger msg-profile'>Some error occurred</div>";
 		}
 	}
 	catch(PDOException $e)	{
-		echo "<div class='alert alert-danger'>Internal server error</div>";
+		echo "<div class='alert alert-danger msg-profile'>Internal server error</div>";
 	}
 }
 else if($request_type==2)	{
@@ -81,15 +81,15 @@ else if($request_type==2)	{
 				}
 			}	
 			catch(PDOException $e)	{
-				echo '<div class="alert alert-danger">Internal server error</div>'.$e->getMessage();
+				echo '<div class="alert alert-danger msg-profile">Internal server error</div>'.$e->getMessage();
 				return;
 			}
 		}
-		echo '<div class="alert alert-success">Interests Updated!!</div>';
+		echo '<div class="alert alert-success msg-profile">Interests Updated!!</div>';
 	}
 
 	else	{
-		echo '<span class="alert alert-warning">Please add some interests!!</span>';
+		echo '<span class="alert alert-warning msg-profile">Please add some interests!!</span>';
 	}
 }
 
@@ -106,7 +106,7 @@ else if($request_type==3)	{
 			$old_encrypt_pwd=$result_pwd['encrypt_pwd'];
 			
 			if(md5($old_pwd) != $old_encrypt_pwd)	{
-				echo '<div class="alert alert-danger">Please enter correct password</div>';
+				echo '<div class="alert alert-danger msg-profile">Please enter correct password</div>';
 				return;
 			}
 			else	{
@@ -114,22 +114,59 @@ else if($request_type==3)	{
 					echo '<div class="alert alert-danger">Passwords do not match</div>';
 				else	{
 					$sql_update_pwd="update users set encrypt_pwd='".md5($new_pwd)."' where user_id='".$_SESSION['user']."'";
-					$stmt_pwd=$conn->prepare($sql_check_old_pwd);
+					$stmt_pwd=$conn->prepare($sql_update_pwd);
 					$stmt_pwd->execute();
 					
 					if($stmt_pwd->rowCount() > 0)
-						echo '<div class="alert alert-success">Password updated successfully</div>';
+						echo '<div class="alert alert-success msg-profile">Password updated successfully</div>';
 					else
-						echo '<div class="alert alert-danger">Some error occurred</div>';
+						echo '<div class="alert alert-danger msg-profile">Some error occurred</div>';
 				}
 			}
 			
 		}
 		catch(PDOException $e)	{
-			echo '<div class="alert alert-danger">Internal server error</div>';
+			echo '<div class="alert alert-danger msg-profile">Internal server error</div>';
 		}
 	}
 	else	
-		echo '<div class="alert alert-danger">Enter required fields</div>';
+		echo '<div class="alert alert-danger msg-profile">Enter required fields</div>';
 }
 
+else if($request_type == 4)	{
+	
+	$pwd_deactvt=htmlspecialchars(trim($_REQUEST['pwd']));
+	try	{
+		$sql_check_pwd="select encrypt_pwd from users where user_id='".$_SESSION['user']."'";
+		$stmt=$conn->prepare($sql_check_pwd);
+		$stmt->execute();
+		$result_pwd=$stmt->fetch();
+		$encrypt_pwd=$result_pwd['encrypt_pwd'];
+		
+		if(md5($pwd_deactvt)==$encrypt_pwd)	{
+			$sql_check_act="select count(1) as cnt_user from users where status='I' and user_id='".$_SESSION['user']."'";
+			foreach($conn->query($sql_check_act) as $row_count)
+				$cnt_check=$row_count['cnt_user'];
+			
+			if($cnt_check > 0)
+				echo "<div class='alert alert-warning msg-profile'>Account is already deactivated.</div>";
+			
+			else	{
+				$sql_deactivate_ac="update users set status='I' where user_id='".$_SESSION['user']."'";
+				$stmt_deactivate_ac=$conn->prepare($sql_deactivate_ac);
+				$stmt_deactivate_ac->execute();
+				
+				if($stmt_deactivate_ac->rowCount() > 0)
+					echo "<div class='alert alert-success msg-profile'>Account deactivated. The moment you logout, next time you won't be able to login. You can activate your account anytime you wish.</div>";
+				else
+					echo "<div class='alert alert-warning msg-profile'>Account not deactivated. Something is fishy.</div>";
+			}
+		}
+		else	{
+			echo "<div class='alert alert-danger msg-profile'>Incorrect password entered</div>";
+		}
+	}
+	catch(PDOException $e)	{
+		echo '<div class="alert alert-danger msg-profile">Some error occurred in the server</div>'.$e->getMessage();
+	}
+}
