@@ -211,3 +211,15 @@
 .td-col-2	{
 	font-size:13px;
 }
+
+.msg-profile	{
+	font-size:13px;
+	margin-top:5px;
+	padding:3px 10px !important;
+}
+
+.btn-disabled	{
+	cursor:not-allowed;
+	background-color:#ddd !important;
+	border:none !important;
+}
