@@ -20,6 +20,8 @@ if(isset($_SESSION["logged_in"]))	{
 <link rel="stylesheet" type="text/css" href="styles/footer.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="js/login.js"></script>
+<link rel="stylesheet" href="styles/bootstrap.min.css">
+<script src="js/bootstrap.min.js"></script>
 <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
 
 </head>
@@ -27,7 +29,8 @@ if(isset($_SESSION["logged_in"]))	{
 
 <?php
 include "connectDb.php";
-$message=$pwddb="";
+$message="<div class='msg-default'>Login Portal</div>";
+$pwddb="";
 $userid="";
 $nameError="*";
 $nameSuc="";
@@ -36,19 +39,19 @@ $checked=$success=true;
 if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 	#check for empty field
 	if(empty($_POST["userid"]))	{
-		$message="Enter mandatory fields";
+		$message="<div class='alert alert-danger login-message'>Enter mandatory fields</div>";
 		$checked=false;
 	}
 	else	{
+		#check for empty field.
 		$userid=processData($_POST["userid"]);
-	}
-	#check for empty field.
-	if(empty($_POST["pwd"]))	{
-		$message="Enter mandatory fields";
-		$checked=false;
-	}
-	else	{
-		$pwd=processData($_POST["pwd"]);
+		if(empty($_POST["pwd"]))	{
+			$message="<div class='alert alert-danger login-message'>Enter mandatory fields</div>";
+			$checked=false;
+		}
+		else	{
+			$pwd=processData($_POST["pwd"]);
+		}
 	}
 	
 	if($checked==true)	{
@@ -56,29 +59,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 			$sql="select status,encrypt_pwd from users where user_id='".$userid."'";
 			$stmt=$conn->prepare($sql);
 			$stmt->execute();
-			$row=$stmt->fetch();
 			
-			$pwddb=$row['encrypt_pwd'];
-			$status=$row['status'];
-			
-			#check is user entered the correct password.
-			if(strtoupper($status) != 'A')	{
-				$message = "User account has been de-activated";
-				$success=false;
+			if($stmt->rowCount() > 0)	{
+				$row=$stmt->fetch();
+				$pwddb=$row['encrypt_pwd'];
+				$status=$row['status'];
+				
+				#check is user entered the correct password.
+				if(md5($pwd)!=$pwddb)	{
+					$message="<div class='alert alert-danger login-message'>Invalid credentials</div>";
+					$success=false;
+				}
+				else	{
+					if(strtoupper($status) != 'A')	{
+						$message = "<div class='alert alert-warning login-message'>Account is de-activated</div>";
+						$success=false;
+					}
+					#Redirect to dashboard welcome page for correct credentials.
+					else	{
+						include "session.php";	#start user session
+						header("location:dashboard.php");
+					}
+				}
 			}
-			else if(md5($pwd)!=$pwddb)	{
-				$message="Invalid credentials";
-				$success=false;
-			}
-			
-			#Redirect to dashboard welcome page for correct credentials.
-			if($success==true)	{
-				include "session.php";	#start user session
-				header("location:dashboard.php");
+			else	{
+				$message="<div class='alert alert-warning login-message'>Looks like you are a new user. Please register</div>";
 			}
 		}
 		catch(PDOException $e)	{
-			$message= "Error occurred : ".$e->getMessage();
+			$message= "<div class='alert alert-danger login-message'>Internal server error</div>";
 		}
 	}
 }
@@ -94,18 +103,39 @@ function processData($text)	{
 	<!--<div class="container"> -->
 		<div id="main-container">
 			</br>
-			<div>
+			<div id="login-logo">
 				<img src="img/logo.jpg" width="250" height="60"/>
-			</div>
-			<span id="err1"><?php echo $message; ?></span></br></br>
+			</div></br>
+			<?php echo $message; ?>
 			<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-				Username : <input class="input-class" id="name-area" type="text" name="userid" placeholder="Enter login ID" value="<?php echo $userid;?>" /></span></br></br>
-				Password : <input class="input-class" id="pwd-area" type="password" name="pwd" placeholder="Enter password" /></br></br></br>
+				<div class="form-group form-section">
+					<label for="name-area" class="form-labels">Username</label>
+					<input class="form-control input-class" id="name-area" type="text" name="userid" placeholder="Enter login ID" value="<?php echo $userid;?>" />
+				</div>
+				<div class="form-group form-section">
+					<label for="pwd-area" class="form-labels">Password</label>
+					<input class="form-control input-class" id="pwd-area" type="password" name="pwd" placeholder="Enter password" />
+				</div>	
+				
 			<!--	<div class="g-signin2" data-onsuccess="onSignIn"></div></br> -->
-				<input type="checkbox" name="remMe">Remember me
-				&emsp;<a id="fp-link" href="frgt_pwd.php" target="_blank" name="fgtPwd">Forgot Password?</a></br></br></br>
-				<input class="inp-button" type="submit" value="Sign in" />
-				<a href="register.php" class="inp-button">New user? Sign up</a>
+				
+				<div class="form-row-2">
+					<table>
+					<tr><td>
+						<span class="checkbox">
+							<label><input class="" type="checkbox" value="" name="remMe">Remember me</label>
+						</span>
+						</td>
+						<td>
+						<a id="fp-link" href="frgt_pwd.php" target="_blank" name="fgtPwd">Forgot Password?</a>
+						</td>
+					</tr>
+					</table>
+				</div></br>
+				<div class="form-row-3">
+					<input class="btn btn-primary inp-button" type="submit" value="Sign in" />
+					<a href="register.php" class="btn btn-primary inp-button">New user? Sign up</a>
+				</div>
 			</form>
 		</div>
 	<!--</div>-->
