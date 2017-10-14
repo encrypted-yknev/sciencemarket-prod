@@ -8,11 +8,20 @@ include "connectDb.php";
 $request_type=htmlspecialchars(stripslashes(trim($_REQUEST["request_type"])));
 
 if($request_type==1)	{
+	$user=htmlspecialchars(stripslashes(trim($_REQUEST["user"])));
+	if(strlen(trim($user))==0)
+		$user=$_SESSION['user'];
 	$name=htmlspecialchars(stripslashes(trim($_REQUEST["name"])));
+	if(strlen(trim($name))==0)
+		$name=$_SESSION['name'];
 	$mail=htmlspecialchars(stripslashes(trim($_REQUEST["mail"])));
+	if(strlen(trim($mail))==0)
+		$mail=$_SESSION['mail'];
 	$mob=htmlspecialchars(stripslashes(trim($_REQUEST["mob"])));
 	$location=htmlspecialchars(stripslashes(trim($_REQUEST["place"])));
 	$desc=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["desc"]))));
+	if(strlen(trim($desc))==0)
+		$desc=$_SESSION['desc'];
 	
 	try	{
 		$sql_update_user_dtls="update users set
@@ -26,6 +35,28 @@ if($request_type==1)	{
 		$stmt->execute();
 		$userid=$_SESSION['user'];
 		if($stmt->rowCount() >= 0)	{
+			if($user != $userid)	{
+				/*	update questions table */
+				$stmt_upd_qstn_user="update questions set posted_by='".$user."' where posted_by='".$userid."'";
+				/*	update answers table */
+				$stmt_upd_ans_user="update answers set posted_by='".$user."' where posted_by='".$userid."'";
+				/*	update comments table */
+				$stmt_upd_cmnt_user="update comments set posted_by='".$user."' where posted_by='".$userid."'";
+				/*	update followers table */
+				$stmt_upd_fl1_user="update followers set user_id='".$user."' where user_id='".$userid."'";
+				/*	update followers following table */
+				$stmt_upd_fl2_user="update followers set following_user_id='".$user."' where user_id='".$userid."'";
+				/*	update notifications table */
+				$stmt_upd_not_user="update notifications set user_id='".$user."' where user_id='".$userid."'";
+				/*	update tags table */
+				$stmt_upd_tags_user="update tags set created_by='".$user."' where created_by='".$userid."'";
+				/*	update user_posts_votes table */
+				$stmt_upd_upv_user="update user_posts_votes set user_id='".$user."' where user_id='".$userid."'";
+				/*	update user_tags table */
+				$stmt_upd_utags_user="update user_tags set user_id='".$user."' where user_id='".$userid."'";
+									  
+									 
+			}
 			include "session.php";
 			echo "<div class='alert alert-success msg-profile'>Details updated successfully</div>";
 		}
