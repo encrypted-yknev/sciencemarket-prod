@@ -233,8 +233,20 @@ catch(PDOException	$e)	{
 					<div class="col-sm-4">
 						<div class="side-menu-links"><?php echo $count_qstn; ?></div>
 						<div class="side-menu-links"><?php echo $count_ans; ?></div>
-						<div class="side-menu-links">0</div>
-						<div class="side-menu-links">0</div>
+						<div class="side-menu-links">
+							<?php	
+								$sql_fetch_followers="select count(1) as count_f1 from followers where following_user_id='".$_SESSION['user']."'";
+								foreach($conn->query($sql_fetch_followers) as $row_f1)
+									echo $row_f1['count_f1'];
+							?>
+						</div>
+						<div class="side-menu-links">
+							<?php	
+								$sql_fetch_following="select count(1) as count_f2 from followers where user_id='".$_SESSION['user']."'";
+								foreach($conn->query($sql_fetch_following) as $row_f2)
+									echo $row_f2['count_f2'];
+							?>
+						</div>
 						<div class="side-menu-links"></div>
 						<div class="side-menu-links"></div>
 					</div>
