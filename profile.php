@@ -199,13 +199,20 @@ function get_first_name($x)	{
 				<div class="row" id="row-4">
 					<div class="col-sm-6 col-1">
 						<h5 class="header-group"><span class="glyphicon glyphicon-pencil profile-edit"></span><strong>Edit Profile</strong></h5>
-						Display Name: <input class="form-control" id="name" type="text" placeholder="" value="<?php echo $disp_name; ?>" onfocus="showTip(1)"/></br>
-						Email: <input class="form-control" id="mail" type="text" placeholder="" value="<?php echo $email; ?>" onfocus="showTip(2)"/></br>
-						Mobile: <input class="form-control" id="mob" type="text" placeholder="" value="<?php echo $mob; ?>" onfocus="showTip(3)"/></br>
-						Location: <input class="form-control" id="location" type="text" placeholder="" value="<?php echo $location; ?>" onfocus="showTip(4)"/></br>
+						Username: <input class="form-control" id="user" type="text" placeholder="" value="<?php echo $_SESSION['user']; ?>" onfocus="showTip(0)" onfocusout="validateField(this.value,1)" /></br>
+						<div id="profile-edit-1"></div></br>
+						Display Name: <input class="form-control" id="name" type="text" placeholder="" value="<?php echo $disp_name; ?>" onfocus="showTip(1)" onfocusout="validateField(this.value,2)"/></br>
+						<div id="profile-edit-2"></div></br>
+						Email: <input class="form-control" id="mail" type="text" placeholder="" value="<?php echo $email; ?>" onfocus="showTip(2)" onfocusout="validateField(this.value,3)"/></br>
+						<div id="profile-edit-3"></div></br>
+						Mobile: <input class="form-control" id="mob" type="text" placeholder="" value="<?php echo $mob; ?>" onfocus="showTip(3)" onfocusout="validateField(this.value,4)"/></br>
+						<div id="profile-edit-4"></div></br>
+						Location: <input class="form-control" id="location" type="text" placeholder="" value="<?php echo $location; ?>" onfocus="showTip(4)" onfocusout="validateField(this.value,5)"/></br>
+						<div id="profile-edit-5"></div></br>
 						About me: <textarea class="form-control" id="desc" rows="5" id="comment" onfocus="showTip(5)"><?php echo $desc; ?></textarea></br>
+						<div id="profile-edit-6"></div></br>
 						<button type="button" class="btn btn-primary" onclick=
-						"updateUser(document.getElementById('name').value,document.getElementById('mail').value,
+						"updateUser(document.getElementById('user').value,document.getElementById('name').value,document.getElementById('mail').value,
 						document.getElementById('mob').value,document.getElementById('location').value,
 						document.getElementById('desc').value)">Save</button></br>
 						<span id="message-section-1">
