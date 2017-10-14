@@ -169,6 +169,8 @@ function deactivateAcc()	{
 
 function showTip(x)	{
 	var txt=" 	";
+	if(x==0)	
+		txt="Please choose unique username for your account";
 	if(x==1)	
 		txt="Please write your full name separated by spaces. Only alphabets and spaces are allowed.";
 	/*
@@ -186,15 +188,16 @@ function showTip(x)	{
 	else if(x==5)
 		txt="Enter a brief description about yourself. (E.g., Your current profession and designation).";
 	
-	document.getElementById('message-section-1').innerHTML="<div class='alert alert-info'>"+txt+"</div>";
+	document.getElementById('message-section-1').innerHTML="<div class='alert alert-info msg-profile'>"+txt+"</div>";
 }
 
-function updateUser(name,mail,mob,place,desc)	{
+function updateUser(user,name,mail,mob,place,desc)	{
 	$.ajax({
 		type:"post",
 		url:"update_user.php",
 		data:
 		{
+			"user":user,
 			"name":name,
 			"mail":mail,
 			"mob":mob,
@@ -209,4 +212,54 @@ function updateUser(name,mail,mob,place,desc)	{
 			$("#message-section-1").html(result);
 		}
 	})
+}
+
+function validateField(value,num)	{
+	if(num==1)	{
+		if(value.trim()!="")	{
+			$.ajax({
+				type:"post",
+				url:"check_user.php",
+				data:
+				{
+					"user":value
+				},
+				success:function(res)	{
+					if(res=="1")	{
+						$("#profile-edit-1").html("<span class='alert alert-warning msg-profile'>Username already exists. Leave blank if no edit is required</span>");
+						$("#user").val("");
+					}
+					else if(res!="0")	{
+						$("#profile-edit-1").html("<span class='alert alert-warning msg-profile'>Internal server error</span>");
+						$("#user").val("");
+					}
+					else	{
+						$("#profile-edit-1").html("");
+					}
+				}
+			});
+		}
+	}
+	else if(num==2)	{
+		if(value.trim() != "")	{
+			if(/^[a-z\s]+$/i.test(value)==false)	{
+				$("#profile-edit-2").html("<span class='alert alert-warning msg-profile'>Invalid name format. Leave blank if no edit is required</span>");
+				$("#name").val("");
+			}
+			else	{
+				$("#profile-edit-2").html("");
+			}
+		}
+	}
+	else if(num==4)	{
+		if(value.trim() != "")	{
+			if(/^[0-9]+$/.test(value)==false)	{
+				$("#profile-edit-4").html("<span class='alert alert-warning msg-profile'>Invalid mobile number. Leave blank if no edit is required</span>");
+				$("#mob").val("");
+			}
+			else	{
+				$("#profile-edit-4").html("");
+			}
+		}
+	}
 }
