@@ -128,12 +128,33 @@ function resetPwd(pwd,newPwd,confPwd)	{
 				"request_type":3
 			},
 			success:function(result)	{
-				$("#message-section-3").html(result)
+				$("#message-section-3").html(result);
 			}
 		});
 	}
 }
 
+function deactivateAcc()	{
+	var pwd=document.getElementById("deacc-account-pwd").value;
+	$.ajax({
+		type:"post",
+		url:"update_user.php",
+		data:
+		{
+			"pwd":pwd,
+			"request_type":4
+		},
+		beforeSend:function()	{
+			$("#message-section-4").text("Deactivating..");
+			$("#button-4").addClass("btn-disabled");
+		},
+		success:function(result)	{
+			$("#deacc-account-pwd").val("");
+			$("#button-4").removeClass("btn-disabled");
+			$("#message-section-4").html(result);
+		}
+	});
+}
 /* function showEditSection(x)	{
 	if(x==1)
 		$("#row-1").slideToggle();
