@@ -264,8 +264,8 @@ function get_first_name($x)	{
 					</div>
 					<div class="col-sm-6 col-2">
 						<h5 class="header-group"><span class="glyphicon glyphicon-ban-circle profile-edit"></span><strong>De-activate account</strong></h5>
-						Enter account password: <input type="password" class="form-control" id="pwd"></br>
-						<button type="button" class="btn btn-primary" onclick="">Go</button></br>
+						Enter account password: <input type="password" class="form-control" id="deacc-account-pwd"></br>
+						<button type="button" class="btn btn-primary" id="button-4" onclick="deactivateAcc()">Go</button></br>
 						<span id="message-section-4"></span>
 					</div>
 				</div>
