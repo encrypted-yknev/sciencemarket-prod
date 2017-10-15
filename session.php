@@ -20,11 +20,11 @@ try 	{
 	$stmt=$conn->prepare($sql_fetch_user_details);
 	$stmt->execute();
 	$row=$stmt->fetch();
-	$name=$row['disp_name'];
-	$user=$row['user_id'];
+	$name=addslashes($row['disp_name']);
+	$user=addslashes($row['user_id']);
 	$mail=$row['email_addr'];
-	$desc=$row['description'];
-	$location=$row['location'];
+	$desc=addslashes($row['description']);
+	$location=addslashes($row['location']);
 	$upvotes=$row['up_votes'];
 	$downvotes=$row['down_votes'];
 	$pro_img=$row['pro_img_url'];
