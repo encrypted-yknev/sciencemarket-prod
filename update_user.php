@@ -8,17 +8,17 @@ include "connectDb.php";
 $request_type=htmlspecialchars(stripslashes(trim($_REQUEST["request_type"])));
 
 if($request_type==1)	{
-	$user=htmlspecialchars(stripslashes(trim($_REQUEST["user"])));
+	$user=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["user"]))));
 	if(strlen(trim($user))==0)
 		$user=$_SESSION['user'];
-	$name=htmlspecialchars(stripslashes(trim($_REQUEST["name"])));
+	$name=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["name"]))));
 	if(strlen(trim($name))==0)
 		$name=$_SESSION['name'];
-	$mail=htmlspecialchars(stripslashes(trim($_REQUEST["mail"])));
+	$mail=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["mail"]))));
 	if(strlen(trim($mail))==0)
 		$mail=$_SESSION['mail'];
 	$mob=htmlspecialchars(stripslashes(trim($_REQUEST["mob"])));
-	$location=htmlspecialchars(stripslashes(trim($_REQUEST["place"])));
+	$location=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["place"]))));
 	$desc=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["desc"]))));
 	if(strlen(trim($desc))==0)
 		$desc=$_SESSION['desc'];
@@ -33,39 +33,38 @@ if($request_type==1)	{
 							   where user_id='".$_SESSION['user']."'";
 		$stmt=$conn->prepare($sql_update_user_dtls);
 		$stmt->execute();
-		$userid=$_SESSION['user'];
+		$userid=$_SESSION['user'];	
 		if($stmt->rowCount() >= 0)	{
 			if($user != $userid)	{
-				/*	update questions table */
-				$stmt_upd_qstn_user="update questions set posted_by='".$user."' where posted_by='".$userid."'";
-				/*	update answers table */
-				$stmt_upd_ans_user="update answers set posted_by='".$user."' where posted_by='".$userid."'";
-				/*	update comments table */
-				$stmt_upd_cmnt_user="update comments set posted_by='".$user."' where posted_by='".$userid."'";
-				/*	update followers table */
-				$stmt_upd_fl1_user="update followers set user_id='".$user."' where user_id='".$userid."'";
-				/*	update followers following table */
-				$stmt_upd_fl2_user="update followers set following_user_id='".$user."' where user_id='".$userid."'";
-				/*	update notifications table */
-				$stmt_upd_not_user="update notifications set user_id='".$user."' where user_id='".$userid."'";
-				/*	update tags table */
-				$stmt_upd_tags_user="update tags set created_by='".$user."' where created_by='".$userid."'";
-				/*	update user_posts_votes table */
-				$stmt_upd_upv_user="update user_posts_votes set user_id='".$user."' where user_id='".$userid."'";
-				/*	update user_tags table */
-				$stmt_upd_utags_user="update user_tags set user_id='".$user."' where user_id='".$userid."'";
-									  
-									 
+				$sql_call_sp_user_updt="call update_user('".$userid."','".$user."',@err_cd,@err_desc)";
+				
+				$stmt_call_sp_user_updt=$conn->prepare($sql_call_sp_user_updt);
+				$stmt_call_sp_user_updt->execute();
+				
+				$row_sp = $conn->query("select @err_cd as error_code,@err_desc as error_desc")->fetch();
+				
+				$error_code=$row_sp['error_code'];
+				$error_desc=$row_sp['error_desc'];
+				if(!strcmp($error_code,'00000'))	{
+					$userid=$user;
+					include "session.php";
+					echo "<div class='alert alert-success msg-profile'>Details updated successfully</div>";
+				}
+				else	{
+					echo "<div class='alert alert-success msg-profile'>Error occurred. Please try again</div>";
+				}
 			}
-			include "session.php";
-			echo "<div class='alert alert-success msg-profile'>Details updated successfully</div>";
+			else	{
+				include "session.php";
+				echo "<div class='alert alert-success msg-profile'>Details updated successfully</div>";
+			}
 		}
 		else	{
 			echo "<div class='alert alert-danger msg-profile'>Some error occurred</div>";
 		}
 	}
 	catch(PDOException $e)	{
-		echo "<div class='alert alert-danger msg-profile'>Internal server error</div>";
+		echo "<div class='alert alert-danger msg-profile'>Internal server error</div>".$e->getMessage();
 	}
 }
 else if($request_type==2)	{
