@@ -199,7 +199,7 @@ function get_first_name($x)	{
 				<div class="row" id="row-4">
 					<div class="col-sm-6 col-1">
 						<h5 class="header-group"><span class="glyphicon glyphicon-pencil profile-edit"></span><strong>Edit Profile</strong></h5>
-						Username: <input class="form-control" id="user" type="text" placeholder="" value="<?php echo $_SESSION['user']; ?>" onfocus="showTip(0)" onfocusout="validateField(this.value,1)" /></br>
+						Username: <input class="form-control" id="user" type="text" placeholder="" value="<?php echo stripslashes($_SESSION['user']); ?>" onfocus="showTip(0)" onfocusout="validateField(this.value,1)" /></br>
 						<div id="profile-edit-1"></div></br>
 						Display Name: <input class="form-control" id="name" type="text" placeholder="" value="<?php echo $disp_name; ?>" onfocus="showTip(1)" onfocusout="validateField(this.value,2)"/></br>
 						<div id="profile-edit-2"></div></br>
