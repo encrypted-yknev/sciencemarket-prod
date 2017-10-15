@@ -1,7 +1,7 @@
 <?php
 
 include "connectDb.php";	
-$user=htmlspecialchars(stripcslashes(trim($_REQUEST['user'])));
+$user=addslashes(trim($_REQUEST['user']));
 
 if(strlen($user) > 0)	{
 	try		{
