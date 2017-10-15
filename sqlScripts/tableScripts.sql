@@ -39,3 +39,5 @@ ALTER TABLE `followers` ADD CONSTRAINT `user_fk_follower` FOREIGN KEY (`user_id`
 alter table followers add constraint uidx_followers unique (user_id,following_user_id);
 
 ALTER TABLE `followers` ADD `follow_id` INT NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`follow_id`);
+
+ALTER TABLE `notifications` CHANGE `notify_text` `notify_confg` LONGBLOB NOT NULL;
