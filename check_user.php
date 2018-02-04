@@ -1,11 +1,16 @@
 <?php
+session_start();
+if(isset($_SESSION['user']))
+	$userid=$_SESSION['user'];
+else
+	$userid="";
 
 include "connectDb.php";	
 $user=addslashes(trim($_REQUEST['user']));
 
 if(strlen($user) > 0)	{
 	try		{
-		$sql_check_unique_user="select count(1) as count_user from users where user_id='".$user."'";
+		$sql_check_unique_user="select count(1) as count_user from users where user_id='".$user."' and user_id <> '".$userid."'";
 		$stmt=$conn->prepare($sql_check_unique_user);
 		$stmt->execute();
 		$result=$stmt->fetch();
