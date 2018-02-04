@@ -1,6 +1,7 @@
 #main-expert-section	{
-	background-color:#FCFCFC;
+	background-color:#fff;
 	border:2px solid #fff;
+	min-height:500px;
 }
 td	{
 	padding:4px !important;
@@ -24,7 +25,7 @@ tr	{
 	min-width:250px;
 }
 
-.btn-disabled	{
+.btn-disabled	{	
 	background-color:#ddd !important;
 	border:none !important;
 }
@@ -33,4 +34,34 @@ tr	{
 	height:40px;
 	border:1px solid #ddd;
 	border-radius:20px;
+}
+
+.connect-row	{
+	font-family:'Calibri',Helvetica,Tahoma,Arial,sans-serif;
+}
+.user-txt-2	{
+	color:#aaa;
+}
+.connect-row	{
+	height:100px;
+	background-color:#fcfcfc;
+	padding-top:10px;
+	padding-left:10px;
+	padding-right:10px;
+}
+.user-image,.user-txt,.user-sub-txt-1,.user-sub-txt-2	{
+	float:left;
+}
+.user-txt	{
+	margin-left:10px;
+}
+.func-btn	{
+	float:right;
+}
+.btn-normal	{
+	padding:2px 5px !important;
+}
+
+.expert-go	{
+	padding:3px 8px !important;
 }
