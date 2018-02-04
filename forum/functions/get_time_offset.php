@@ -1,6 +1,5 @@
 <?php
 function get_time_diff($timestamp_ans)	{
-	date_default_timezone_set("Asia/Kolkata");
 	$timestamp_cur=date("Y-m-d H:i:sa");
 	
 	$year1=substr($timestamp_ans,0,4);
