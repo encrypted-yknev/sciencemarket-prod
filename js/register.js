@@ -1,4 +1,4 @@
-function showTip(x)	{
+/*function showTip(x)	{
 	var txt="";
 	if(x==1)	
 		txt="Please write your full name separated by spaces. Only alphabets and spaces are allowed.";
@@ -17,7 +17,7 @@ function showTip(x)	{
 	else
 		txt="No info to show";
 	document.getElementById('tip-section').innerHTML=txt;
-}
+}*/
 function validateData(data,id)	{
 	var x="",checked=true;
 	if(data.length==0)	{
@@ -34,6 +34,7 @@ function validateData(data,id)	{
 	}
 	
 	if(checked==false)	{
+		document.getElementById("name").value="";
 		document.getElementById(id).style.background="#FFEBEB";
 		document.getElementById(id).style.color="#000";
 	}
@@ -42,7 +43,6 @@ function validateData(data,id)	{
 		document.getElementById(id).style.color="#46A143";
 		//document.getElementById(id).style.border-radius="5px";
 	}
-	
 	document.getElementById(id).innerHTML=x;
 }
 
@@ -60,6 +60,7 @@ function validatePassFld(data,id)	{
 		x="<span class='glyphicon glyphicon-ok'></span>";
 	
 	if(checked==false)	{
+		document.getElementById("pwd").value="";
 		document.getElementById(id).style.background="#FFEBEB";
 		document.getElementById(id).style.color="#000";
 	}
@@ -87,6 +88,7 @@ function validateRePassFld(data1,data2,id)	{
 			x="<span class='glyphicon glyphicon-ok'></span>";
 	}
 	if(checked==false)	{
+		document.getElementById("repwd").value="";
 		document.getElementById(id).style.background="#FFEBEB";
 		document.getElementById(id).style.color="#000";
 	}
@@ -145,6 +147,7 @@ function validateUser(data)	{
 					$("#user-error").css({"background":"#fff","color":"#46A143"});
 				}
 				else if(result=="1")	{
+					$("#user").val("");
 					$("#user-error").html("Username already exists");
 					$("#user-error").css({"background":"#FFEBEB","color":"#000"});
 				}
