@@ -3,29 +3,22 @@ if(isset($_COOKIE['user_tz']))
 	date_default_timezone_set($_COOKIE['user_tz']);
 
 include "connectDb.php";
-function get_color()	{
-	$rand_num = rand(1,10);
-	switch($rand_num)	{
-		case 1: return "#3498DB";
-		case 2: return "#E74C3C";
-		case 3: return "#17A589	";
-		case 4: return "#58D68D";
-		case 5: return "#138D75";
-		case 6: return "#D4AC0D";
-		case 7: return "#BA4A00";
-		case 8: return "#E67E22";
-		case 9: return "#8E44AD";
-		case 10: return "#2E4053";
-	}
-}
 
 function convert_utc_to_local($utc_timestamp)	{
-	$date_utc=new DateTime($utc_timestamp,new DateTimeZone('UTC'));
-	$date_utc->setTimeZone(new DateTimeZone($_COOKIE['user_tz']));
-	$date_final = $date_utc->format('Y-m-d H:i:s');
-	return $date_final;
+	
+	try	{
+		$date_utc=new DateTime($utc_timestamp,new DateTimeZone('UTC'));
+		if(isset($_COOKIE['user_tz']))
+			$date_utc->setTimeZone(new DateTimeZone($_COOKIE['user_tz']));	
+		else
+			$date_utc->setTimeZone(new DateTimeZone('UTC'));	
+		$date_final = $date_utc->format('Y-m-d H:i:s');
+		return $date_final;
+	}
+	catch(Exception $e)	{
+		echo 'Some error occurred';
+	}
 }
-
 $url_path = $_SERVER['PHP_SELF'];
 $count_slash = substr_count($url_path,"/");
 if($count_slash==1)
@@ -39,54 +32,110 @@ else if($count_slash==4)
 
 ?>
 
-<div class="container-fluid" id="header-container">
-	<div class="row">
-		<div class="col-sm-2">
-			<img src="<?php echo $slashes; ?>img/logo.jpg" width="200" height="50"/>
+<header id="masthead" role="banner" class="">
+	<div id="sc-logo-section">
+		<div id="head-logo">
+			<a href="<?php echo $slashes; ?>dashboard.php">
+				<img src="<?php echo $slashes; ?>img/logo4.svg" width="60" height="60" />
+				<img src="<?php echo $slashes; ?>img/logo.svg" width="180" height="55" />
+			</a>
+		</div>		
+	</div>
+	<div id="navigation-section">
+		<nav id="menu1">
+			<ul id="head-menu1">
+				<a class="nav-link" href="<?php echo $slashes; ?>dashboard.php" title="User dashboard"><li class="nav-list">DASHBOARD</li></a>
+				<a class="nav-link" href="<?php echo $slashes; ?>forum" title="Question answer forum"><li class="nav-list">FORUM</li></a>
+				<a class="nav-link" href="<?php echo $slashes; ?>expert_connect.php" title="Connect with experts"><li class="nav-list">EXPERT CONNECT</li></a>
+				<a class="nav-link-wait" href="#" title="Collaboration coming soon..."><li class="nav-list">COLLABORATE</li></a>
+				<a class="nav-link-wait" href="#" title="Favours coming soon..."><li class="nav-list">FAVOURS</li></a>
+			</ul>
+		</nav>
+	</div>
+	<div id="navigation-section-media">
+		<nav id="menu2">
+			<ul id="head-menu2">
+				<a class="nav-link" href="<?php echo $slashes; ?>dashboard.php" title="User dashboard"><li class="nav-list">DASHBOARD</li></a>
+				<a class="nav-link" href="<?php echo $slashes; ?>forum"title="Question answer forum"><li class="nav-list">FORUM</li></a>
+				<a class="nav-link" id="more-link" href="javascript:void(0)" ><li class="nav-list">MORE&nbsp;<div class="down-arrow"></div></li></a>
+				<ul id="head-more-menu">
+					<a class="sub-link" href="expert_connect.php" title="Connect with experts"><li class="sub-nav-list">EXPERT CONNECT</li></a>
+					<a class="sub-link-wait" href="#"><li class="sub-nav-list" title="Collaboration coming soon...">COLLABORATE</li></a>
+					<a class="sub-link-wait" href="#"><li class="sub-nav-list" title="Favours coming soon...">FAVOURS</li></a>
+				</ul>
+			</ul>
+		</nav>
+	</div>
+	<div id="head-right-section">
+	<?php if(isset($_SESSION['user']))	{
+		?>
+		<div id="head-user-pic" >
+			<div id="user-pro" style="float:left;"></div>
+			<div class="down-arrow" style="margin-left:5px;margin-top:15px;"></div>
+			<ul id="head-pro-section">
+				<a class="sub-link" href="<?php echo $slashes; ?>profile.php"><li class="sub-nav-list" id="">MY ACCOUNT</li></a>
+				<a class="sub-link" href="<?php echo $slashes; ?>logout.php"><li class="sub-nav-list" id="">LOGOUT</li></a>
+			</ul>
 		</div>
-		<div class="col-sm-6" id="header-menu">
-			<!--<div id="h-nav">-->
-				<div id="head-main-menu">
-					<a href="<?php echo $slashes; ?>dashboard.php" class="header-navigation" id="dashboard-link"><div class="db-logo" style="background-image:url('<?php echo $slashes; ?>img/dashboard.png');"></div>Dashboard</a>
-					<a href="<?php echo $slashes; ?>forum" class="header-navigation" id="forum-link"><div class="db-logo" style="background-image:url('<?php echo $slashes; ?>img/forum.png');"></div>Q/A Forum</a>
-					<a href="<?php echo $slashes; ?>expert_connect.php" class="header-navigation" id="connect-link"><div class="db-logo" style="background-image:url('<?php echo $slashes; ?>img/expert.png');"></div>Expert Connect</a>
-					<a href="" class="header-navigation" id="collab-link"><div class="db-logo" style="background-image:url('<?php echo $slashes; ?>img/collaborate.png');"></div>Collaborate</a>
-					<a href="" class="header-navigation" id="favours-link"><div class="db-logo" style="background-image:url('<?php echo $slashes; ?>img/favours.png');"></div>Favours</a>
-				</div>
-				<div id="media-head-menu">
-					<a href="<?php echo $slashes; ?>dashboard.php" class="header-navigation" id="dashboard-link"><div class="db-logo" style="background-image:url('<?php echo $slashes; ?>img/dashboard.png');"></div>Dashboard</a>
-					<a href="<?php echo $slashes; ?>forum" class="header-navigation" id="forum-link"><div class="db-logo" style="background-image:url('<?php echo $slashes; ?>img/forum.png');"></div>Q/A Forum</a>
-					<a href="javascript:void(0)" class="header-navigation" id="more-link">+ More...</a>
-					<ul id="head-nav-menu">
-						<a href="<?php echo $slashes; ?>expert_connect.php" class="li-menu-link" ><li class="list-nav-menu">Expert Connect<span class="glyphicon glyphicon-transfer head-glyph" style="margin-left:4px;"></span></li></a>
-						<a href="" class="li-menu-link" ><li class="list-nav-menu">Collaborate<span class="glyphicon glyphicon-refresh head-glyph" style="margin-left:4px;"></span></li></a>
-						<a href="" class="li-menu-link" ><li class="list-nav-menu">Favours<span class="glyphicon glyphicon-gift head-glyph" style="margin-left:4px;"></span></li></a>
-						<a href="<?php echo $slashes; ?>profile.php" class="li-menu-link" id="profile-link"><li class="list-nav-menu">My Profile<span class="glyphicon glyphicon-user head-glyph" style="margin-left:4px;"></span></li></a>
-						<a href="<?php echo $slashes; ?>logout.php" class="li-menu-link" id="logout-link"><li class="list-nav-menu">Logout<span class="glyphicon glyphicon-off head-glyph" style="margin-left:4px;"></span></li></a>
-					</ul>
-				</div>
-			
-		</div>
-		<div class="col-sm-4" id="qstn-nav">
-			<span id="ask-lay"><a id="ask-link" href="<?php echo $slashes; ?>qstn.php">Ask Question</a></span>
-			<span id="search-lay">
-				<i class="glyphicon glyphicon-search"></i>
-				<input id="srch-box" type="text" placeholder="Search question" onkeypress="fetchQuestions(this.value,'<?php echo $slashes ?>')"/>
-
-			</span>	
-			<div id="user-icon-section" style="background-color:<?php echo get_color(); ?>;">
-				<?php 
-					echo strtoupper(substr($_SESSION['name'],0,1)); 
+	<?php	}
+	else	{
+	?>
+	<span style="float:right;margin-top:15px;font-size:12px;">Hi <strong>Guest !</strong></span>
+	<?php	}	?>
+		<!--<div class="down-arrow" style="float:right;"></div>-->
+		
+		<div id="search-bar">
+			<input class="form-control" type="text" placeholder="Search questions" onfocus='$("#block-bg").fadeIn()' onblur='$("#block-bg").fadeOut()' onkeyup="fetchQuestions(this.value,'<?php echo $slashes ?>')" />
+		</div>		
+		<div id="notify-sec">
+			<a href="javascript:void(0)" id="not-btn" >
+				<img src="<?php echo $slashes; ?>img/bell.svg" width="22" height="22" />
+				<?php
+					try	{
+						$sql_notify_cnt = "select count(1) as not_cnt from notifications where user_id = '".$_SESSION['user']."' and view_flag = 'N'";
+						$stmt_notify_cnt = $conn->prepare($sql_notify_cnt);
+						$stmt_notify_cnt->execute();
+						$row_cnt = $stmt_notify_cnt->fetch();
+						$cnt_notify=$row_cnt['not_cnt'];
+					}
+					catch(PDOException $e)	{
+						
+					}
+					if($cnt_notify > 0)	{
 				?>
+				<span class="badge" id="not-btn-val"><?php echo $cnt_notify; ?></span>
+					<?php }	?>
+			</a>
+			<div id="notification-section">
+			<!--	<div id="notify-caption"><strong>Notifications</strong></div></br>
+				<div id="notify-header">
+					<table>
+						<th>
+							<td id="notify-col1" class="table-notify-header" >
+								<span id="notify-count-text"><strong><span id="notify-read-count"></span> unread notifcations</strong></span>
+							</td>
+							<td class="table-notify-header" >
+								<button id="read-button" class="btn btn-primary" onclick="updateNotify(-1)">Mark all read</button>
+							</td>
+						</th>
+					</table>
+				</div></br>-->
+				<div id="show-notify-section"></div>
 			</div>
 		</div>
-		<ul id="profile-section">
-			<a class="li-menu-link" href="<?php echo $slashes; ?>profile.php"><li class="list-nav-menu" id="">My Account<span class="glyphicon glyphicon-user head-glyph" style="margin-left:4px;"></span></li></a>
-			<a class="li-menu-link" href="<?php echo $slashes; ?>logout.php"><li class="list-nav-menu" id="">Logout<span class="glyphicon glyphicon-off head-glyph" style="margin-left:4px;"></span></li></a>
-		</ul>
+		<div id="inbox-section"> 
+			<a href="<?php echo $slashes; ?>inbox.php" id="msgtxt-btn" class="">
+				<img src="<?php echo $slashes; ?>img/mail.svg" width="22" height="22" />
+			</a>
+		</div>
+		<div id="qstn-ask">
+			<a href="<?php echo $slashes; ?>qstn.php" class="btn btn-primary" target="_blank">ASK QUESTION</a>
+		</div>
 	</div>
-	<div id="srch-result">
-		<span>No results</span>
-	</div>
+</header>
+<div id="srch-result">
+	<span>No results</span>
 </div>
 <button id = "go-top-btn" class="btn btn-primary" onclick="window.scrollTo(0,0)">&#9650;</button>
+<div id="block-bg"></div>
+<input id="slash" type="hidden" value="<?php echo $slashes; ?>" />
