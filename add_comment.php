@@ -1,9 +1,9 @@
 <?php
 session_start();
-if(!$_SESSION["logged_in"])	{
-	echo "Please login </br>";
-	header("location:login.php");
-}
+if(isset($_SESSION['logged_in']) and $_SESSION['logged_in'])
+	$logged_in=1;
+else
+	$logged_in=0;
 include "connectDb.php";
 function convert_utc_to_local($utc_timestamp)	{
 	$date_utc=new DateTime($utc_timestamp,new DateTimeZone('UTC'));
@@ -66,7 +66,7 @@ $ans_id=$_REQUEST['ansid'];
 $posted_by = $_REQUEST['posted_by'];
 $qid = $_REQUEST['qid'];
 $q_post_by = $_REQUEST['q_posted_by'];
-
+$slashes=trim($_REQUEST['root']);
 try	{
 	$sql_get_qstn_title = "select qstn_titl from questions where qstn_id = ".$qid;
 	foreach($conn->query($sql_get_qstn_title) as $result_titl)
@@ -97,14 +97,14 @@ try	{
 	try		{
 		/* push notification for user who posted the answer and question */
 		if($posted_by != $_SESSION['user'])	{
-			$sql_push_notifications = "insert into notifications(notify_confg,user_id,view_flag)
-									   values('".$myJSON."','".$posted_by."',0)";
+			$sql_push_notifications = "insert into notifications(notify_confg,user_id)
+									   values('".$myJSON."','".$posted_by."')";
 			$stmt_push_notifications = $conn->prepare($sql_push_notifications);
 			$stmt_push_notifications->execute();
 		}
 		if($q_post_by != $_SESSION['user'] and $q_post_by != $posted_by)	{
-			$sql_push_notifications_q = "insert into notifications(notify_confg,user_id,view_flag)
-									   values('".$myJSON."','".$q_post_by."',0)";
+			$sql_push_notifications_q = "insert into notifications(notify_confg,user_id)
+									   values('".$myJSON."','".$q_post_by."')";
 			$stmt_push_notifications_q = $conn->prepare($sql_push_notifications_q);
 			$stmt_push_notifications_q->execute();
 		}
@@ -126,8 +126,8 @@ try	{
 		
 		$notify_text = addslashes("<a href = 'qstn_ans.php?qid=".$qid."#user-answer-".$ans_id."' class='list-group-item'><strong>".$_SESSION['user']."</strong> also commented on <strong>".$posted_by."'s</strong> answer</a>");
 		
-		$sql_push_notifications_1 = "insert into notifications(notify_confg,user_id,view_flag)
-								   select distinct '".$myJSON."',posted_by,0 from comments where ans_id = ".$ans_id." and posted_by <> '".$_SESSION['user']."' and posted_by <> '".$posted_by."' and posted_by <> '".$q_post_by."'";
+		$sql_push_notifications_1 = "insert into notifications(notify_confg,user_id)
+								   select distinct '".$myJSON."',posted_by from comments where ans_id = ".$ans_id." and posted_by <> '".$_SESSION['user']."' and posted_by <> '".$posted_by."' and posted_by <> '".$q_post_by."'";
 		$stmt_push_notifications_1 = $conn->prepare($sql_push_notifications_1);
 		$stmt_push_notifications_1->execute();
 			
@@ -148,20 +148,33 @@ try	{
 		
 	}
 	catch(PDOException $e)	{
-			echo $e->getMessage();
+			
 	}
 }
 catch(PDOException $e)	{
-	echo "Internal server error".$e->getMessage();
+	echo "Internal server error";
 }
 
 try	{
-	$sql_fetch_comment="select comment_desc,posted_by,created_ts from comments where ans_id=".$ans_id." order by created_ts asc";
+	$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ans_id." order by created_ts asc";
 	foreach($conn->query($sql_fetch_comment) as $row_cmnt)	{
+		$comment_id=$row_cmnt['comment_id'];
 		$comment=$row_cmnt['comment_desc'];
-		$posted_by=$row_cmnt['posted_by'];
+		$cmnt_posted_by=$row_cmnt['posted_by'];
 		$created_ts=$row_cmnt['created_ts'];
-		echo '<div class="user-comment-sec">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
+		echo "<div class='user-comment-sec' id='comment-list-front-".$comment_id."'>".$comment." - <strong><span id='cmn-posted-".$comment_id."' onmouseleave='showUserCard(event,1,".$comment_id.",\"c\")' onmouseenter='showUserCard(event,0,".$comment_id.",\"c\")'><a href='".$slashes."profile.php?user=".$cmnt_posted_by."'>".$cmnt_posted_by."</a></span></strong>&nbsp;&nbsp;<span class='time-sec'>".get_user_date(convert_utc_to_local($created_ts))."</span></div>";
+													
+		$user_id_fetch=$cmnt_posted_by;
+		include "fetch_user_dtls.php";
+		
+		$msg_div_id = "msg-c-".$comment_id;
+		$post_type="c";
+		$id=$comment_id;
+		$user_card=$cmnt_posted_by;
+		$up_vote=$up_user_votes;
+		$down_vote=$down_user_votes;
+		include "user_card.php"; 
+		include "message_box.php";
 	}
 }
 catch(PDOException $e)	{
