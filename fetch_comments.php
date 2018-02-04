@@ -1,6 +1,9 @@
 <?php 
 session_start();
-
+if(isset($_SESSION['logged_in']) and $_SESSION['logged_in'])
+	$logged_in=1;
+else
+	$logged_in=0;
 include "connectDb.php";
 include "forum/functions/get_time.php";
 include "forum/functions/get_time_offset.php";
@@ -11,6 +14,7 @@ function convert_utc_to_local($utc_timestamp)	{
 	return $date_final;
 }
 $ans_list="";
+$slashes="";
 if(isset($_REQUEST['flag']))	{
 	$token=$_REQUEST['flag'];
 }
@@ -26,13 +30,18 @@ if(isset($_REQUEST['element_count']))	{
 
 
 $comment_id_name = "";
-if($token == 0)
+if($token == 0)	{
 	$comment_id_name="comment-list-recent-";
-else if($token == 1)
+	$cmnt_card="rc";
+}
+else if($token == 1)	{
 	$comment_id_name="comment-list-top-";
-else if($token == 2)
+	$cmnt_card="tc";
+}
+else if($token == 2)	{
 	$comment_id_name="comment-list-front-";
-
+	$cmnt_card="fc";
+}
 $array_len=sizeof($cmnt_list);
 
 if($element_count >= $array_len)	{
@@ -52,26 +61,40 @@ else	{
 }
 
 try	{
+
 	$sql="select comment_id,comment_desc,posted_by,created_ts 
 		  from comments 
 		  where ans_id=".$ansid." 
-		  and comment_id between ".$cmnt_list[$end_cmnt]." and ".$cmnt_list[$start_cmnt]."
-		  order by created_ts desc limit 5";
+		  and comment_id between ".$cmnt_list[$start_cmnt]." and ".$cmnt_list[$end_cmnt]."
+		  order by created_ts asc";
 	$stmt=$conn->prepare($sql);
 	$stmt->execute();
 	if($stmt->rowCount() > 0)	{
 		while($row_cmnt = $stmt->fetch())	{
 			$comment_id=$row_cmnt['comment_id'];
 			$comment=$row_cmnt['comment_desc'];
-			$posted_by=$row_cmnt['posted_by'];
+			$cmnt_posted_by=$row_cmnt['posted_by'];
 			$created_ts = $row_cmnt['created_ts'];
-			echo '<div class="user-comment-sec" id="'.$comment_id_name.$comment_id.'">'.$comment.' - <strong>'.$posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
+			
+			echo "<div class='user-comment-sec' id='comment-list-front-".$comment_id."'>".$comment." - <strong><span id='cmn-posted-".$comment_id."' onmouseleave='showUserCard(event,1,".$comment_id.",\"".$cmnt_card."\")' onmouseenter='showUserCard(event,0,".$comment_id.",\"".$cmnt_card."\")'><a href='profile.php?user=".$cmnt_posted_by."'>".$cmnt_posted_by."</a></span></strong>&nbsp;&nbsp;<span class='time-sec'>".get_user_date(convert_utc_to_local($created_ts))."</span></div>";
+													
+			$user_id_fetch=$cmnt_posted_by;
+			
+			include $slashes."fetch_user_dtls.php";
+			$msg_div_id = "msg-fc-".$comment_id;
+			$post_type="fc";
+			$id=$comment_id;
+			$user_card=$cmnt_posted_by;
+			$up_vote=$up_user_votes;
+			$down_vote=$down_user_votes;
+			include $slashes."user_card.php"; 
+			include $slashes."message_box.php";
 		}
 	}						
 	
 }
 catch(PDOException $e)	{
-	echo $e->getMessage();
+	
 }
 
 
