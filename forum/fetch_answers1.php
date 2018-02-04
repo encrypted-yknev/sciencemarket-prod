@@ -2,6 +2,12 @@
 
 $url_path = $_SERVER['PHP_SELF'];
 $count_slash = substr_count($url_path,"/");
+
+if(isset($_SESSION['logged_in']) and $_SESSION['logged_in'])
+	$logged_in=1;
+else
+	$logged_in=0;
+					
 if($count_slash==1)
 	$slashes = "";
 else if($count_slash==2)
@@ -25,6 +31,7 @@ else if($count_slash==4)
 			$down_votes=$row['down_votes'];
 				?>
 				<div class="qstn_row">
+				
 				<div class="qstn-topic-section">
 					<?php
 						try	{
@@ -47,134 +54,35 @@ else if($count_slash==4)
 						catch(PDOException $e)	{
 							
 						}
+						$user_id_fetch=$posted_by;
 						
-						try	{
-							$sql_fetch_votes="select description,disp_name,pro_img_url,up_votes,down_votes from users where user_id='".$posted_by."'";
-							foreach($conn->query($sql_fetch_votes) as $row_user)
-								$img_url=$slashes.$row_user["pro_img_url"];
-								$up_user_votes=$row_user["up_votes"];
-								$down_user_votes=$row_user["down_votes"];
-								$disp_name = $row_user['disp_name'];
-								$desc = $row_user['description'];
-						}
-						catch(PDOException	$e)	{
-							
-						}
-					
+						include $slashes."fetch_user_dtls.php";
 					?>
 				</div>
-				<div class="user-img-section" style="background-image:url('<?php echo $img_url; ?>'); background-size:cover;">
+				<div class="user-img-section" onmouseleave='showUserCard(event,1,<?php echo $qid; ?>,"q")' onmouseenter='showUserCard(event,0,<?php echo $qid; ?>,"q")' style="background-image:url('<?php echo $img_url; ?>'); background-size:cover;">
 					
 				</div>
 				<div class="auth-section">
 					<?php
-						echo "<span id='qstn-posted-".$qid."' onmouseover='showUserCard(0,".$qid.")'>".$posted_by."</span> . ".
-						get_user_date(convert_utc_to_local($created_ts));
+						echo "<span id='qstn-posted-".$qid."'>
+								<a 
+								onmouseleave='showUserCard(event,1,".$qid.",\"q\")' 
+								onmouseenter='showUserCard(event,0,".$qid.",\"q\")' 
+								href='".$slashes."profile.php?user=".$posted_by."'>".$posted_by."</a></span> - 
+								<span class='qstn-time-sec'>".get_user_date(convert_utc_to_local($created_ts))."</span>";
 					?>
 				</div></br>
-				<div class="user-card-section" id="user-card-<?php echo $qid; ?>" onmouseover="showUserCard(2,<?php echo $qid; ?>)" onmouseout="showUserCard(1,<?php echo $qid; ?>)">
-					<div class="user-card-image" style="background-image:url('<?php echo $img_url; ?>'); background-size:cover;" >
-					</div>
-					<div class="user-name-card">
-						<a style="color:#fff;" href="<?php echo $slashes; ?>profile.php?user=<?php echo $posted_by; ?>">
-						<span><strong><?php echo $disp_name; ?></strong></span>
-						<span style="font-size:12px;">(<?php echo $posted_by; ?>)</span>
-						</a>
-					</div>
-					<div class="card-top-bar"></div></br>
-					<!--<p class="about-user-card"><?php #echo $desc; ?></p>
-					<div class="card-more-text"><a class="">more</a></div></br>-->
-					<div class="vote-section-card">
-						<div class="vote-up-card">
-							<div class="upvote-logo"></div>&nbsp;
-							<span class="vote-count-section" style="font-size:12px;"><strong><?php echo $up_user_votes; ?></strong></span>
-						</div>
-						
-						<div class="vote-down-card">
-							<div class="downvote-logo"></div>&nbsp;
-							<span class="vote-count-section" style="font-size:12px;"><strong><?php echo $down_user_votes; ?></strong></span>
-						</div>
-						<div class="line-follow-card">
-							<div class="follow-logo"></div>&nbsp;
-							<span class="vote-count-section" style="font-size:12px;">
-								<strong>
-								<?php 
-								try	{
-									$sql_count_followers="select count(1) as cnt_follower from followers where following_user_id='".$posted_by."'";
-									foreach($conn->query($sql_count_followers) as $row_cnt_follow)
-										$cnt_folow=$row_cnt_follow['cnt_follower'];
-								}
-								catch(PDOException $e)	{
-									
-								}
-								echo $cnt_folow.($cnt_folow>1?' followers':" follower"); ?>
-								</strong>
-							</span>
-						</div><br>
-					</div></br>
-					<div class="interest-user-card">
-					<?php
-						try	{
-							$sql_fetch_interest = "select tag_name from tags t1 inner join user_tags t2
-													on t1.tag_id = t2.tag_id 
-													where t2.user_id = '".$posted_by."'";
-							$stmt_fetch_interest = $conn->prepare($sql_fetch_interest);
-							$stmt_fetch_interest->execute();
-							
-							if($stmt_fetch_interest->rowCount() > 0)	{
-								echo 'Interests - ';
-								while($row_interest=$stmt_fetch_interest->fetch())	{
-									echo "<span class='badge interest-badge'>".$row_interest['tag_name']."</span>&nbsp;";
-								}
-								
-							}
-							else	{
-								echo "No interests added";
-							}
-						}
-						catch(PDOException $e)	{
-							
-						}
-					?>
-					</div></br>
+				<?php 
+					$msg_div_id = "msg-q-".$qid;
+					$post_type="q";
+					$user_card=$posted_by;
+					$up_vote=$up_user_votes;
+					$down_vote=$down_user_votes;
+					$id=$qid;
+					include $slashes."user_card.php"; 
+					include $slashes."message_box.php";
 					
-					<div class="follow-user-card">
-						<?php
-						try	{
-								$sql_check_follower = "select count(1) as count from followers where user_id='".$_SESSION['user']."' and following_user_id='".$posted_by."'";
-								$stmt_check_follower = $conn->prepare($sql_check_follower);
-								$stmt_check_follower->execute();
-								$row_user_count = $stmt_check_follower->fetch();
-								$count_follower = $row_user_count['count'];
-								if($count_follower > 0)	{
-									$follow_class="btn btn-primary disabled btn-disabled";
-									$unfollow_class="btn btn-danger";
-									$is_follower=1;
-									$click_attr_fol="";
-									$click_attr_unfol="onclick='updateFollower(\"".$posted_by."\",1,".$qid.")'";
-								}
-								else	{
-									$follow_class="btn btn-primary";
-									$unfollow_class="btn btn-danger disabled btn-disabled";
-									$is_follower=0;	
-									$click_attr_fol="onclick='updateFollower(\"".$posted_by."\",0,".$qid.")'";
-									$click_attr_unfol="";
-								}
-							}
-							catch(PDOException $e)	{
-								
-							}
-							?>
-							<button id="follow-<?php echo $qid; ?>" type="button" class="<?php echo $follow_class; ?>"<?php echo$click_attr_fol; ?>>Follow</button>&emsp;
-							<button id="unfollow-<?php echo $qid; ?>" type="button" class="<?php echo $unfollow_class; ?>" <?php echo$click_attr_unfol; ?>>UnFollow</button>
-					</div></br>
-					<div class="follow-msg-section" id="follow-message-<?php echo $qid; ?>"></div></br>
-					<!--
-					<div class="vote-data-card">
-						<span class="label label-success label-text">Upvotes&nbsp;<span style="background-color:#fff;color:#5cb85c;margin:2px;padding:1px;"><?php #echo $up_user_votes; ?></span></span>
-						<span class="label label-danger label-text">Downvotes&nbsp;<span style="background-color:#fff;color:#d9534f;margin:2px;padding:1px;"><?php #echo $down_user_votes; ?></span></span>
-					</div>-->
-				</div>
+				?>
 				
 				</br>
 				<a class="titl-link" href="<?php echo $slashes.'qstn_ans.php?qid='.$qid ?>"><?php echo $row["qstn_titl"]; ?></a>&emsp;
@@ -206,24 +114,49 @@ else if($count_slash==4)
 				-->
 				
 				<?php
-					$sql_check_up_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
-										and post_type='Q' and vote_type=0 and post_id=".$qid;
-					$sql_check_down_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
-										and post_type='Q' and vote_type=1 and post_id=".$qid;
-					$stmt_check_up_vote = $conn->prepare($sql_check_up_vote);
-					$stmt_check_up_vote->execute();
-					$sql_row_0 = $stmt_check_up_vote->fetch();
-					$count_row_0 = $sql_row_0['vote_count'];
-					$stmt_check_down_vote = $conn->prepare($sql_check_down_vote);
-					$stmt_check_down_vote->execute();
-					$sql_row_1 = $stmt_check_down_vote->fetch();
-					$count_row_1 = $sql_row_1['vote_count'];
+					
+					if($logged_in == 1)	{
+						$sql_check_up_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
+											and post_type='Q' and vote_type=0 and post_id=".$qid;
+						$sql_check_down_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
+											and post_type='Q' and vote_type=1 and post_id=".$qid;
+						$stmt_check_up_vote = $conn->prepare($sql_check_up_vote);
+						$stmt_check_up_vote->execute();
+						$sql_row_0 = $stmt_check_up_vote->fetch();
+						$count_row_0 = $sql_row_0['vote_count'];
+						$stmt_check_down_vote = $conn->prepare($sql_check_down_vote);
+						$stmt_check_down_vote->execute();
+						$sql_row_1 = $stmt_check_down_vote->fetch();
+						$count_row_1 = $sql_row_1['vote_count'];
+					}
+					else	{
+						$count_row_0 = 0;
+						$count_row_1 = 0;
+					}
 						
 					?>
+				<span class="badge view-section">
+				<?php
+					try	{
+						$sql_fetch_views = "select views from questions where qstn_id = ".$qid;
+						$stmt_fetch_views=$conn->prepare($sql_fetch_views);
+						$stmt_fetch_views->execute();
+						$res_views=$stmt_fetch_views->fetch();
+						$view_count = $res_views['views'];
+						
+						echo "<div class='view-num' id='view-qstn-".$qid."'>".$view_count." views</div>";
+					}
+					catch(PDOException $e)	{
+						
+					}
+				?>				
+				</span>
+				<span class="cont-sep">.</span>	
 				<input type="hidden" id="upvote-value-<?php echo $qid; ?>" value="<?php echo $count_row_0; ?>" />
 				<input type="hidden" id="downvote-value-<?php echo $qid; ?>" value="<?php echo $count_row_1; ?>" />
 				<span class="vote-sec" id="up-link">
 				<?php 
+				if($logged_in == 1)	{
 					if($posted_by != $_SESSION['user'])	{
 				?>
 					<span class="vote-link-area" id="up-link-area" style="cursor:pointer;"
@@ -236,11 +169,18 @@ else if($count_slash==4)
 					?>
 						<span class="glyphicon glyphicon-thumbs-up"></span>
 						<span id="up-vote-qstn-<?php echo $qid; ?>" class="vote-count-area"><?php echo $up_votes; ?></span>
+						<?php } 
+				}
+						else	{
+					?>
+						<span class="glyphicon glyphicon-thumbs-up"></span>
+						<span id="up-vote-qstn-<?php echo $qid; ?>" class="vote-count-area"><?php echo $up_votes; ?></span>
 						<?php } ?>
 				</span>
 				
 				<span class="vote-sec" id="down-link">
 				<?php 
+				if($logged_in == 1)	{
 					if($posted_by != $_SESSION['user'])	{
 				?>
 					<span class="vote-link-area" id="down-link-area" style="cursor:pointer;"
@@ -248,41 +188,105 @@ else if($count_slash==4)
 						<span id="glyph-down-<?php echo $qid; ?>" class="glyphicon glyphicon-thumbs-down <?php echo ($count_row_1 > 0)?"glyph-downvoted":""; ?>"></span>
 					<span id="down-vote-qstn-<?php echo $qid; ?>" class="vote-count-area"><?php echo $down_votes; ?></span></span>
 				
-				<?php } 
+				<?php }
+					else	{
+					?>
+						<span class="glyphicon glyphicon-thumbs-down"></span>
+						<span id="down-vote-qstn-<?php echo $qid; ?>" class="vote-count-area"><?php echo $down_votes; ?></span>
+						<?php } 
+				}
 						else	{
 					?>
 						<span class="glyphicon glyphicon-thumbs-down"></span>
 						<span id="down-vote-qstn-<?php echo $qid; ?>" class="vote-count-area"><?php echo $down_votes; ?></span>
 						<?php } ?>
-				</span>
+				</span> 
+				<span class="cont-sep">.</span>
+				<?php 
+				try{
+					$sql_check_bk="select count(1) as bk_cnt from bookmarks where user_id = '".$_SESSION['user']."' and post_id=".$qid;
+					$stmt_chk_bk=$conn->prepare($sql_check_bk);
+					$stmt_chk_bk->execute();
+					$row_bk_cnt=$stmt_chk_bk->fetch();
+					$bk_cnt=$row_bk_cnt['bk_cnt'];
+					
+					if($bk_cnt > 0)	{
+						$flag=1;
+						$img_src='img/svg/heart_new.svg';
+					}
+					else	{
+						$flag=0;
+						$img_src='img/svg/up.svg';
+					}
+				}
+				catch(PDOException $e)	{
+					echo $e->getMessage();
+				}
+				?>
+				<span class="bkmrk-qstn" id="bkmrk-<?php echo $qid; ?>" data-flag="<?php echo $flag; ?>" onclick="addBookmark(<?php echo "'".$slashes."',".$qid; ?>)" ><img src='<?php echo $slashes.$img_src;?>' width="20" height="20" /></span>
 				
-				&nbsp;&nbsp;
-				<span class="ans-toggle" id="ans-toggle-<?php echo $qid; ?>"><a href="javascript:void(0)" onclick="toggleAns(<?php echo $qid; ?>,0)">Recent answers</a></span>&nbsp;&nbsp;
-				<span class="ans-toggle" id="top-ans-toggle-<?php echo $qid; ?>"><a href="javascript:void(0)" onclick="toggleAns(<?php echo $qid; ?>,1)">Top answers</a></span>
+				<span class="cont-sep">.</span>				
+				<span class="ans-toggle" id="top-ans-toggle-<?php echo $qid; ?>"><a href="javascript:void(0)" 
+				onclick="toggleAns(<?php echo $qid; ?>,1,'<?php echo $posted_by ?>')">Show top answers</a></span>
+				<span class="cont-sep">.</span>			
+				<span class="ans-toggle" id="ans-toggle-<?php echo $qid; ?>"><a href="javascript:void(0)" 
+				onclick="toggleAns(<?php echo $qid; ?>,0,'<?php echo $posted_by ?>')">Show recent answers</a></span> 
 				
 				</br></br>
+				<div class="ans-container" id="ans-cont-<?php echo $qid; ?>" data-location="<?php echo $slashes; ?>" >
 				<div id="front-top-qstn-<?php echo $qid; ?>">
 				<?php
 					try	{
-						$sql_fetch_top_ans="select distinct
-												   a.ans_id,
+						$sql_fetch_top_ans="select ans_id,
+												   ans_desc,
+												   up_votes,
+												   down_votes,
+												   posted_by,
+												   created_ts 
+										    from answers 
+											where qstn_id = ".$qid." 
+											order by up_votes desc,down_votes asc limit 2";
+						/* $sql_fetch_top_ans="select z.ans_id,
+												   z.ans_desc,
+												   z.up_votes,
+												   z.down_votes,
+												   z.posted_by,
+												   z.created_ts,
+												   z.cmnt_creat_ts
+											from
+											(select a.ans_id,
 												   a.ans_desc,
 												   a.up_votes,
 												   a.down_votes,
 												   a.posted_by,
-												   a.created_ts 
-										   from answers a
-										   inner join questions b 
-										   on a.qstn_id=b.qstn_id
-										   left outer join comments c
-										   on a.ans_id=c.ans_id
-										   where b.qstn_id=".$qid."
-										   order by a.created_ts desc,c.created_ts desc
-										   limit 2";
+												   a.created_ts,
+												   a.cmnt_creat_ts,
+												   @r:=case when a.ans_id=@a then @r+1
+														   else 1
+														   end as rnum,
+												   @a:=a.ans_id as row_ans_id
+											from 
+											(select @r:=0,@a:=0) t1,
+											(select a.ans_id,
+												   a.ans_desc,
+												   a.up_votes,
+												   a.down_votes,
+												   a.posted_by,
+												   a.created_ts,
+												   c.created_ts as cmnt_creat_ts
+											from answers a
+											inner join questions b 
+											on a.qstn_id=b.qstn_id
+											left outer join comments c
+											on a.ans_id=c.ans_id
+											where b.qstn_id=".$qid.") a) z
+											where z.rnum = 1
+											order by z.created_ts desc,z.cmnt_creat_ts desc
+											limit 2"; */
+											
 						$stmt_fetch_top=$conn->prepare($sql_fetch_top_ans);
 						$stmt_fetch_top->execute();
 						if($stmt_fetch_top->rowCount() > 0)	{
-							
 							while($row_top_2 = $stmt_fetch_top->fetch())	{
 								
 								$ansid=$row_top_2['ans_id'];
@@ -296,16 +300,34 @@ else if($count_slash==4)
 								$stmt_get_user_pic = $conn->prepare($sql_get_user_pic);
 								$stmt_get_user_pic->execute();
 								$row_pic = $stmt_get_user_pic->fetch();
-								$ans_user_pic = $slashes.$row_pic['pro_img_url'];
+								$ans_user_pic = $row_pic['pro_img_url'];
 								?>
 								<div class="ans-front-hidden-sec" id="ans-front-sec-<?php echo $ansid; ?>">
-									<div class="photo-ans-sec" style="background-image:url('<?php echo $ans_user_pic; ?>'); background-size:cover;"></div>
+									<div class="photo-ans-sec" onmouseleave='showUserCard(event,1,<?php echo $ansid; ?>,"fa")' onmouseenter='showUserCard(event,0,<?php echo $ansid; ?>,"fa")' style="background-image:url('<?php echo $ans_user_pic; ?>'); background-size:cover;"></div>
 										
 									<div class="auth-text-section">
-										<?php echo '<strong>'.$ans_user.'</strong> - <span class="time-sec">'.get_user_date(convert_utc_to_local($ans_ts)).'</span>'; ?></br>
+									<?php
+										echo "<span id='ans-posted-".$ansid."' onmouseleave='showUserCard(event,1,".$ansid.",\"fa\")' onmouseenter='showUserCard(event,0,".$ansid.",\"fa\")'><a href='".$slashes."profile.php?user=".$ans_user."'>".$ans_user."</a></span> . ".
+									get_user_date(convert_utc_to_local($ans_ts));
+									?>
+									</br>
 									</div></br>
+									<?php 
+										$user_id_fetch=$ans_user;
+										
+										include $slashes."fetch_user_dtls.php";
+										$msg_div_id = "msg-a-".$ansid;
+										$post_type="fa";
+										$user_card=$ans_user;
+										$up_vote=$up_user_votes;
+										$down_vote=$down_user_votes;
+										$id=$ansid;
+										include $slashes."user_card.php"; 
+										include $slashes."message_box.php";
+									?>
 									<div class="ans-text-section"><?php echo $ans."</br>"; ?></div></br>
 									<?php 
+									if($logged_in == 1)	{
 										$sql_check_up_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' and post_type='A' and vote_type=0 and post_id=".$ansid;
 										$sql_check_down_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
 															and post_type='A' and vote_type=1 and post_id=".$ansid;
@@ -317,7 +339,11 @@ else if($count_slash==4)
 										$stmt_check_down_vote->execute();
 										$sql_row_1 = $stmt_check_down_vote->fetch();
 										$count_row_1 = $sql_row_1['vote_count'];
-											
+									}
+									else	{
+										$count_row_0 = 0;
+										$count_row_1 = 0;
+									}
 										?>
 										<input type="hidden" id="upvote-front-value-ans-<?php echo $ansid; ?>" value="<?php echo $count_row_0; ?>" />
 										<input type="hidden" id="downvote-front-value-ans-<?php echo $ansid; ?>" value="<?php echo $count_row_1; ?>" />
@@ -325,13 +351,20 @@ else if($count_slash==4)
 									<div class="voting-links">
 										<span class="vote-sec">
 									<?php 
+									if($logged_in == 1)	{
 												if($ans_user != $_SESSION['user'])	{
 											?>
 										<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
 											onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,0,'<?php echo $slashes; ?>', document.getElementById('upvote-front-value-ans-<?php echo $ansid; ?>').value,2)">
 											<span id="glyph-front-up-ans-<?php echo $ansid; ?>" class="glyphicon glyphicon-thumbs-up <?php echo ($count_row_0 > 0)?"glyph-ans-upvoted":"";  ?>"></span>
 										<span id="up-vote-front-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></span>
-										<?php } 
+										<?php }
+											else	{
+												?>
+											<span class="glyphicon glyphicon-thumbs-up"></span>
+											<span id="up-vote-front-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span>
+											<?php } 
+									}
 													else	{
 												?>
 											<span class="glyphicon glyphicon-thumbs-up"></span>
@@ -340,13 +373,20 @@ else if($count_slash==4)
 									</span>
 									<span class="vote-sec">
 									<?php 
+									if($logged_in == 1)	{
 												if($ans_user != $_SESSION['user'])	{
 											?>
 										<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
 											onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,1,'<?php echo $slashes; ?>',document.getElementById('downvote-front-value-ans-<?php echo $ansid; ?>').value,2)">
 											<span id="glyph-front-down-ans-<?php echo $ansid; ?>"  class="glyphicon glyphicon-thumbs-down <?php echo ($count_row_1 > 0)?"glyph-ans-downvoted":"";  ?>"></span>
 										<span id="down-vote-front-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></span>
-									<?php } 
+									<?php }
+										else	{
+											?>
+										<span class="glyphicon glyphicon-thumbs-down"></span>
+										<span id="down-vote-front-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
+										<?php } 
+									}
 												else	{
 											?>
 										<span class="glyphicon glyphicon-thumbs-down"></span>
@@ -358,19 +398,12 @@ else if($count_slash==4)
 									</div>
 									<div class="comment-section" id="comment-front-<?php echo $ansid; ?>">
 									</br>
-									<input type="text" class="form-control comment-inp" id="comment-front-ans-<?php echo $ansid; ?>" placeholder="Leave comment" 
-									onkeypress=""/>
-									
-									</br>
-									<button type="button" class="btn btn-primary" style="padding: 2px 2px; font-size:12px;"
-									onclick="addComment(2,<?php echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)">Comment</button></br></br>
-									
 									<div class="comments-list" id="comment-area-front-<?php echo $ansid; ?>" >
 									<?php
 										try	{
 											$comment_array=array();
 											$comment_id_str="";
-											$sql_fetch_comment_ids="select comment_id from comments where ans_id=".$ansid." order by created_ts desc";
+											$sql_fetch_comment_ids="select comment_id from comments where ans_id=".$ansid." order by created_ts asc";
 											$stmt_fetch_comment_ids=$conn->prepare($sql_fetch_comment_ids);
 											$stmt_fetch_comment_ids->execute();
 											if($stmt_fetch_comment_ids->rowCount() > 0)	{
@@ -386,13 +419,28 @@ else if($count_slash==4)
 											$stmt_fetch_comment->execute();
 											
 											if($stmt_fetch_comment->rowCount() > 0)	{
+												echo "<div class='cmnt-section' id='cmnt-list-".$ansid."'>";
 												while($row_cmnt = $stmt_fetch_comment->fetch())	{
 													$comment_id=$row_cmnt['comment_id'];
 													$comment=$row_cmnt['comment_desc'];
 													$cmnt_posted_by=$row_cmnt['posted_by'];
 													$created_ts = $row_cmnt['created_ts'];
-													echo '<div class="user-comment-sec" id="comment-list-front-'.$comment_id.'">'.$comment.' - <strong>'.$cmnt_posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
+													
+													echo "<div class='user-comment-sec' id='comment-list-front-".$comment_id."'>".$comment." - <strong><span id='cmn-posted-".$comment_id."' onmouseleave='showUserCard(event,1,".$comment_id.",\"fc\")' onmouseenter='showUserCard(event,0,".$comment_id.",\"fc\")'><a href='".$slashes."profile.php?user=".$cmnt_posted_by."'>".$cmnt_posted_by."</a></span></strong>&nbsp;&nbsp;<span class='time-sec'>".get_user_date(convert_utc_to_local($created_ts))."</span></div>";
+													
+													$user_id_fetch=$cmnt_posted_by;
+													
+													include $slashes."fetch_user_dtls.php";
+													$msg_div_id = "msg-c-".$comment_id;
+													$post_type="fc";
+													$id=$comment_id;
+													$user_card=$cmnt_posted_by;
+													$up_vote=$up_user_votes;
+													$down_vote=$down_user_votes;
+													include $slashes."user_card.php"; 
+													include $slashes."message_box.php";
 												}
+												echo "</div>";
 											}
 											else	{
 												echo "No comments in this answer yet";
@@ -402,12 +450,22 @@ else if($count_slash==4)
 											echo "Internal server error";
 										}
 									?>
-									</div></br>
+									<input type="text" class="form-control comment-inp" id="comment-front-ans-<?php echo $ansid; ?>" placeholder="Leave comment" onfocus="showAlert(0,<?php echo $logged_in; ?>)"
+									onkeypress="addComment(event,2,<?php echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)"/>
+									
+									</br>
+									<!--
+									<button type="button" class="btn btn-primary" style="padding: 2px 2px; font-size:12px;"
+									onclick="addComment(2,<?php #echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)">Comment</button></br>-->
+									</div>
+									</br>
 									<?php
 									$comment_count = $stmt_fetch_comment_ids->rowCount();
 									if($comment_count > 5)
 										echo "<span id='comment-load-front-text-".$ansid."' href='javascript:void(0)' onclick='loadMoreComments(2,\"".$slashes."\",".$ansid.")' class='show-comment-text'>View more comments</span>";
 									?>
+									
+									
 									<input id="cid-front-section-<?php echo $ansid; ?>" type="hidden" value="<?php echo $comment_id_str; ?>"/>
 								</div>
 								</br>									
@@ -426,21 +484,43 @@ else if($count_slash==4)
 				?>
 					
 				</div>
-				<div class="toggle-ans-sec" id="toggle-ans-sec-<?php echo $qid; ?>" onscroll="fetchAnswers(<?php echo $qid; ?>,'<?php echo $slashes; ?>','r','<?php echo $posted_by; ?>')" >
-					<?php include $slashes."recent_ans.php"; ?>
+				<div class="recent-ans">
+					<div class="toggle-ans-sec" id="toggle-ans-sec-<?php echo $qid; ?>" 
+						data-load="0" >
+					<!--	onscroll="fetchAnswers(<?php #echo $qid; ?>,'<?php #echo $slashes; ?>','r','<?php #echo $posted_by; ?>')"  --> 
+						<?php include $slashes."recent_ans.php"; 
+						if($row_num > 4)	{
+						?>
+						<div class="ans-load" id="ans-load-<?php echo $qid; ?>">
+							<div id="btn-ans-section">
+								<button id="explore-ans-btn" class="btn btn-primary" onclick="fetchAnswers(<?php echo $qid; ?>,'<?php echo $slashes; ?>','r','<?php echo $posted_by; ?>')">More recent answers</button>
+							</div>
+						</div>
+						<?php 	}	?>
+					</div>
 				</div>
-				<div class="toggle-top-ans-sec" id="toggle-top-ans-sec-<?php echo $qid; ?>" onscroll="fetchAnswers(<?php echo $qid; ?>,'<?php echo $slashes; ?>','t','<?php echo $posted_by; ?>')" >
-					<?php include $slashes."top_ans.php"; ?>
+				<div class="top-ans" >
+					<div class="toggle-top-ans-sec" id="toggle-top-ans-sec-<?php echo $qid; ?>" 
+						data-load="0" >
+					<!--	onscroll="fetchAnswers(<?php #echo $qid; ?>,'<?php #echo $slashes; ?>','t','<?php #echo $posted_by; ?>')" --> 
+						<?php include $slashes."top_ans.php"; 
+						if($row_num > 4)	{
+						?>
+						<div class="ans-load" id="ans-top-load-<?php echo $qid; ?>">
+							<div id="btn-ans-section">
+								<button id="explore-top-ans-btn" class="btn btn-primary" onclick="fetchAnswers(<?php echo $qid; ?>,'<?php echo $slashes; ?>','t','<?php echo $posted_by; ?>')">More top answers</button>
+							</div>
+						</div>
+						<?php 	}	?>
+					</div>
 				</div>
 				</br>
 				<div style="font-size:14px;color:#65A668;" class "ans-msg" id="ans-msg-<?php echo $qid; ?>" ></div>
 				
-				<div class="ans-load" id="ans-load-<?php echo $qid; ?>">
-					<img src="<?php $slashes; ?>/img/loader.gif" height="40" width="40" />
 				</div>
 				
 				<div class="user-ans-section">
-					<input type="text" class="form-control ans-inp" id="ans-<?php echo $qid; ?>" placeholder="Your answer here" 
+					<input type="text" class="form-control ans-inp" id="ans-<?php echo $qid; ?>" onfocus="showAlert(1,<?php echo $logged_in; ?>)" placeholder="Your answer here" 
 					onkeypress="postAnswer(event,'<?php echo $slashes; ?>',this.value,<?php echo $qid.",'".$posted_by."'"; ?>,0)"/>
 					</br>
 				</div>
