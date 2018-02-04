@@ -37,3 +37,24 @@ function updateFollower(userid,flag,id)	{
 		}
 	});
 }
+
+function loadExperts()	{
+	var topicId=document.getElementById("topic-list").value;
+	if(topicId > 0)	{
+		$.ajax({
+			type:"get",
+			url:"topic_expert.php",
+			data:
+			{
+				"topic_id":topicId
+			},
+			beforeSend:function()	{
+				document.getElementById("block-bg").style.display="block";
+			},
+			success:function(res)	{
+				document.getElementById("block-bg").style.display="none";
+				document.getElementById("main-expert-section").innerHTML=res;
+			}
+		});
+	}
+}
