@@ -2,6 +2,9 @@
 session_start();
 include "connectDb.php";
 
+if(isset($_REQUEST['slash']))
+	$slashes = $_REQUEST['slash'];
+
 if(isset($_REQUEST['notify_typ']))
 	$notify_typ = $_REQUEST['notify_typ'];
 
@@ -15,7 +18,7 @@ if(strcmp($notify_typ,"DISPLAY") == 0)	{
 			while($row_notify = $stmt_get_notify->fetch())	{
 				$user_notify_text = $row_notify['notify_confg'];
 				$user_notify_id = $row_notify['notify_id'];
-				$user_view_flag = (int)$row_notify['view_flag'];
+				$user_view_flag = $row_notify['view_flag'];
 				
 				$user_notify_array=json_decode($user_notify_text,true);
 				/*
@@ -65,7 +68,7 @@ if(strcmp($notify_typ,"DISPLAY") == 0)	{
 					$ans_posted_by=$user_notify_array['ans_config']['ans_posted_by'];
 							
 					if($user_notify_array['post_type'] == 'A')	{
-						$a_link = "qstn_ans.php?qid=".$qid;
+						$a_link = $slashes."qstn_ans.php?qid=".$qid;
 						
 						if($_SESSION['user'] == $qstn_posted_by)	{
 							$notify_text = '<strong>'.$user_notify_array['user_id'].'</strong> answered your question on <strong>'.$qstn_titl_notify.'</strong>';
@@ -79,7 +82,7 @@ if(strcmp($notify_typ,"DISPLAY") == 0)	{
 					}
 					else if($user_notify_array['post_type'] == 'C')	{
 						$ansid=$user_notify_array['ans_config']['ans_id'];
-						$a_link = "qstn_ans.php?qid=".$qid."#user-answer-".$ansid;
+						$a_link = $slashes."qstn_ans.php?qid=".$qid."#user-answer-".$ansid;
 						
 						if($_SESSION['user'] == $qstn_posted_by and $_SESSION['user'] == $ans_posted_by)	{
 								$notify_text = '<strong>'.$user_notify_array['user_id'].'</strong> commented on your answer to your question on <strong>'.$qstn_titl_notify.'</strong>';
@@ -118,7 +121,7 @@ if(strcmp($notify_typ,"DISPLAY") == 0)	{
 					
 				}
 				
-				if($user_view_flag == 1)
+				if($user_view_flag == 'Y')
 					$notify_div_class = "<a data-id='".$user_notify_id."' id='notify-message-".$user_notify_id."' class='list-group-item' href='".$a_link."' style='min-height:50px;' onclick='updateNotify(this.getAttribute(\"data-id\"))' >";
 				else
 					$notify_div_class = "<a data-id='".$user_notify_id."' id='notify-message-".$user_notify_id."' class='list-group-item list-view-on' href='".$a_link."' style='min-height:50px;' onclick='updateNotify(this.getAttribute(\"data-id\"))' >";
@@ -126,7 +129,7 @@ if(strcmp($notify_typ,"DISPLAY") == 0)	{
 				try	{
 					$sql_get_user_pic = "select pro_img_url from users where user_id='".$user_notify_array['user_id']."'";
 					foreach($conn->query($sql_get_user_pic) as $row_pic)
-						$user_notify_pic = $row_pic['pro_img_url'];
+						$user_notify_pic = $slashes.$row_pic['pro_img_url'];
 				}
 				catch(PDOException $e)	{
 					
@@ -150,9 +153,9 @@ else if(strcmp($notify_typ,"UPDATE") == 0)	{
 		$notify_id = $_REQUEST["notify_id"];
 	try		{
 		if($notify_id != -1)
-			$sql_updt_notifications = "update notifications set view_flag = 1 where notify_id=".$notify_id;
+			$sql_updt_notifications = "update notifications set view_flag = 'Y' ,view_ts=CURRENT_TIMESTAMP where notify_id=".$notify_id;
 		else
-			$sql_updt_notifications = "update notifications set view_flag = 1 where user_id='".$_SESSION['user']."'";
+			$sql_updt_notifications = "update notifications set view_flag = 'Y' ,view_ts=CURRENT_TIMESTAMP where user_id='".$_SESSION['user']."'";
 		$stmt_updt_notification = $conn->prepare($sql_updt_notifications);
 		$stmt_updt_notification->execute();
 		if($stmt_updt_notification->rowCount() > 0)
