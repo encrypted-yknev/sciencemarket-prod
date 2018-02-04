@@ -104,8 +104,10 @@ function processData($text)	{
 		<div id="main-container">
 			</br>
 			<div id="login-logo">
-				<img src="img/logo.jpg" width="250" height="60"/>
-			</div></br>
+				<img id="" src="img/logo4.svg" width="70" height="70"/>
+				<img id="" src="img/logo.svg" width="250" height="70"/>
+			</div></br>	
+			
 			<?php echo $message; ?>
 			<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
 				<div class="form-group form-section">
