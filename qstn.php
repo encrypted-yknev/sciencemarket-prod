@@ -1,8 +1,9 @@
 <?php
 session_start();
-if(!$_SESSION["logged_in"])	{
-	header("location:index.php");
-}
+if(isset($_SESSION['logged_in']) and $_SESSION['logged_in'])
+	$logged_in=1;
+else
+	$logged_in=0;
 
 include "connectDb.php";
 $message="";
@@ -152,6 +153,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 <link rel="stylesheet" type="text/css" href="/styles/qstn.css" >
 <link rel="stylesheet" type="text/css" href="styles/footer.css">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type = "text/javascript" src = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
 
@@ -159,13 +161,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 <script src="js/bootstrap.min.js"></script>
 <script src="ckeditor/ckeditor.js"></script>
 <script type="text/javascript" src="js/qstn.js"></script>
+<script type="text/javascript" src="js/header.js"></script>
 </head>
-<body>
+<body onload="setTimeout(validateUser(<?php echo $logged_in; ?>),3000)">
 <div id="block"></div>
 <?php include "header.php"; ?>
 <div id="block-container"></div>
 
 <div class="container">
+	<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" onclick="window.location='index.php'">&times;</button>
+          <h4 class="modal-title">Alert</h4>
+        </div>
+        <div class="modal-body">
+          <p><strong>Ooops!! You can't post question as a guest user. You will be redirected to the login page soon or after you click on Close</strong></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="window.location='index.php'">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
 	<div id="side-nav">
 		<table border="0">
 			<tr>
@@ -177,7 +199,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 					</div>
 				</td>
 				<td>
-					<div id="media-image"><img src="img/logo.jpg" width="200" height="50"/></div>
+					<div id="media-image">
+						<img src="img/logo4.svg" width="55" height="55"/>
+						<img src="img/logo.svg" width="150" height="50"/>
+					</div>
 				</td>
 			</tr>
 		</table></br>
@@ -216,7 +241,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 			<h4>Clear your doubts. Ask questions</h4>
 			<form id="qstn-form" name="ask-qstn-form" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
 				Select topic:
-				<select class="inp-box" id="q-topic" name="qtopic" onchange="getSubTopics(this.value)" onfocus="getInputInfo(1)">
+				<select class="form-control inp-box" id="q-topic" style="width:50%;" name="qtopic" onchange="getSubTopics(this.value)" onfocus="getInputInfo(1)">
 					<option value="" selected>--- Select topic ---</option>
 					<?php
 						try	{	
@@ -231,14 +256,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 							
 						}
 					?>
-				</select></br></br>
+				</select></br>
 				Select sub-topic:
 					
-				<select class="inp-box" id="q-sub-topic" value="<?php echo $q_topic; ?>" name="sub_topic" onfocus="getInputInfo(2)">
+				<select class="inp-box form-control" style="width:50%;" id="q-sub-topic" value="<?php echo $q_topic; ?>" name="sub_topic" onfocus="getInputInfo(2)">
 					<option value="" selected>--- Select sub-topics ---</option>
-				</select></br></br>
-				Question title : <input class="inp-box" id="q-titl" type="text" value="<?php echo $q_titl; ?>" name="qtitl" onfocus="getInputInfo(3)"
-				onkeyup="showQstnResults(this.value)"/></br></br>
+				</select></br>
+				Question title : <input class="inp-box form-control" style="width:100%;" id="q-titl" type="text" value="<?php echo $q_titl; ?>" name="qtitl" onfocus="getInputInfo(3)"
+				onkeyup="showQstnResults(this.value)"/></br>
 				
 				
 				Ask your question : <textarea class="inp-box" id="q-desc" rows="5" cols="50" value="<?php echo $q_desc; ?>" name="qdesc" placeholder="Whats on your mind?"  onfocus="getInputInfo(4)"></textarea>
@@ -248,10 +273,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")	{
 				<span id="q-msg"></span></br></br>
 				Choose at-least 1 tag and max 4 tags : 
 				<div id="tag">
-					<input class="q-tags" id="user-qstn-tags" type="text" name="q_tags" placeholder="Add tags. Press ENTER"  onfocus="getInputInfo(5)"/>&emsp;
-					<span id="alert-msg"></span></br></br>
+					<input class="q-tags form-control" style="width:30%;" id="user-qstn-tags" type="text" name="q_tags" placeholder="Add tags. Press ENTER"  onfocus="getInputInfo(5)"/>&emsp;
+					<div id="alert-msg"></div></br></br>
 				</div>
-				<div id="tag-res"></div></br>
+				<div id="tag-res"></div>
 				<p><em>Before submitting, do check out for tips on how to use tags (Message box) by placing your cursor on the tags textbox and some related questions you might be looking for</em></p>
 				
 				<input type="hidden" id="tags" name="tags" /> 
