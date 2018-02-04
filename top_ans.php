@@ -8,7 +8,10 @@
 			$stmt_show_some_ans->execute();
 			
 			if($stmt_show_some_ans->rowCount() > 0)	{
-				
+				?>
+				<div id="top-ans-cont-<?php echo $qid; ?>" >
+				<?php
+				$row_num=0;
 				while($row_ans = $stmt_show_some_ans->fetch())	{
 					
 					$ansid=$row_ans['ans_id'];
@@ -22,16 +25,35 @@
 					$stmt_get_user_pic = $conn->prepare($sql_get_user_pic);
 					$stmt_get_user_pic->execute();
 					$row_pic = $stmt_get_user_pic->fetch();
-					$ans_user_pic = $slashes.$row_pic['pro_img_url'];
+					$ans_user_pic = $row_pic['pro_img_url'];
 					?>
 					<div class="ans-hidden-top-sec" id="ans-hidden-top-sec-<?php echo $ansid; ?>">
-						<div class="photo-ans-sec" style="background-image:url('<?php echo $ans_user_pic; ?>'); background-size:cover;"></div>
+						<div class="photo-ans-sec" 
+						onmouseleave='showUserCard(event,1,<?php echo $ansid; ?>,"ta")' 
+						onmouseenter='showUserCard(event,0,<?php echo $ansid; ?>,"ta")'
+						style="background-image:url('<?php echo $ans_user_pic; ?>'); background-size:cover;"></div>
 							
 						<div class="auth-text-section">
-							<?php echo '<strong>'.$ans_user.'</strong> - <span class="time-sec">'.get_user_date(convert_utc_to_local($ans_ts)).'</span>'; ?></br>
+							<?php 
+							echo "<span id='ans-posted-".$ansid."' onmouseleave='showUserCard(event,1,".$ansid.",\"ta\")' onmouseenter='showUserCard(event,0,".$ansid.",\"ta\")'><a href='".$slashes."profile.php?user=".$ans_user."'>".$ans_user."</a></span> . ".get_user_date(convert_utc_to_local($ans_ts));
+							?>
+						</br>
 						</div></br>
+						<?php 
+							$user_id_fetch=$ans_user;
+							
+							include "fetch_user_dtls.php";
+							
+							$post_type="ta";
+							$user_card=$ans_user;
+							$up_vote=$up_user_votes;
+							$down_vote=$down_user_votes;
+							$id=$ansid;
+							include "user_card.php"; 
+						?>
 						<div class="ans-text-section"><?php echo $ans."</br>"; ?></div></br>
 						<?php 
+						if($logged_in == 1)	{
 							$sql_check_up_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' and post_type='A' and vote_type=0 and post_id=".$ansid;
 							$sql_check_down_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
 												and post_type='A' and vote_type=1 and post_id=".$ansid;
@@ -43,7 +65,11 @@
 							$stmt_check_down_vote->execute();
 							$sql_row_1 = $stmt_check_down_vote->fetch();
 							$count_row_1 = $sql_row_1['vote_count'];
-								
+						}
+						else	{
+							$count_row_0 = 0;
+							$count_row_1 = 0;
+						}
 							?>
 							<input type="hidden" id="upvote-value-top-ans-<?php echo $ansid; ?>" value="<?php echo $count_row_0; ?>" />
 							<input type="hidden" id="downvote-value-top-ans-<?php echo $ansid; ?>" value="<?php echo $count_row_1; ?>" />
@@ -51,13 +77,20 @@
 						<div class="voting-links">
 							<span class="vote-sec">
 						<?php 
+						if($logged_in == 1)	{
 									if($ans_user != $_SESSION['user'])	{
 								?>
 							<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
 								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,0,'<?php echo $slashes; ?>', document.getElementById('upvote-value-top-ans-<?php echo $ansid; ?>').value,1)">
 								<span id="glyph-up-top-ans-<?php echo $ansid; ?>" class="glyphicon glyphicon-thumbs-up <?php echo ($count_row_0 > 0)?"glyph-ans-upvoted":"";  ?>"></span>
 							<span id="up-vote-top-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></span>
-							<?php } 
+							<?php }
+								else	{
+									?>
+								<span class="glyphicon glyphicon-thumbs-up"></span>
+								<span id="up-vote-top-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span>
+								<?php } 
+						}
 										else	{
 									?>
 								<span class="glyphicon glyphicon-thumbs-up"></span>
@@ -66,13 +99,20 @@
 						</span>
 						<span class="vote-sec">
 						<?php 
+						if($logged_in == 1)	{
 									if($ans_user != $_SESSION['user'])	{
 								?>
 							<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
 								onclick="increaseAnsCount('<?php echo $ansid."','".$ans_user."'";?>,1,'<?php echo $slashes; ?>',document.getElementById('downvote-value-top-ans-<?php echo $ansid; ?>').value,1)">
 								<span id="glyph-down-top-ans-<?php echo $ansid; ?>"  class="glyphicon glyphicon-thumbs-down <?php echo ($count_row_1 > 0)?"glyph-ans-downvoted":"";  ?>"></span>
 							<span id="down-vote-top-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></span>
-						<?php } 
+						<?php }
+							else	{
+								?>
+							<span class="glyphicon glyphicon-thumbs-down"></span>
+							<span id="down-vote-top-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
+							<?php } 
+						}
 									else	{
 								?>
 							<span class="glyphicon glyphicon-thumbs-down"></span>
@@ -83,19 +123,12 @@
 						</div>
 						<div class="comment-section" id="comment-top-<?php echo $ansid; ?>">
 						</br>
-						<input type="text" class="form-control comment-inp" id="comment-top-ans-<?php echo $ansid; ?>" placeholder="Leave comment" 
-						onkeypress=""/>
-						
-						</br>
-						<button type="button" class="btn btn-primary" style="padding: 2px 2px; font-size:12px;"
-						onclick="addComment(1,<?php echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)">Comment</button></br></br>
-						
 						<div class="comments-list" id="comment-area-top-<?php echo $ansid; ?>" >
 						<?php
 							try	{
 								$comment_array=array();
 								$comment_id_str="";
-								$sql_fetch_comment_ids="select comment_id from comments where ans_id=".$ansid." order by created_ts desc";
+								$sql_fetch_comment_ids="select comment_id from comments where ans_id=".$ansid." order by created_ts asc";
 								$stmt_fetch_comment_ids=$conn->prepare($sql_fetch_comment_ids);
 								$stmt_fetch_comment_ids->execute();
 								if($stmt_fetch_comment_ids->rowCount() > 0)	{
@@ -110,13 +143,27 @@
 								$stmt_fetch_comment=$conn->prepare($sql_fetch_comment);
 								$stmt_fetch_comment->execute();
 								if($stmt_fetch_comment->rowCount() > 0)	{
+									echo "<div class='cmnt-section' id='cmnt-list-top-".$ansid."'>";
 									while($row_cmnt = $stmt_fetch_comment->fetch())	{
 										$comment_id=$row_cmnt['comment_id'];
 										$comment=$row_cmnt['comment_desc'];
 										$cmnt_posted_by=$row_cmnt['posted_by'];
 										$created_ts = $row_cmnt['created_ts'];
-										echo '<div class="user-comment-sec" id="comment-list-top-'.$comment_id.'">'.$comment.' - <strong>'.$cmnt_posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
+										
+										echo "<div class='user-comment-sec' id='comment-list-top-".$comment_id."'>".$comment." - <strong><span id='cmn-posted-".$comment_id."' onmouseleave='showUserCard(event,1,".$comment_id.",\"tc\")' onmouseenter='showUserCard(event,0,".$comment_id.",\"tc\")'><a href='".$slashes."profile.php?user=".$cmnt_posted_by."'>".$cmnt_posted_by."</a></span></strong>&nbsp;&nbsp;<span class='time-sec'>".get_user_date(convert_utc_to_local($created_ts))."</span></div>";
+										
+										$user_id_fetch=$cmnt_posted_by;
+													
+										include "fetch_user_dtls.php";
+										
+										$post_type="tc";
+										$id=$comment_id;
+										$user_card=$cmnt_posted_by;
+										$up_vote=$up_user_votes;
+										$down_vote=$down_user_votes;
+										include "user_card.php"; 
 									}
+									echo "</div>";
 								}
 								else	{
 									echo "No comments in this answer yet";
@@ -126,6 +173,10 @@
 								echo "Internal server error";
 							}
 						?>
+						<input type="text" class="form-control comment-inp" id="comment-top-ans-<?php echo $ansid; ?>" placeholder="Leave comment" onfocus="showAlert(0,<?php echo $logged_in; ?>)"
+						onkeypress="addComment(event,1,<?php echo "'".$slashes."',".$ansid.",'".$ans_user."',".$qid.",'".$posted_by."'"; ?>)"/>
+						
+						</br>
 						</div></br>
 						<?php
 						$comment_count = $stmt_fetch_comment_ids->rowCount();
@@ -137,7 +188,11 @@
 						
 					</div>
 					<?php
-				} ?>
+					$row_num+=1;
+				}
+				
+				?>
+				</div>
 			<?php 
 			}
 		/* 	else	{
@@ -161,5 +216,6 @@
 		catch(PDOException $e) {
 		}
 	?>
+	
 	<input id="ans-top-list-qid-<?php echo $qid; ?>" type="hidden" value="<?php echo $ans_id_str; ?>" />
 	<input id="scroll-top-flag-<?php echo $qid; ?>" type="hidden" value="1" />
