@@ -53,6 +53,7 @@
 			<li class="side-menu"><a href="<?php echo $slashes_cur; ?>upvoted" class="list-group-item" >Most upvoted</a></li>
 			<li class="side-menu"><a href="<?php echo $slashes_cur; ?>recent" class="list-group-item" >Recent </a></li>
 			<li class="side-menu"><a href="<?php echo $slashes_cur; ?>trending" class="list-group-item" >User activity based</a></li>
+			<li class="side-menu"><a href="<?php echo $slashes_cur; ?>trending" class="list-group-item" >Bookmarks</a></li>
 			<li class="side-menu" id="side-menu-media-opt4"><a href="javascript:void(0)" class="list-group-item" onclick="showTopics('side-menu-topics')" >+ Topic based</a>
 				<?php
 				try	{
@@ -89,7 +90,13 @@
 				<li><a href="<?php echo $slashes_main; ?>expert_connect.php" ><span class="glyphicon glyphicon-transfer" ></span>&nbsp;Expert Connect</a></li>
 				<li><a href="" ><span class="glyphicon glyphicon-refresh" ></span>&nbsp;Collaborate</a></li>
 				<li><a href="" ><span class="glyphicon glyphicon-gift" ></span>&nbsp;Favours</a></li>
-				<li><a href="<?php echo $slashes_main; ?>logout.php"><span class="glyphicon glyphicon-off"></span>&nbsp;Logout</a></li>
+				<li>
+				<?php if(isset($_SESSION['logged_in']) and $_SESSION['logged_in'])	{	?>
+				<a href="<?php echo $slashes_main; ?>logout.php"><span class="glyphicon glyphicon-off"></span>&nbsp;Logout</a>
+				<?php	}	else	{	?>
+				<a href="<?php echo $slashes_main; ?>index.php"><span class="glyphicon glyphicon-off"></span>&nbsp;Login</a>
+				<?php	}	?>
+				</li>
 			</ul>
 		</div>
 		<div class="row">
@@ -107,6 +114,7 @@
 				<li class="side-menu"><a href="<?php echo $slashes_cur; ?>upvoted" >Most upvoted</a></li>
 				<li class="side-menu"><a href="<?php echo $slashes_cur; ?>recent" >Recent </a></li>
 				<li class="side-menu"><a href="<?php echo $slashes_cur; ?>trending" >User activity based </a></li>
+				<li class="side-menu"><a href="<?php echo $slashes_cur; ?>bookmarks.php" >Bookmarks</a></li>
 				<li class="side-menu" id="side-menu-opt4"><a href="javascript:void(0)" onclick="showTopics('side-menu-topics')" >+ Topic based</a>
 					<?php
 					try	{
