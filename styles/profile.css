@@ -9,7 +9,9 @@
   div#side-nav	{
 	  display:block;
   }
-
+  body header	{
+	  display:none;
+  }
 }
 /* #proimg img	{
 	width:55%;
@@ -24,12 +26,7 @@
 	margin-left:auto;
 	margin-right:auto;
 }
-#proimg img	{
-	margin-top:20px;
-	width:140px;
-	height:180px;
-	border:1px solid #000;
-}
+
 #pic-link:link	{
 	text-decoration:none;
 	color:#fff;
@@ -78,6 +75,7 @@
 
 #tag-res span.tag-name	{
 	border-radius:3px;
+	font-size:12px;
 	color:#fff;
 	margin-right:5px;
 	background-color:#195971;
@@ -95,11 +93,13 @@
 }
 
 #tag-res	{
-	min-height:30px;
-	overflow-x:auto;
-	overflow-y:auto;
+	line-height:2em;
 }
-
+#user-interest-sec	{
+	margin-left:20px;
+	margin-right:20px;
+	line-height:2em;
+}
 .header-group	{
 	
 }
@@ -190,16 +190,16 @@
 	/*display:block;*/
 }
 
-.col-1 {
-	border-right:1px solid #ddd;
-}
-
 #tag	{
 	display:none;
+	margin-left:20px;
+	margin-right:20px;
 }
 .disp-tags	{
 	background-color:#17A589 !important;
 	border-radius:2px !important;
+	margin-right:5px !important;
+	margin-bottom:5px;
 }
 
 .td-col-1	{
@@ -222,4 +222,179 @@
 	cursor:not-allowed;
 	background-color:#ddd !important;
 	border:none !important;
+}
+
+#main-profile-section	{
+	min-height:500px;
+}
+
+#userid-text	{
+	text-align:center;
+	font-family:"Courier new",sans-serif;
+	font-size:18px;
+}
+
+.user-qstn-row	{
+	background-color:#fff;
+	padding-left:6px;
+	padding-right:6px;
+	padding-top:3px;
+	padding-bottom:3px;
+	border:1px solid #ddd;
+}
+
+.qstn-ts	{
+	font-size:13px !important;
+	color:#979797;
+	font-weight:bold;
+	font-family:"Courier New",sans-serif;
+}
+#user-interest-text	{
+	margin-left:15px;
+	font-weight:bold;
+	font-family:'Calibri',sans-serif;
+}
+.disp-tags-user	{
+	background-color:#F2F8FF !important;
+	border-radius:2px !important;
+	border:1px solid #73ACFF;
+	color:#73ACFF !important;
+}
+
+.stats-list	{
+	border:0px !important;
+	/*border-bottom:1px !important;*/
+}
+.stat-count 	{
+	background-color:#2e6da4 !important;
+	color:#fff !important;
+	border-radius:2px !important;
+}
+.page-title-section	{
+	background-color:#2e6da4;
+	color:#fff;
+	padding:10px;
+	border-radius:4px;
+	font-family:'Calibri',sans-serif;
+}
+.abt-section	{
+	font-family:Tahoma,Helvetica,sans-serif;
+	font-size:13px;
+	color:#aaa;
+	border-top:1px solid #ddd;
+	border-bottom:1px solid #ddd;
+	padding:4px;
+}
+.interest-panel	{
+	border-bottom:1px solid #ddd;
+	background-color:#fff;
+	border:1px solid #eee;
+}
+.btn-section	{
+	text-align:center;
+}
+.btn-section button	{
+	margin-left:5px;
+	margin-right:5px;
+	box-shadow: inset 0.5px 1px 0 #ddd;
+	font-family:"Calibri",sans-serif;
+}
+.btn-disabled	{
+	background-color:#ddd !important;
+	border:none !important;
+}
+.msg-textarea	{
+	font-family:"Quicksand",sans-serif;
+}
+.message-section	{
+	text-align:left !important;
+}
+
+#propic-div	{
+	background-size:cover;
+	background-position:center;
+	margin-top:20px;
+	width:160px;
+	height:200px;
+	text-align:center;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+/**/
+.detl-sec	{
+	font-size:15px;
+	line-height:2em;
+	font-family:'Calibri',Helvetica,Tahoma,Arial,sans-serif;
+}
+
+#edit-profile-section,#edit-interest-section,#upd-img-section	{
+	display:none;
+	position:absolute;
+	left:10%;
+	right:10%;
+	margin-left:auto;
+	margin-right:auto;
+	padding:4px;
+	background:rgba(255,255,255,1);
+	width:70%;
+	border:2px solid #eee;
+	border-radius:15px;
+	z-index:2;
+}
+
+#upd-img-section	{
+	width:30%;
+	top:20%;
+	padding:10px;
+}
+.x-win	{
+	font-size:20px;
+	margin-right:10px;
+	float:right;
+	font-weight:600;
+	cursor:pointer;
+}
+.x-win:hover	{
+	color:blue;
+}
+
+#mid-element	{
+	font-size:14px;
+	text-align:center;
+}
+#or-sec	{
+	border-radius:80px;
+	background-color:#286090;
+	color:#fff;
+	padding:8px;
+}
+
+#msg-log	{
+	text-align:center;
+}
+
+#success-msg	{
+	font-weight:bold;
+	padding:2px 3px !important;
+}
+
+.qstn-row	{
+	background-color:#fff;
+	padding:4px 6px;
+	border:1px solid #eee;
+	box-shadow:1px 1px 2px rgba(0,0,0,0.2);
+}
+.bk-section	{
+	display:none;
+	position:fixed;
+	top:0;
+}
+.profile-info	{
+	display:none;
+	font-size:12px;
+	color:#337ab7;
+	padding-left:3px;
+	padding-right:3px;
+	padding-top:2px;
 }
