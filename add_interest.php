@@ -1,9 +1,6 @@
 <?php 
 session_start();
-if(!$_SESSION["logged_in"])	{
-	echo "Please login </br>";
-	header("location:login.php");
-}
+
 include "connectDb.php";
 
 $interests=htmlspecialchars(stripslashes(trim($_REQUEST['user_interests'])));
