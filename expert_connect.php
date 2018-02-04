@@ -5,89 +5,8 @@ if(!$_SESSION["logged_in"])	{
 }
 include "connectDb.php";
 include "forum/functions/get_time.php";
+include "forum/functions/get_time_offset.php";
 
-
-function get_time_diff($timestamp_ans)	{
-	date_default_timezone_set("Asia/Kolkata");
-	$timestamp_cur=date("Y-m-d H:i:sa");
-	
-	$year1=substr($timestamp_ans,0,4);
-	$month1=substr($timestamp_ans,5,2);
-	$day1=substr($timestamp_ans,8,2);
-	$hr1=substr($timestamp_ans,11,2);
-	$min1=substr($timestamp_ans,14,2);
-	$sec1=substr($timestamp_ans,17,2);
-
-
-	$year2=substr($timestamp_cur,0,4);
-	$month2=substr($timestamp_cur,5,2);
-	$day2=substr($timestamp_cur,8,2);
-	$hr2=substr($timestamp_cur,11,2);
-	$min2=substr($timestamp_cur,14,2);
-	$sec2=substr($timestamp_cur,17,2);
-
-	if($year1 == $year2)	{
-		if($month1 == $month2)	{
-			if($day1 == $day2)	{
-				if($hr1 == $hr2)	{
-					if($min1 == $min2)	{
-						if($sec1 == $sec2)	{
-							$value=0;	
-							$string="seconds";
-						}
-						else{
-							$diff_sec=(int)$sec2-(int)$sec1;
-							$value=$diff_sec;	
-							$string="seconds";
-						}
-					}
-					else{
-						$diff_min=(int)$min2-(int)$min1;
-						$value=$diff_min;
-						$string="minutes";
-					}
-				}
-				else{
-					$diff_hr=(int)$hr2-(int)$hr1;
-					$value=$diff_hr;
-					$string="hours";
-				}
-			}
-			else	{
-				$diff_day=(int)$day2-(int)$day1;
-				$value=$diff_day;
-				$string="days";
-			}
-		}
-		else	{
-			$diff_mon=(int)$month2-(int)$month1;
-			$value=$diff_mon;
-			$string="months";
-		}
-	}
-	if($value==1)
-		$string=substr($string,0,strlen($string)-1);
-	return $value.' '.$string.' ago';
-}
-
-try	{
-	$sql_fetch_count1="select count(1) as cnt_following from followers where user_id = '".$_SESSION['user']."'";
-	$sql_fetch_count2="select count(1) as cnt_followers from followers where following_user_id = '".$_SESSION['user']."'";
-	
-	$stmt_1=$conn->prepare($sql_fetch_count1);
-	$stmt_1->execute();
-	$result_1=$stmt_1->fetch();
-	$count_1=$result_1['cnt_following'];
-
-	$stmt_2=$conn->prepare($sql_fetch_count2);
-	$stmt_2->execute();
-	$result_2=$stmt_2->fetch();
-	$count_2=$result_2['cnt_followers'];
-}
-
-catch(PDOException	$e)	{
-	echo '';
-}
 ?>
 
 <!DOCTYPE html>
@@ -169,78 +88,95 @@ catch(PDOException	$e)	{
 			</div>
 		</div></br>
 		<div class="row">
-			<div class="col-sm-2" id="main-side-column" style="background:#FBFBFB;">
+			<div class="col-sm-3" id="main-side-column" style="background:#FBFBFB;">
 			
-				<div class="row">
-					<div class="col-sm-7">
-						<img src="<?php echo $_SESSION["pro_img"]; ?>" class="img-thumbnail img-responsive" alt="profile image" width="204" height="150"> 
-					</div>
+				<h5 class="">Filter experts by topics</h5>
+				<div id="topics-section">
+					<?php
+						$topic_id_inp=-1;
+						include "fetch_topics.php";
+						$i=0;
+						echo "<select class='form-control' name='topic-list' id='topic-list'>";
+						while($i < count($topic_list))	{
+							echo "<option value='".$topic_list[$i]['topic_id']."'>".$topic_list[$i]['topic_desc']."</option>";
+							$i+=1;
+						}
+						echo "</select>"
+					?>
+					</br>
+					<button class="btn btn-primary expert-go" onclick="loadExperts()">Go</button></br>
 				</div></br>
-				<div class="row">
-					<div class="col-sm-8">
-						<div class="side-menu-links">Following</div>
-						<div class="side-menu-links">Followers</div>
-					</div>
-					<div class="col-sm-4">
-						<div class="side-menu-links"><?php echo $count_1; ?></div>
-						<div class="side-menu-links"><?php echo $count_2; ?></div>
-					</div>
-				</div>
 			</div>
-			<div class="col-sm-10" id="main-expert-section">
-				<table border="0">
+			<div class="col-sm-9" id="main-expert-section">
 				<?php
 					try	{
 						$counter=1;
-						$sql_fetch_users = "select user_id,up_votes,down_votes,pro_img_url from users where user_id <> '".$_SESSION['user']."' order by 2 desc,3 asc";
+						$sql_fetch_users = "select * from users where user_id <> '".$_SESSION['user']."' order by up_votes desc,down_votes asc";
 						foreach($conn->query($sql_fetch_users) as $row_users)	{
 							$user_name = $row_users['user_id'];
 							$user_up_votes = $row_users['up_votes'];
 							$user_down_votes = $row_users['down_votes'];
 							$user_img = $row_users['pro_img_url'];
-							echo "<tr>";
-							echo "<td class='td-col-0'><div class='user-image' style='background-image:url(\"".$user_img."\"); background-size:cover;' ></div></td>";
-							echo "<td class='td-col-1'><strong><a href='profile.php?user=".$user_name."'>".$user_name."</a></strong></td>";
-							echo "<td class='td-col-2'><span class='label label-success'>".$user_up_votes."</span>&nbsp;<span class='label label-danger'>".$user_down_votes."</span></td>";
-							try	{
-								$sql_check_follower = "select count(1) as count from followers where user_id='".$_SESSION['user']."' and following_user_id='".$user_name."'";
-								$stmt_check_follower = $conn->prepare($sql_check_follower);
-								$stmt_check_follower->execute();
-								$row_user_count = $stmt_check_follower->fetch();
-								$count_follower = $row_user_count['count'];
-								if($count_follower > 0)	{
-									$follow_class="btn btn-primary disabled btn-disabled";
-									$unfollow_class="btn btn-danger";
-									$is_follower=1;
-									$click_attr_fol="";
-									$click_attr_unfol="onclick='updateFollower(\"".$user_name."\",1,".$counter.")'";
+							$shrt_bio = $row_users['shrt_bio'];
+							$disp_nm = $row_users['disp_name'];
+				?>
+							<div class="connect-row">
+								<div class="user-image" style='background-image:url("<?php echo $user_img; ?>"); background-size:cover;'></div>
+								<div class="user-txt">
+									<div class="user-txt-1"><a href="profile.php?user=<?php echo $user_name; ?>"><?php echo '<strong>'.$disp_nm.'</strong> ('.$user_name.')'; ?></a></div>
+									<?php if(!empty($shrt_bio))	{
+										?>
+									<div class="user-txt-2"><?php echo $shrt_bio; ?></div>
+									<?php } ?>
+									<div class="user-txt-3">
+										<div class="user-sub-txt-1">Upvotes <?php echo $user_up_votes; ?>&emsp;</div>
+										<div class="user-sub-txt-2">Downvotes <?php echo $user_down_votes; ?></div>
+									</div><br/>
+									<div class='user-txt-4' id='user-follow-<?php echo $counter; ?>'></div>
+								</div>								
+				<?php
+								try	{
+									$sql_check_follower = "select count(1) as count from followers where user_id='".$_SESSION['user']."' and following_user_id='".$user_name."'";
+									$stmt_check_follower = $conn->prepare($sql_check_follower);
+									$stmt_check_follower->execute();
+									$row_user_count = $stmt_check_follower->fetch();
+									$count_follower = $row_user_count['count'];
+									if($count_follower > 0)	{
+										$follow_class="btn btn-primary disabled btn-disabled btn-normal";
+										$unfollow_class="btn btn-danger btn-normal";
+										$is_follower=1;
+										$click_attr_fol="";
+										$click_attr_unfol="onclick='updateFollower(\"".$user_name."\",1,".$counter.")'";
+									}
+									else	{
+										$follow_class="btn btn-primary btn-normal";
+										$unfollow_class="btn btn-danger disabled btn-disabled btn-normal";
+										$is_follower=0;	
+										$click_attr_fol="onclick='updateFollower(\"".$user_name."\",0,".$counter.")'";
+										$click_attr_unfol="";
+									}
 								}
-								else	{
-									$follow_class="btn btn-primary";
-									$unfollow_class="btn btn-danger disabled btn-disabled";
-									$is_follower=0;	
-									$click_attr_fol="onclick='updateFollower(\"".$user_name."\",0,".$counter.")'";
-									$click_attr_unfol="";
+								catch(PDOException $e)	{
+									
 								}
-							}
-							catch(PDOException $e)	{
-								
-							}
-							echo "<td class='td-col-3'>
-							<button id='follow-".$counter."' type='button' class='".$follow_class."' ".$click_attr_fol.">Follow</button>&emsp;
-							<button id='unfollow-".$counter."'  type='button' class='".$unfollow_class."' ".$click_attr_unfol.">Unfollow</button></td>";
-							echo "<td class='td-col-4' id='user-follow-".$counter."'></td>";
-							echo "</tr>";
-							$counter+=1;
+								echo "<div class='func-btn'>
+								<button id='follow-".$counter."' type='button' class='".$follow_class."' ".$click_attr_fol.">Follow</button>&emsp;
+								<button id='unfollow-".$counter."'  type='button' class='".$unfollow_class."' ".$click_attr_unfol.">Unfollow</button></div>";
+								#echo "<div class='td-col-4' id='user-follow-".$counter."'></div>";
+								$counter+=1
+				?>
+							</div><br/>
+				<?php
 						}
 					}
 					catch(PDOException $e)	{
 						echo "Unable to fetch users list";
 					}
 				?>
-				</table>
 			</div>
+			<div class="col-sm-3"></div>
 		</div>
 	</div>
+	<?php include "footer.php"; ?>
 </body>
 </html>
