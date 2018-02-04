@@ -5,6 +5,9 @@
   div#header-container	{
 	  display:none;
   }
+  body header	{
+	  display:none;
+  }
   div#side-nav	{
 	  display:block;
   }
