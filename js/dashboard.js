@@ -22,62 +22,13 @@
 		$("#options-menu").hide('slide', {direction: 'left'}, 500);
 		$("#block").hide();
 	});
- 	$("#notify-mob").click(function()	{
-		$("#show-notify-section-mobile").toggle();
-	}); 
+ 	
 	/* $("body").click(function()	{
 		$("#show-notify-section-mobile").hide();
 	}); */
 }); 
 
-function updateNotify(notify_id)	{
-	
-	$.ajax({
-		type:"post",
-		url:"notifications.php",
-		data:
-		{
-			"notify_typ":"UPDATE",
-			"notify_id":notify_id
-		},
-		success:function(res)	{
-			if(res==1)	{
-				if(notify_id != -1)		{
-					$("#notify-message-"+notify_id).removeClass("list-view-on");
-					var countEle = $("#show-notify-section .list-view-on").length;
-					$("#notify-read-count").html(countEle);
-				}
-				else	{
-					/*if ($("#show-notify-section .list-group-item").hasClass('list-view-on'))
-						$("#show-notify-section .list-group-item").removeClass("list-view-on");*/
-					$("#notify-read-count").html(0);
-				}
-			}
-		}
-	});
-}	
-function loadNotify()	{
-	$(document).ready(function()	{
-		$.ajax({
-			type:"post",
-			url:"notifications.php",
-			data:
-			{
-				"notify_typ":"DISPLAY"
-			},
-			success:function(result)	{
-				$("#show-notify-section").html(result);
-				$("#show-notify-section-mobile").html(result);
-				var countEle = $("#show-notify-section .list-view-on").length;
-				$("#notify-read-count").html(countEle);
-			}
-		});
-	});
-}
-function refreshNotify()	{
-	loadNotify();
-	setInterval(loadNotify,2000);
-}
+
 function showSubTopics(id)	{
 	var id_res="#"+id;
 	$(id_res).slideToggle();
