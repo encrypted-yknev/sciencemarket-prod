@@ -1,4 +1,5 @@
 $(document).ready(function()	{
+	
 	//alert("hi");
 	$("#main-dashboard").load("post_qstn.php?qtopic=&qtitl=&qdesc=&page=load&tags=");
 	var focusOutCnt=0;
@@ -78,7 +79,16 @@ $(document).ready(function()	{
 });
 
 
-	
+function validateUser(flag)	{
+	if(flag==0)	{
+		$("#myModal").modal();
+		setTimeout(redirectUser,2000);
+	}	
+}
+
+function redirectUser()	{
+	window.location="index.php";
+}
 function getTagsName()	{
 	var x=document.getElementById("tag-res").childElementCount;
 	var counter,tag="";
