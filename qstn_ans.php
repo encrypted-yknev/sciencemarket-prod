@@ -1,117 +1,25 @@
 <?php 
 session_start();
-if(!$_SESSION["logged_in"])	{
-	header("location:index.php");
-}
+if(isset($_SESSION['logged_in']) and $_SESSION['logged_in'])
+	$logged_in=1;
+else
+	$logged_in=0;
+
 include "connectDb.php";
-
-function get_user_date($time)	{
-	$date = substr($time,8,2);
-	$month = substr($time,5,2);
-	$year = substr($time,0,4);
-	$mth_str="";
-	switch($month)	{
-		case "01": $mth_str="Jan";
-			break;
-		case "02": $mth_str="Feb";
-			break;
-		case "03": $mth_str="Mar";
-			break;
-		case "04": $mth_str="Apr";
-			break;
-		case "05": $mth_str="May";
-			break;
-		case "06": $mth_str="Jun";
-			break;
-		case "07": $mth_str="Jul";
-			break;
-		case "08": $mth_str="Aug";
-			break;
-		case "09": $mth_str="Sep";
-			break;
-		case "10": $mth_str="Oct";
-			break;
-		case "11": $mth_str="Nov";
-			break;
-		case "12": $mth_str="Dec";
-			break;
-		default : $mth_str = "";
-		break;
-	}
-	
-	if($date == date('d') and $month == date('m') and $year == date('Y') and substr($time,11,5) == date("H:i"))
-		return 'few seconds ago';
-	else if($date == date('d') and $month == date('m') and $year == date('Y'))
-		return 'Today '.substr($time,11,5);
-	
-	return $mth_str.' '.$date.', '.$year;
-	
-}
-function get_time_diff($timestamp_ans)	{
-	
-	$timestamp_cur=date("Y-m-d H:i:sa");
-	
-	$year1=substr($timestamp_ans,0,4);
-	$month1=substr($timestamp_ans,5,2);
-	$day1=substr($timestamp_ans,8,2);
-	$hr1=substr($timestamp_ans,11,2);
-	$min1=substr($timestamp_ans,14,2);
-	$sec1=substr($timestamp_ans,17,2);
+include "forum/functions/get_time.php";
+include "forum/functions/get_time_offset.php";
 
 
-	$year2=substr($timestamp_cur,0,4);
-	$month2=substr($timestamp_cur,5,2);
-	$day2=substr($timestamp_cur,8,2);
-	$hr2=substr($timestamp_cur,11,2);
-	$min2=substr($timestamp_cur,14,2);
-	$sec2=substr($timestamp_cur,17,2);
-
-	if($year1 == $year2)	{
-		if($month1 == $month2)	{
-			if($day1 == $day2)	{
-				if($hr1 == $hr2)	{
-					if($min1 == $min2)	{
-						if($sec1 == $sec2)	{
-							$value=0;	
-							$string="seconds";
-						}
-						else{
-							$diff_sec=(int)$sec2-(int)$sec1;
-							$value=$diff_sec;	
-							$string="seconds";
-						}
-					}
-					else{
-						$diff_min=(int)$min2-(int)$min1;
-						$value=$diff_min;
-						$string="minutes";
-					}
-				}
-				else{
-					$diff_hr=(int)$hr2-(int)$hr1;
-					$value=$diff_hr;
-					$string="hours";
-				}
-			}
-			else	{
-				$diff_day=(int)$day2-(int)$day1;
-				$value=$diff_day;
-				$string="days";
-			}
-		}
-		else	{
-			$diff_mon=(int)$month2-(int)$month1;
-			$value=$diff_mon;
-			$string="months";
-		}
-	}
-	if($value==1)
-		$string=substr($string,0,strlen($string)-1);
-	return $value.' '.$string.' ago';
-}
 if(isset($_GET['qid']))
 	$qid=$_GET["qid"];
-
+try	{
+	$sql_updt_views = "update questions set views = views + 1 where qstn_id = ".$qid;
+	$stmt_updt_views=$conn->prepare($sql_updt_views);
+	$stmt_updt_views->execute();
+}
+catch(PDOException $e)	{
+	
+}
 ?>
 <html>
 <head>
@@ -134,10 +42,11 @@ if(isset($_GET['qid']))
 <link rel="stylesheet" type="text/css" href="styles/footer.css">
 <link rel="stylesheet" type="text/css" href="styles/qstn_ans.css">
 <link rel="stylesheet" type="text/css" href="styles/qstn.css">
-<link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
 <link rel="stylesheet" href="styles/bootstrap.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type = "text/javascript" src = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
+<script src="ckeditor/ckeditor.js"></script>
 <script type="text/javascript" src="js/qna.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/header.js"></script></head>
@@ -165,7 +74,10 @@ include "header.php";
 					</div>
 				</td>
 				<td>
-					<div id="media-image"><img src="img/logo.jpg" width="200" height="50"/></div>
+					<div id="media-image">
+						<img src="img/logo4.svg" width="55" height="55"/>
+						<img src="img/logo.svg" width="150" height="50"/>
+					</div>
 				</td>
 			</tr>
 		</table></br>
@@ -184,6 +96,7 @@ include "header.php";
 		</div>
 	</div>
 	<div id="options-menu">
+		<?php if($logged_in == 1)	{	?>
 		<div class="row">
 			<div class="col-sm-12" id="pic-row">
 				<img src="<?php echo $_SESSION["pro_img"]; ?>" id="side-menu-img" alt="profile image" width="100" height="120"> 
@@ -192,7 +105,7 @@ include "header.php";
 
 		<div>upvotes   : <span class="badge"><?php echo $_SESSION["up_vote"]; ?></span></div>
 		<div>downvotes : <span class="badge"><?php echo $_SESSION["down_vote"]; ?></span></div>
-				
+		<?php	}	?>
 		</br>
 		<ul class="nav nav-pills nav-stacked">
 			<li><a href="profile.php" ><span class="glyphicon glyphicon-user" ></span>&nbsp;My Profile</a></li>
@@ -201,11 +114,17 @@ include "header.php";
 			<li><a href="expert_connect.php" ><span class="glyphicon glyphicon-transfer" ></span>&nbsp;Expert Connect</a></li>
 			<li><a href="" ><span class="glyphicon glyphicon-refresh" ></span>&nbsp;Collaborate</a></li>
 			<li><a href="" ><span class="glyphicon glyphicon-gift" ></span>&nbsp;Favours</a></li>
-			<li><a href="logout.php"><span class="glyphicon glyphicon-off"></span>&nbsp;Logout</a></li>
+			<li>
+			<?php if($logged_in == 1)	{	?>
+			<a href="logout.php"><span class="glyphicon glyphicon-off"></span>&nbsp;Logout</a>
+			<?php	}	else	{	?>
+			<a href="index.php"><span class="glyphicon glyphicon-off"></span>&nbsp;Login / Register</a>
+			<?php	}		?>
+			</li>
 		</ul>
 	</div>
 	</br>	
-	<div class="col-sm-8">
+	<div class="col-sm-8" id="left-section">
 	
 	
 	<?php
@@ -229,11 +148,9 @@ include "header.php";
 					</div>
 			<span id="q-titl-area"><hgroup><?php echo $row_qstn["qstn_titl"]; ?></hgroup></span>
 			<span id="q-sub-titl"><strong><?php echo $posted_by; ?></strong></span>
-			</br>
-			<div class="panel panel-default">
-			  <div class="panel-body"><?php echo $row_qstn["qstn_desc"]; ?></div>
-			</div>
-			<!--<div id="q-desc-area"><p><?php #echo $row_qstn["qstn_desc"]; ?></p></div></br>-->
+			</br></br>
+			
+			<div class="qstn-desc-section"><?php echo $row_qstn["qstn_desc"]; ?></div></br>
 		<?php
 		}
 	}
@@ -241,25 +158,16 @@ include "header.php";
 		echo "Some error occurred";
 	}
 	?>
+	<?php	if($logged_in == 1)	{	?>
+	<textarea class="form-control" id="userans" name="userans" onfocus="showAlert(0,<?php echo $logged_in; ?>)" rows="5" cols="50"></textarea></br>
+	<script>
+		CKEDITOR.replace('userans');
+	</script>
+	<button class="btn btn-primary" onclick="loadAnswerList(<?php echo $qid; ?>,'<?php echo $posted_by; ?>')">Post Answer</button>
 	
-	<!--
-	<form id="ans-form" action="<?php# echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post" >
-	
-		<input type="hidden" name="qstnid" value="<?php #echo $qid; ?>">
-		<input type="hidden" name="postedby" value="<?php #echo $posted_by; ?>">
-		<textarea class="form-control" id="user-ans" name="user-text" value="<?php #echo $ans_desc; ?>"></textarea>
-		<script>
-			CKEDITOR.replace('user-text');
-		</script>
-		</br></br>
-		<button type="submit" id="ans-qstn-submit" class="btn btn-default">Post Answer</button>
-	</form>
--->
-	<textarea class="form-control" id="user-ans" name="user-text" rows="7" ></textarea>
-	
-	</br></br>
-	<a id="sub-link" href="javascript:void(0)" onclick="loadAnswerList(document.getElementById('user-ans').value,<?php echo $qid; ?>,'<?php echo $posted_by; ?>')">Answer</a>
-	</br></br>
+	<?php	}	?>
+
+	</br></br><hr>
 	<div id="ans_container">
 	<?php
 	try	{
@@ -271,36 +179,55 @@ include "header.php";
 		$createdts=$row_ans["created_ts"];
 		$postedby=$row_ans["posted_by"];
 		
-		$sql_fetch_img="select pro_img_url from users where user_id='".$postedby."'";
-		$stmt=$conn->prepare($sql_fetch_img);
-		$stmt->execute();
-		$result=$stmt->fetch();
-		$image=$result['pro_img_url'];
+		$user_id_fetch=$postedby;
+		include $slashes."fetch_user_dtls.php";
 	?>	
 	<div class="ans-section" id="user-answer-<?php echo $ansid; ?>">
-		<div class="ans-user-img" style="background-image:url('<?php echo $image; ?>'); background-size:cover;"></div>
+		<div class="ans-user-img" 
+			onmouseleave='showUserCard(event,1,<?php echo $ansid; ?>,"a")' 
+			onmouseenter='showUserCard(event,0,<?php echo $ansid; ?>,"a")' 
+			style="background-image:url('<?php echo $img_url; ?>'); background-size:cover;"></div>
 		<div class="auth-time-section">
-			<?php echo $postedby." ".get_time_diff(convert_utc_to_local($createdts)); ?>
-		</div>
-		</br>
+			<?php
+				echo "<span id='ans-posted-".$ansid."' 
+				onmouseleave='showUserCard(event,1,".$ansid.",\"a\")' 
+				onmouseenter='showUserCard(event,0,".$ansid.",\"a\")'>
+				<a href='profile.php?user=".$postedby."'>".$postedby."</a></span> . ".
+				get_user_date(convert_utc_to_local($createdts));
+			?>
+		</div></br>
+		<?php 
+			$msg_div_id = "msg-a-".$ansid;
+			$post_type="a";
+			$user_card=$postedby;
+			$up_vote=$upvotes;
+			$down_vote=$downvotes;
+			$id=$ansid;
+			include $slashes."user_card.php"; 
+			include $slashes."message_box.php";
+		?>
 		<div class="main-ans-block">
 			<?php echo $row_ans["ans_desc"]; ?>
 		</div></br>
 		<?php 
-		
-			$sql_check_up_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
-								and post_type='A' and vote_type=0 and post_id=".$ansid;
-			$sql_check_down_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
-								and post_type='A' and vote_type=1 and post_id=".$ansid;
-			$stmt_check_up_vote = $conn->prepare($sql_check_up_vote);
-			$stmt_check_up_vote->execute();
-			$sql_row_0 = $stmt_check_up_vote->fetch();
-			$count_row_0 = $sql_row_0['vote_count'];
-			$stmt_check_down_vote = $conn->prepare($sql_check_down_vote);
-			$stmt_check_down_vote->execute();
-			$sql_row_1 = $stmt_check_down_vote->fetch();
-			$count_row_1 = $sql_row_1['vote_count'];
-				
+			if($logged_in == 1)	{
+				$sql_check_up_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
+									and post_type='A' and vote_type=0 and post_id=".$ansid;
+				$sql_check_down_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
+									and post_type='A' and vote_type=1 and post_id=".$ansid;
+				$stmt_check_up_vote = $conn->prepare($sql_check_up_vote);
+				$stmt_check_up_vote->execute();
+				$sql_row_0 = $stmt_check_up_vote->fetch();
+				$count_row_0 = $sql_row_0['vote_count'];
+				$stmt_check_down_vote = $conn->prepare($sql_check_down_vote);
+				$stmt_check_down_vote->execute();
+				$sql_row_1 = $stmt_check_down_vote->fetch();
+				$count_row_1 = $sql_row_1['vote_count'];
+			}
+			else	{
+				$count_row_0 = 0;
+				$count_row_1 = 0;
+			}
 			?>
 			<input type="hidden" id="upvote-value-ans-<?php echo $ansid; ?>" value="<?php echo $count_row_0; ?>" />
 			<input type="hidden" id="downvote-value-ans-<?php echo $ansid; ?>" value="<?php echo $count_row_1; ?>" />
@@ -308,59 +235,119 @@ include "header.php";
 		
 		<span class="vote-sec">
 		<?php 
+			if($logged_in == 1)	{
 					if($postedby != $_SESSION['user'])	{
 				?>
 			<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
 				onclick="increaseCount('<?php echo $ansid."','".$postedby."'";?>,0,document.getElementById('upvote-value-ans-<?php echo $ansid; ?>').value)">
 				<span id="glyph-up-ans-<?php echo $ansid; ?>" class="glyphicon glyphicon-thumbs-up <?php echo ($count_row_0 > 0)?"glyph-ans-upvoted":"";  ?>"></span>
 			<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span></span>
-			<?php } 
-						else	{
+			<?php }
+				else	{
 					?>
 				<span class="glyphicon glyphicon-thumbs-up"></span>
 				<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span>
-				<?php } ?>
+				<?php } 
+			}
+			else	{
+				?>
+			<span class="glyphicon glyphicon-thumbs-up"></span>
+			<span id="up-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $upvotes; ?></span>
+			<?php } ?>
 		</span>
 		<span class="vote-sec">
 		<?php 
+			if($logged_in == 1)	{
 					if($postedby != $_SESSION['user'])	{
 				?>
 			<span href="javscript:void(0)" class="vote-link-area" style="cursor:pointer;"
 				onclick="increaseCount('<?php echo $ansid."','".$postedby."'";?>,1,document.getElementById('downvote-value-ans-<?php echo $ansid; ?>').value)">
 				<span id="glyph-down-ans-<?php echo $ansid; ?>"  class="glyphicon glyphicon-thumbs-down <?php echo ($count_row_1 > 0)?"glyph-ans-downvoted":"";  ?>"></span>
 			<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span></span>
-		<?php } 
+		<?php }
+				else	{
+					?>
+				<span class="glyphicon glyphicon-thumbs-down"></span>
+				<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
+				<?php } 
+			}
 					else	{
 				?>
 			<span class="glyphicon glyphicon-thumbs-down"></span>
 			<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
 			<?php } ?>
 		</span>
-		<a class="comment-link" href="javascript:void(0)" onclick="showComment('comment-box-<?php echo $ansid; ?>')">View comments</a>
+		<a class="comment-link" href="javascript:void(0)" onclick="showComment(<?php echo $ansid; ?>)">View comments</a>
 		</br>
-		<div class="comment-box" id="comment-box-<?php echo $ansid; ?>"></br>	
-			<textarea class="form-control" rows="2" id="comment-<?php echo $ansid; ?>" placeholder="Your comment goes here..."></textarea></br>
-			<button type="button" class="btn btn-primary" style="padding: 1px 2px;" 
-			onclick="addComment(<?php echo $ansid; ?>,document.getElementById('comment-<?php echo $ansid; ?>').value,'comment-area-<?php echo $ansid; ?>','<?php echo $postedby; ?>',<?php echo $qid; ?>,'<?php echo $posted_by; ?>')">Comment</button>
-			<strong><span id="load-msg-<?php echo $ansid; ?>"></span></strong>
-			</br>
-			<div class="col-sm-11" id="comment-area-<?php echo $ansid; ?>">
+		<div class="comment-section" id="comment-front-<?php echo $ansid; ?>">
+		</br>
+		<div class="comments-list" id="comment-area-front-<?php echo $ansid; ?>" >
+			<strong><span id="load-msg-<?php echo $ansid; ?>"></span></strong></br>
 			<?php
-				try	{
-					$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid;
-					foreach($conn->query($sql_fetch_comment) as $row_cmnt)	{
+			try	{
+				$comment_array=array();
+				$comment_id_str="";
+				$sql_fetch_comment_ids="select comment_id from comments where ans_id=".$ansid." order by created_ts asc";
+				$stmt_fetch_comment_ids=$conn->prepare($sql_fetch_comment_ids);
+				$stmt_fetch_comment_ids->execute();
+				if($stmt_fetch_comment_ids->rowCount() > 0)	{
+					while($row = $stmt_fetch_comment_ids->fetch())	{
+						$cmt_id=$row['comment_id'];
+						array_push($comment_array,$cmt_id);
+					}
+					$comment_id_str=implode("|",$comment_array);
+				}
+				
+				$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid." order by created_ts asc limit 5";
+				$stmt_fetch_comment=$conn->prepare($sql_fetch_comment);
+				$stmt_fetch_comment->execute();
+				
+				if($stmt_fetch_comment->rowCount() > 0)	{
+					echo "<div class='cmnt-section' id='cmnt-list-".$ansid."'>";
+					while($row_cmnt = $stmt_fetch_comment->fetch())	{
 						$comment_id=$row_cmnt['comment_id'];
 						$comment=$row_cmnt['comment_desc'];
 						$cmnt_posted_by=$row_cmnt['posted_by'];
 						$created_ts = $row_cmnt['created_ts'];
-						echo '<div class="user-comment-sec" id="comment-'.$comment_id.'">'.$comment.' - <strong>'.$cmnt_posted_by.'</strong>&nbsp;&nbsp;<span class="time-sec">'.get_user_date(convert_utc_to_local($created_ts)).'</span></div>';
+						
+						echo "<div class='user-comment-sec' id='comment-list-front-".$comment_id."'>".$comment." - <strong>
+							<span id='cmn-posted-".$comment_id."' 
+							onmouseleave='showUserCard(event,1,".$comment_id.",\"fc\")' 
+							onmouseenter='showUserCard(event,0,".$comment_id.",\"fc\")'>
+							<a href='".$slashes."profile.php?user=".$cmnt_posted_by."'>".$cmnt_posted_by."</a></span></strong>&nbsp;&nbsp;
+							<span class='time-sec'>".get_user_date(convert_utc_to_local($created_ts))."</span></div>";
+						
+						$user_id_fetch=$cmnt_posted_by;
+						
+						include $slashes."fetch_user_dtls.php";
+						
+						$post_type="fc";
+						$id=$comment_id;
+						$user_card=$cmnt_posted_by;
+						$up_vote=$up_user_votes;
+						$down_vote=$down_user_votes;
+						include $slashes."user_card.php"; 
+						
 					}
+					echo "</div>";
 				}
-				catch(PDOException $e)	{
-					echo "Internal server error";
+				else	{
+					echo "<span style='margin-left:10px;font-size:13px; color:#626262;'>No comments in this answer yet</span>";
 				}
-			?>
-			</div>
+			}
+			catch(PDOException $e)	{
+				echo "Internal server error";
+			}
+		?>
+		<?php
+			$comment_count = $stmt_fetch_comment_ids->rowCount();
+			if($comment_count > 5)
+				echo "<span id='comment-load-front-text-".$ansid."' href='javascript:void(0)' onclick='loadMoreComments(".$ansid.")' class='show-comment-text' style='margin-left:10px;font-size:12px; color:#626262; text-decoration:underline;'>View more comments...</span></br>";
+		?></br>
+		<input class="form-control comment-textbox" id="comment-front-ans-<?php echo $ansid; ?>" onfocus="showAlert(0,<?php echo $logged_in;?>)" placeholder="Your comment goes here..." onkeypress="addComment(event,<?php echo $ansid.",'".$postedby."',".$qid.",'".$posted_by."'"; ?>)" style="margin-left:10px;"/>
+		</br>
+		</div></br>
+		<input id="cid-front-section-<?php echo $ansid; ?>" type="hidden" value="<?php echo $comment_id_str; ?>"/>
 		</div>
 	</div></br>
 	<?php
