@@ -3,7 +3,7 @@
 #Connection paramters.
 
 $username="root";
-$password="";
+$password="mysqlroot";
 $servername="localhost";
 
 try	{
