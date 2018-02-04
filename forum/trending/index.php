@@ -1,8 +1,12 @@
 <?php
 session_start();
-if(!$_SESSION["logged_in"])	{
-	header("location:../../index.php");
+if(isset($_SESSION['logged_in']) and $_SESSION['logged_in'])	{
+	$logged_in=1;
 }
+else	{
+	$logged_in=0;
+}
+
 include "../../connectDb.php";
 include "../functions/get_time.php";
 include "../functions/get_time_offset.php";
@@ -19,6 +23,7 @@ include "../functions/get_time_offset.php";
 <link rel="stylesheet" type="text/css" href="../../styles/header.css">
 <link rel="stylesheet" type="text/css" href="../../styles/dashboard.css">
 <link rel="stylesheet" type="text/css" href="../../styles/qa_forum.css">
+<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="../../styles/footer.css">
 <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -29,12 +34,17 @@ include "../functions/get_time_offset.php";
 <script type="text/javascript" src="../../js/qa_forum.js"></script>
 <!--<script type="text/javascript" src="js/posts_vote.js"></script>-->
 <script type="text/javascript" src="../../js/header.js"></script></head>
-<body onscroll="getHeight()">
+<body>
 <div id="block"></div>
 <?php include "../../header.php"; ?>
 	</br>
 	<div class="container">
-			<?php include "../common_code.php"; ?>
+			<?php 
+			if($logged_in == 1)
+				include "../common_code.php"; 
+			else
+				include "../common_code_guest.php"; 
+			?>
 			<div class="col-sm-10">
 
 				<div id="qstn-res">
@@ -105,13 +115,14 @@ include "../functions/get_time_offset.php";
 					$qstn_arr_str=implode("|",$qstn_array);
 				}
 				catch(PDOException	$e)	{
-					echo 'Error fetching Question '.$e->getMessage();
+					echo 'Error fetching Question ';
 				}
 				?>
 				</div>
 				<div id="scroll-msg">
-					<span>Loading more questions... </span>
-					<span><img src="../../img/ajax-loader.gif" /></span>
+					<div id="btn-section">
+						<button id="explore-btn" class="btn btn-primary" onclick="fetchMoreQuestions()">Explore more</button>
+					</div>
 				</div>
 			</div>
 		</div>
