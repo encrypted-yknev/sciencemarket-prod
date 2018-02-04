@@ -1,11 +1,6 @@
 <?php
 session_start();
-if(!$_SESSION["logged_in"])	{
-	echo "Please login </br>";
-	header("location:login.php");
-	#exit();
-	#echo '<script type="text/javascript">window.location="home.php";</script>';
-}
+
 include "connectDb.php";
 $message="";
 $q_topic=htmlspecialchars(stripslashes(trim($_REQUEST['qtopic'])));
