@@ -1,0 +1,12 @@
+.remove-bk	{
+	cursor:pointer;
+	float:right;
+}
+.remove-bk:hover	{
+	-webkit-filter:opacity(50%);
+	-moz-filter:opacity(50%);
+	filter:opacity(50%);
+}
+.qstn-row	{
+	margin:20px 0px !important;
+}
