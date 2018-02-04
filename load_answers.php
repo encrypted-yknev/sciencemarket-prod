@@ -1,12 +1,15 @@
 <?php
 session_start();
+if(isset($_SESSION['logged_in']) and $_SESSION['logged_in'])
+	$logged_in=1;
+else
+	$logged_in=0;
 if(!$_SESSION["logged_in"])	{
 	header("location:index.php");
 }
 include "connectDb.php";
-
+$slashes="";
 function convert_utc_to_local($utc_timestamp)	{
-	
 	try	{
 		$date_utc=new DateTime($utc_timestamp,new DateTimeZone('UTC'));
 		if(isset($_COOKIE['user_tz']))
@@ -20,6 +23,7 @@ function convert_utc_to_local($utc_timestamp)	{
 		echo 'Some error occurred';
 	}
 }
+
 function get_user_date($time)	{
 	$date = substr($time,8,2);
 	$month = substr($time,5,2);
@@ -132,12 +136,12 @@ function get_time_diff($timestamp_ans)	{
 	return $value.' '.$string.' ago';
 }
 
-$ans_desc=$_REQUEST["ans"];
+$user_ans=trim($_REQUEST["ans"]);
 $qid=$_REQUEST["qid"];
 $posted_by=$_REQUEST["postedBy"];
 
-if(!empty($ans_desc))	{
-	$user_ans=htmlspecialchars(trim($ans_desc),ENT_QUOTES);
+if(!empty($user_ans))	{
+	#$user_ans=htmlspecialchars(trim($ans_desc),ENT_QUOTES);
 	try	{
 		$sql_get_qstn_titl = "select qstn_titl from questions where qstn_id = ".$qid;
 		foreach($conn->query($sql_get_qstn_titl) as $row_titl)
@@ -190,7 +194,7 @@ if(!empty($ans_desc))	{
 		$stmt_push_notifications_1->execute();
 	}
 	catch(PDOException $e)	{
-		echo "Error posting answer";
+		echo "Error posting answer ".$e->getMessage();
 	}
 }
 else 	{
@@ -201,26 +205,38 @@ try	{
 	$sql_ans = "select ans_id,ans_desc,up_votes,down_votes,posted_by,created_ts,last_updt_ts from answers where qstn_id=".$qid." order by created_ts desc";
 	foreach($conn->query($sql_ans) as $row_ans)	{
 		$ansid=$row_ans["ans_id"];
+		$ans_desc=$row_ans["ans_desc"];
 		$upvotes=$row_ans["up_votes"];
 		$downvotes=$row_ans["down_votes"];
 		$createdts=$row_ans["created_ts"];
 		$postedby=$row_ans["posted_by"];
-
-		
-		$sql_fetch_img="select pro_img_url from users where user_id='".$postedby."'";
-		$stmt=$conn->prepare($sql_fetch_img);
-		$stmt->execute();
-		$result=$stmt->fetch();
-		$image=$result['pro_img_url'];
+		$user_id_fetch=$postedby;
+		include "fetch_user_dtls.php";
 	?>	
 	<div class="ans-section" id="user-answer-<?php echo $ansid; ?>">
-		<div class="ans-user-img" style="background-image:url('<?php echo $image; ?>'); background-size:cover;"></div>
+		<div class="ans-user-img" 
+			onmouseleave='showUserCard(event,1,<?php echo $ansid; ?>,"a")' 
+			onmouseenter='showUserCard(event,0,<?php echo $ansid; ?>,"a")' style="background-image:url('<?php echo $img_url; ?>'); background-size:cover;"></div>
 		<div class="auth-time-section">
-			<?php echo $postedby." ".get_user_date(convert_utc_to_local($createdts)); ?>
-		</div>
-		</br>
+		<?php
+			echo "<span id='ans-posted-".$ansid."' 
+			onmouseleave='showUserCard(event,1,".$ansid.",\"a\")' 
+			onmouseenter='showUserCard(event,0,".$ansid.",\"a\")'><a href='profile.php?user=".$postedby."'>".$postedby."</a></span> . ".
+			get_user_date(convert_utc_to_local($createdts));
+		?>		
+		</div></br>
+		<?php 
+			$msg_div_id = "msg-a-".$ansid;
+			$post_type="a";
+			$user_card=$postedby;
+			$up_vote=$upvotes;
+			$down_vote=$downvotes;
+			$id=$ansid;
+			include $slashes."user_card.php"; 
+			include $slashes."message_box.php";
+		?>
 		<div class="main-ans-block">
-			<?php echo $row_ans["ans_desc"]; ?>
+			<?php echo $ans_desc; ?>
 		</div></br>
 		<?php 
 			$sql_check_up_vote = "select count(1) as vote_count from user_posts_votes where user_id='".$_SESSION['user']."' 
@@ -265,32 +281,81 @@ try	{
 		<?php } 
 					else	{
 				?>
-			<span class="glyphicon glyphicon-thumbs-up"></span>
+			<span class="glyphicon glyphicon-thumbs-down"></span>
 			<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
 			<?php } ?>
 		</span>
-		<a class="comment-link" href="javascript:void(0)" onclick="showComment('comment-box-<?php echo $ansid; ?>')">Comment</a></br>
-		<div class="comment-box" id="comment-box-<?php echo $ansid; ?>"></br>	
-			<textarea class="form-control" rows="2" id="comment-<?php echo $ansid; ?>" placeholder="Your comment goes here..."></textarea></br>
-			<button type="button" class="btn btn-primary" style="padding: 1px 2px;" 
-			onclick="addComment(<?php echo $ansid; ?>,document.getElementById('comment-<?php echo $ansid; ?>').value,'comment-area-<?php echo $ansid; ?>','<?php echo $postedby; ?>',<?php echo $qid; ?>,'<?php echo $posted_by; ?>')">Comment</button>
-			</br>
-			<div class="col-sm-11" id="comment-area-<?php echo $ansid; ?>">
+		<a class="comment-link" href="javascript:void(0)" onclick="showComment(<?php echo $ansid; ?>)">View comments</a>
+		</br>
+		<div class="comment-section" id="comment-front-<?php echo $ansid; ?>">
+		</br>
+		<div class="comments-list" id="comment-area-front-<?php echo $ansid; ?>" >
+			<strong><span id="load-msg-<?php echo $ansid; ?>"></span></strong></br>
 			<?php
-				try	{
-					$sql_fetch_comment="select comment_desc,posted_by from comments where ans_id=".$ansid;
-					foreach($conn->query($sql_fetch_comment) as $row_cmnt)	{
-						$comment=$row_cmnt['comment_desc'];
-						$posted_by=$row_cmnt['posted_by'];
-						
-						echo '<div class="user-comment-sec">'.$comment.' - <span style="font-weight:bold;">'.$posted_by.'</span></div>';
+			try	{
+				$comment_array=array();
+				$comment_id_str="";
+				$sql_fetch_comment_ids="select comment_id from comments where ans_id=".$ansid." order by created_ts asc";
+				$stmt_fetch_comment_ids=$conn->prepare($sql_fetch_comment_ids);
+				$stmt_fetch_comment_ids->execute();
+				if($stmt_fetch_comment_ids->rowCount() > 0)	{
+					while($row = $stmt_fetch_comment_ids->fetch())	{
+						$cmt_id=$row['comment_id'];
+						array_push($comment_array,$cmt_id);
 					}
+					$comment_id_str=implode("|",$comment_array);
 				}
-				catch(PDOException $e)	{
-					echo "Internal server error";
+				
+				$sql_fetch_comment="select comment_id,comment_desc,posted_by,created_ts from comments where ans_id=".$ansid." order by created_ts asc limit 5";
+				$stmt_fetch_comment=$conn->prepare($sql_fetch_comment);
+				$stmt_fetch_comment->execute();
+				
+				if($stmt_fetch_comment->rowCount() > 0)	{
+					echo "<div class='cmnt-section' id='cmnt-list-".$ansid."'>";
+					while($row_cmnt = $stmt_fetch_comment->fetch())	{
+						$comment_id=$row_cmnt['comment_id'];
+						$comment=$row_cmnt['comment_desc'];
+						$cmnt_posted_by=$row_cmnt['posted_by'];
+						$created_ts = $row_cmnt['created_ts'];
+						
+						echo "<div class='user-comment-sec' id='comment-list-front-".$comment_id."'>".$comment." - <strong>
+							<span id='cmn-posted-".$comment_id."' 
+							onmouseleave='showUserCard(event,1,".$comment_id.",\"fc\")' 
+							onmouseenter='showUserCard(event,0,".$comment_id.",\"fc\")'>
+							<a href='".$slashes."profile.php?user=".$cmnt_posted_by."'>".$cmnt_posted_by."</a></span></strong>&nbsp;&nbsp;
+							<span class='time-sec'>".get_user_date(convert_utc_to_local($created_ts))."</span></div>";
+						
+						$user_id_fetch=$cmnt_posted_by;
+						
+						include $slashes."fetch_user_dtls.php";
+						
+						$post_type="fc";
+						$id=$comment_id;
+						$user_card=$cmnt_posted_by;
+						$up_vote=$up_user_votes;
+						$down_vote=$down_user_votes;
+						include $slashes."user_card.php"; 
+						
+					}
+					echo "</div>";
 				}
-			?>
-			</div>
+				else	{
+					echo "<span style='margin-left:10px;font-size:13px; color:#626262;'>No comments in this answer yet</span>";
+				}
+			}
+			catch(PDOException $e)	{
+				echo "Internal server error";
+			}
+		?>
+		<?php
+			$comment_count = $stmt_fetch_comment_ids->rowCount();
+			if($comment_count > 5)
+				echo "<span id='comment-load-front-text-".$ansid."' href='javascript:void(0)' onclick='loadMoreComments(".$ansid.")' class='show-comment-text' style='margin-left:10px;font-size:12px; color:#626262; text-decoration:underline;'>View more comments...</span></br>";
+		?></br>
+		<input class="form-control comment-textbox" id="comment-front-ans-<?php echo $ansid; ?>" onfocus="showAlert(0,<?php echo $logged_in;?>)" placeholder="Your comment goes here..." onkeypress="addComment(event,<?php echo $ansid.",'".$postedby."',".$qid.",'".$posted_by."'"; ?>)" style="margin-left:10px;"/>
+		</br>
+		</div></br>
+		<input id="cid-front-section-<?php echo $ansid; ?>" type="hidden" value="<?php echo $comment_id_str; ?>"/>
 		</div>
 	</div></br>
 	<?php
@@ -299,4 +364,7 @@ try	{
 catch(PDOException $e)	{
 	echo "Some error occured ".$e->getMessage();
 }
-	?>
+?>
+	</div>
+</div>
+ 
