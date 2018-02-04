@@ -1,54 +1,15 @@
 <?php
 session_start();
 if(!$_SESSION["logged_in"])	{
-	echo "Please login </br>";
-	header("location:login.php");
+	header("location:index.php");
 }
-
 include "connectDb.php";
-
+include "forum/functions/get_time.php";
 function get_first_name($x)	{
 	if(strpos($x," "))	
 		return substr($x,0,strpos($x," "));
 	else
 		return $x;
-}
-
-function get_normal_time($db_time)	{
-	$year = substr($db_time,0,4);
-	$month = substr($db_time,5,2);
-	$date = substr($db_time,8,2);
-	
-	$mth_str="";
-	switch($month)	{
-		case "01": $mth_str="Jan";
-			break;
-		case "02": $mth_str="Feb";
-			break;
-		case "03": $mth_str="Mar";
-			break;
-		case "04": $mth_str="Apr";
-			break;
-		case "05": $mth_str="May";
-			break;
-		case "06": $mth_str="Jun";
-			break;
-		case "07": $mth_str="Jul";
-			break;
-		case "08": $mth_str="Aug";
-			break;
-		case "09": $mth_str="Sep";
-			break;
-		case "10": $mth_str="Oct";
-			break;
-		case "11": $mth_str="Nov";
-			break;
-		case "12": $mth_str="Dec";
-			break;
-		default : $mth_str = "";
-		break;
-	}
-	return $mth_str." ".$date.", ".$year;
 }
 ?>
 <html>
@@ -61,6 +22,22 @@ function get_normal_time($db_time)	{
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type = "text/javascript" src = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.3/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="styles/bootstrap.min.css">
+<script>
+	$(document).ready(function()	{
+		$.ajax({
+			type:"post",
+			url:"notifications.php",
+			data:
+			{
+				"slash":"",
+				"notify_typ":"DISPLAY"
+			},
+			success:function(result)	{
+				$("#profile-stats-section").html(result);
+			}
+		});
+	});
+</script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/header.js"></script>
 <script type="text/javascript" src="js/profile.js"></script>
@@ -73,7 +50,7 @@ function get_normal_time($db_time)	{
 	<?php
 		$img_url="";
 		try	{																			#fetch user details.
-			$sql="select disp_name,email_addr,ph_num,location,age,description,pro_img_url,up_votes,down_votes from users where user_id='".$_SESSION["user"]."'";			
+			$sql="select disp_name,email_addr,ph_num,location,dob,description,pro_img_url,up_votes,down_votes from users where user_id='".$_SESSION["user"]."'";			
 			$stmt=$conn->prepare($sql);
 			$stmt->execute();
 			$row=$stmt->fetch();
@@ -88,7 +65,7 @@ function get_normal_time($db_time)	{
 			$down_votes=$row["down_votes"];
 		}
 		catch(PDOException $e)	{
-			echo "Some error occured";
+			echo "Some error occured ";
 		}
 	?>
 	</br>
@@ -143,7 +120,7 @@ function get_normal_time($db_time)	{
 		<div class="row">
 			<div class="col-sm-3" id="pro-section" > 
 				<div id="proimg">
-					<img id="propic" src="<?php echo $img_url; ?>" />
+					<div class="img-rounded img-thumbnail" id="propic-div" style="background-image:url('<?php echo $img_url; ?>');"></div>
 					<!--<a id="pic-link" href="upload.php"><span id="change-image-section"><span class="glyphicon glyphicon-camera"></span>&nbsp;&nbsp;Change photo</span></a>-->
 				</div></br></br>
 				<ul class="nav nav-pills nav-stacked">
@@ -153,32 +130,16 @@ function get_normal_time($db_time)	{
 			    </ul>
 			</div>
 			<div class="col-sm-9" id="detl-section">
-				<div id="profile-stats-section">
-					<h3>Notifications</h3>
-					<?php
-						try	{
-							$sql_fetch_notify="select notify_text,created_ts from notifications where user_id = '".$_SESSION['user']."' order by created_ts desc";
-							
-							$stmt_fetch_notify=$conn->prepare($sql_fetch_notify);
-							$stmt_fetch_notify->execute();
-							
-							if($stmt_fetch_notify->rowCount() <= 0)	{
-								echo "You don't have any notifications yet. Try asking questions, posting answers and comment on others answers so that you can get engaged and interact with other users.";
-							}
-							else	{
-								echo "<table border='0'>";
-								while($row_notify=$stmt_fetch_notify->fetch())	{
-									echo '<tr><td class="td-col-1">'.get_normal_time($row_notify['created_ts']).'</td><td class="td-col-2">'.$row_notify['notify_text'].'</td></tr>';
-								}
-								echo "</table>";
-							}
-						}
-						catch(PDOException $e)	{
-							echo "Error fetching notifications. Please try again after some time.";
-						}
-					?>
-					
+				<h3>Notifications</h3>
+				<div id="profile-stats-section">					
 				</div>
+				<ul class="pagination">
+					<li><a href="#">1</a></li> 
+					<li class="active"><a href="#">2</a></li>
+					<li><a href="#">3</a></li>
+					<li><a href="#">4</a></li>
+					<li><a href="#">5</a></li>
+				</ul>
 			</div>
 		</div>		
 	</div>
