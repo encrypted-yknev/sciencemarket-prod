@@ -1,5 +1,10 @@
 $(document).ready(function()	{
-	
+	$("body").click(function()	{
+		$(".user-card-section").fadeOut(200);
+	});
+	$(".user-card-section").click(function(event)	{
+		event.stopPropagation();
+	});
 	$("#nav-id").click(function(e)	{
 		$("#options-menu").show('slide', {direction: 'left'}, 500);
 		$("#block").show();
@@ -18,30 +23,64 @@ $(document).ready(function()	{
 		document.getElementById("scroll-flag").value=0;
 	}
 }); 
-function getHeight()	{
+window.onscroll=function()	{
 	var x=$(document).scrollTop();
-	if(x >= 52)	{
-		$("#header-container").css("position","fixed");
-		$("#header-container").css("width","100%");
+	if(x >= 60)	{
+		$("header").css("position","fixed");
+		$("header").css("width","100%");
 		$("#go-top-btn").show();
 	}
 	else{
 		$("#go-top-btn").hide();
-		$("#header-container").css("position","relative");
-		$("#header-container").css("width","100%");
+		$("header").css("position","relative");
+		$("header").css("width","100%");
 	}
 	
-	var scrollPosition = $(window).height() + $(window).scrollTop();
+	/* var scrollPosition = $(window).height() + $(window).scrollTop();
 	var scrollHeight = $(document).height();
 	
 	var scrollFlag = document.getElementById("scroll-flag").value;
- 	if ((scrollHeight - scrollPosition)/scrollHeight == 0 && scrollFlag==1) {
-		var x=document.getElementById("qid-array-list").value;
-		var y=document.getElementById("page-locate-data").value;
-		var z=$("#qstn-res .qstn_row").length;
-		fetchMoreQuestions(x,y,z);
-    } 
-	
+	var callFlag = document.getElementById("call-flag").value;
+	if(scrollFlag == 1 && callFlag == 0)	{
+		if ((scrollHeight - (scrollPosition+500))/scrollHeight < 0)	{
+			document.getElementById("call-flag").value=1;
+			var x=document.getElementById("qid-array-list").value;
+			var y=document.getElementById("page-locate-data").value;
+			var z=$("#qstn-res .qstn_row").length;
+			fetchMoreQuestions(x,y,z);
+		} 
+	} */
+}
+
+function fetchMoreQuestions()	{
+	var x=document.getElementById("qid-array-list").value;
+	var y=document.getElementById("page-locate-data").value;
+	var z=$("#qstn-res .qstn_row").length;
+	$.ajax({
+		type:"post",
+		url:y+"fetch_qstns.php",
+		data:
+		{
+			"qstn_list":x,
+			"root":y,
+			"questions":z
+		},
+		beforeSend:function()	
+		{
+			$("#scroll-msg").html("<span><img src='"+y+"img/ajax-loader.gif' /></span>");
+		},
+		success:function(res)	{
+			if(res == "0")	{
+				$("#scroll-msg").text("Looking for more questions? Explore more in forum page");
+				$("#scroll-flag").val("0");
+			}
+				
+			else	{
+				$("#qstn-res").append(res);
+				$("#scroll-msg").html("<div id='btn-section'><button class='btn btn-primary' id='explore-btn' onclick='fetchMoreQuestions()'>Explore more</button></div>");
+			}
+		}
+	});
 }
 
 function fetchAnswers(qid,slashes,source,qstn_user)	{
@@ -52,67 +91,56 @@ function fetchAnswers(qid,slashes,source,qstn_user)	{
 		sectionClass = "ans-hidden-sec";
 		ansList = "ans-list-qid-"+qid;
 		scrollFlag = "scroll-flag-"+qid;
+		ansLoadTxt = "ans-load-"+qid;
+		resLoad = "rec-ans-cont-"+qid;
+		txt= "More recent answers";
 	}
 	else if(source == 't')	{
 		sectionId = "toggle-top-ans-sec-"+qid;
 		sectionClass = "ans-hidden-top-sec";
 		ansList = "ans-top-list-qid-"+qid;
 		scrollFlag = "scroll-top-flag-"+qid;
+		ansLoadTxt = "ans-top-load-"+qid;
+		resLoad = "top-ans-cont-"+qid;
+		txt= "More top answers";
 	}
 	var idLen = $("#"+sectionId+" ."+sectionClass).length;
 	
-	var scrollTop=document.getElementById(sectionId).scrollTop;  
+	/* var scrollTop=document.getElementById(sectionId).scrollTop;  
     var scrollheight=document.getElementById(sectionId).scrollHeight;  
     var windowheight=document.getElementById(sectionId).clientHeight;  
     var scrolloffset=20;  
 	var scrollCheck = document.getElementById(scrollFlag).value;
-	if(scrollTop == (scrollheight-windowheight) && scrollCheck=='1')	{
+	if(scrollTop == (scrollheight-windowheight) && scrollCheck=='1')	{ */
 		
-		$.ajax({
-			type:"post",
-			url:slashes+"fetch_ans.php",
-			data:
-			{	
-				"qid":qid,
-				"qstn_user":qstn_user,
-				"ans_list":document.getElementById(ansList).value,
-				"root":slashes,
-				"answers":idLen,
-				"source_flag":source
-			},
-			success:function(res)	{
-				if(res == "0")	{
-					$("#ans-load-"+qid).text("No more answers");
-					$("#"+scrollFlag).val("0");
-				}
-					
-				else
-					$("#"+sectionId).append(res);
-			}
-		});
-	}
-}
-function fetchMoreQuestions(x,y,z)	{
-	
 	$.ajax({
 		type:"post",
-		url:y+"fetch_qstns.php",
+		url:slashes+"fetch_ans.php",
 		data:
-		{
-			"qstn_list":x,
-			"root":y,
-			"questions":z
-			},
+		{	
+			"qid":qid,
+			"qstn_user":qstn_user,
+			"ans_list":document.getElementById(ansList).value,
+			"root":slashes,
+			"answers":idLen,
+			"source_flag":source
+		},
+		beforeSend:function()	{
+			$("#"+ansLoadTxt).html('<img src="'+slashes+'/img/loader.gif" height="40" width="40" />');
+		},
 		success:function(res)	{
 			if(res == "0")	{
-				$("#scroll-msg").text("Looking for more questions? Explore more in forum page");
-				$("#scroll-flag").val("0");
+				$("#"+ansLoadTxt).text("No more answers");
+				$("#"+scrollFlag).val("0");
+				document.getElementById(sectionId).setAttribute("data-load","1");
+			}		
+			else	{
+				$("#"+resLoad).append(res);
+				$("#"+ansLoadTxt).html("<div id='btn-ans-section'><button id='explore-ans-btn' class='btn btn-primary' onclick='fetchAnswers("+qid+",\""+slashes+"\",\""+source+"\",\""+qstn_user+"\")'>"+txt+"</button></div>");
 			}
-				
-			else
-				$("#qstn-res").append(res);
 		}
 	});
+	/*}*/
 }
 
 function postAnswer(e,slashes,val,qid,postedBy,flag)	{
@@ -137,6 +165,8 @@ function postAnswer(e,slashes,val,qid,postedBy,flag)	{
 				var txt="";
 				document.getElementById("ans-"+qid).value="";
 				
+				if($("#ans-load-"+qid).is(':visible'))
+					$("#ans-load-"+qid).hide();
 				if($("#toggle-ans-sec-"+qid).is(':visible'))
 					$("#toggle-ans-sec-"+qid).hide();
 				else if($("#toggle-top-ans-sec-"+qid).is(':visible'))
@@ -158,36 +188,68 @@ function postAnswer(e,slashes,val,qid,postedBy,flag)	{
 		});
 	}
 }
-function toggleAns(qid,x)	{
+function toggleAns(qid,x,postedby)	{
 	$("#front-top-qstn-"+qid).hide();
+	var recentNode=$("#toggle-ans-sec-"+qid);
+	var topNode=$("#toggle-top-ans-sec-"+qid);
+	var query1 = recentNode.is(':visible');
+	var query2 = topNode.is(':visible');
+	//var slashes=document.getElementById("ans-cont-"+qid).getAttribute("data-location");
+	var loadFlagRecent=recentNode.attr("data-load");
+	var loadFlagTop=topNode.attr("data-load");
+	
+	/* if(!slashes)
+		slashes=""; */
+	/* if(x==0)	{
+		var ansLoadTxt="ans-load-"+qid;
+		if(loadFlagRecent=="1")
+			val="All recent answers loaded";
+		else
+			val="<div id='btn-ans-section'><button id='explore-ans-btn' class='btn btn-primary' onclick='fetchAnswers("+qid+",\'"+slashes+"\',\'r\',\'"+postedby+"\')'>More recent answers</button></div>";
+	}
+	if(x==1)	{
+		var ansLoadTxt="ans-top-load-"+qid;
+		if(loadFlagTop=="1")
+			val="All top answers loaded";
+		else
+			val="<div id='btn-ans-section'><button id='explore-top-ans-btn' class='btn btn-primary' onclick='fetchAnswers("+qid+",\'"+slashes+"\',\'t\',\'"+postedby+"\')'>More top answers</button></div>";
+	}
+	document.getElementById(ansLoadTxt).innerHTML=val;
+	var imgDiv=$("#"+ansLoadTxt).is(':visible');
+	if(imgDiv == true)
+		$("#"+ansLoadTxt).hide(); */
 	if(x == 0)	{
-		var query1 = $("#toggle-ans-sec-"+qid).is(':visible');
-		var query2 = $("#toggle-top-ans-sec-"+qid).is(':visible');
 		if(query1 == true)	{
-		//	$("#toggle-ans-sec-"+qid).slideUp();
-		//	$("#front-top-qstn-"+qid).show();
+			$("#toggle-ans-sec-"+qid).slideUp();
+			$("#front-top-qstn-"+qid).show();
+			$("#ans-toggle-"+qid+" a").text("Show recent answers");
 		}
 		else if(query2 == true)	{
 			$("#toggle-top-ans-sec-"+qid).hide();
 			$("#toggle-ans-sec-"+qid).show();
+			$("#ans-toggle-"+qid+" a").text("Hide recent answers");
+			$("#top-ans-toggle-"+qid+" a").text("Show top answers");
 		}
 		else	{
 			$("#toggle-ans-sec-"+qid).slideDown();
+			$("#ans-toggle-"+qid+" a").text("Hide recent answers");
 		}
 	}
 	else if(x == 1)	{
-		var query1 = $("#toggle-top-ans-sec-"+qid).is(':visible');
-		var query2 = $("#toggle-ans-sec-"+qid).is(':visible');
-		if(query1 == true)	{
-		//	$("#toggle-top-ans-sec-"+qid).slideUp();
-		//	$("#front-top-qstn-"+qid).show();
-		}
-		else if(query2 == true)	{
+		if(query1 == true)	{ 
 			$("#toggle-ans-sec-"+qid).hide();
 			$("#toggle-top-ans-sec-"+qid).show();
+			$("#ans-toggle-"+qid+" a").text("Show recent answers");
+			$("#top-ans-toggle-"+qid+" a").text("Hide top answers");
+		}
+		else if(query2 == true)	{
+			$("#toggle-top-ans-sec-"+qid).slideUp();
+			$("#front-top-qstn-"+qid).show();
+			$("#top-ans-toggle-"+qid+" a").text("Show top answers");
 		}
 		else	{
 			$("#toggle-top-ans-sec-"+qid).slideDown();
+			$("#top-ans-toggle-"+qid+" a").text("Hide top answers");
 		}
 	}
 	//$("div#"+eventId).slideToggle();
@@ -261,6 +323,7 @@ function increaseCount(id,userid,func,rootLocation,voteCheckCount)	{
 		}
 		else	{
 			$("#glyph-up-"+id).addClass("glyph-upvoted");
+			$("#glyph-up-"+id+" img").attr("src",rootLocation+"img/svg/up_new.svg");
 			requestType="A";
 			$("#upvote-value-"+id).val("1");
 			$(sectionId).text(upVoteVal+1);
@@ -580,55 +643,60 @@ function increaseAnsCount(id,userid,func,rootLocation,voteCheckCount,flag)	{
 		} */
 	});
 }
-
-function addComment(token,root,ansid,ans_posted_by,qid,qstn_posted_by)	{
-	var commentInpId = "",idRes="";
-	if(token == 0)	{
-		commentInpId="comment-ans-"+ansid;
-		idRes = "comment-area-"+ansid;
-		loadTextId = "comment-load-recent-text-"+ansid;
-	}
-	else if(token == 1)	{
-		commentInpId="comment-top-ans-"+ansid;
-		idRes = "comment-area-top-"+ansid;
-		loadTextId = "comment-load-top-text-"+ansid;
-	}
-	else if(token == 2)	{
-		commentInpId="comment-front-ans-"+ansid;
-		idRes = "comment-area-front-"+ansid;
-		loadTextId = "comment-load-front-text-"+ansid;
-	}
-	var commentVal = document.getElementById(commentInpId).value;
-	
-	if((commentVal.trim().length) != 0)	{
-		$("#"+commentInpId).attr("disabled", "disabled"); 
-		$.ajax(
-		{
-			type:"post",
-			url:root+"add_comment.php",
-			data:
-				{
-					"ansid":ansid,
-					"text":commentVal,
-					"posted_by":ans_posted_by,
-					"qid":qid,
-					"q_posted_by":qstn_posted_by
-				},
-			beforeSend:function()	{
-			},
-			success:function(result)	{
-				$("#"+idRes).html(result);
-				var scrollHeight = document.getElementById(idRes).scrollHeight;
-				var clientHeight = document.getElementById(idRes).clientHeight;
-				document.getElementById(idRes).scrollTop=(scrollHeight-clientHeight);
-				$("#"+loadTextId).hide();
-				document.getElementById(commentInpId).value="";
-				$("#"+commentInpId).removeAttr("disabled");
-			}
+function addComment(e,token,root,ansid,ans_posted_by,qid,qstn_posted_by)	{
+	var keyCode = e.keyCode || e.which;
+	if(keyCode == 13)	{
+		var commentInpId = "",idRes="";
+		if(token == 0)	{
+			commentInpId="comment-ans-"+ansid;
+			idRes = "comment-area-"+ansid;
+			loadTextId = "comment-load-recent-text-"+ansid;
 		}
-		)
+		else if(token == 1)	{
+			commentInpId="comment-top-ans-"+ansid;
+			idRes = "comment-area-top-"+ansid;
+			loadTextId = "comment-load-top-text-"+ansid;
+		}
+		else if(token == 2)	{
+			commentInpId="comment-front-ans-"+ansid;
+			idRes = "comment-area-front-"+ansid;
+			loadTextId = "comment-load-front-text-"+ansid;
+		}
+		var commentVal = document.getElementById(commentInpId).value;
+		
+		if((commentVal.trim().length) != 0)	{
+			$("#"+commentInpId).attr("disabled", "disabled"); 
+			$.ajax(
+			{
+				type:"post",
+				url:root+"add_comment.php",
+				data:
+					{
+						"root":root,
+						"ansid":ansid,
+						"text":commentVal,
+						"posted_by":ans_posted_by,
+						"qid":qid,
+						"q_posted_by":qstn_posted_by
+					},
+				beforeSend:function()	{
+				},
+				success:function(result)	{
+					$("#"+idRes).html(result);
+					var scrollHeight = document.getElementById(idRes).scrollHeight;
+					var clientHeight = document.getElementById(idRes).clientHeight;
+					document.getElementById(idRes).scrollTop=(scrollHeight-clientHeight);
+					/* $("#"+loadTextId).hide();
+					document.getElementById(commentInpId).value="";
+					$("#"+commentInpId).removeAttr("disabled"); */
+				}
+			}
+			)
+		}
 	}
 }
+
+
 function showComment(token,ansid)	{
 	if(token == 0)	{
 		var query1 = $("#comment-recent-"+ansid).is(':visible');
@@ -695,60 +763,184 @@ function loadMoreComments(token,root,ansid)	{
 					$("#comment-load-recent-text-"+ansid).hide();
 				}
 				else
-					$("#comment-area-"+ansid).append(res);
+					$("#cmnt-list-recent-"+ansid).append(res);
 			}
 			if(token == 1)	{
 				if(res==0)	{
 					$("#comment-load-top-text-"+ansid).hide();
 				}
 				else
-					$("#comment-area-top-"+ansid).append(res);
+					$("#cmnt-list-top-"+ansid).append(res);
 			}
 			if(token == 2)	{
 				if(res==0)	{
 					$("#comment-load-front-text-"+ansid).hide();
 				}
 				else
-					$("#comment-area-front-"+ansid).append(res);
+					$("#cmnt-list-"+ansid).append(res);
 			}
 		}
 	});
 }
-
-function showUserCard(token,qid)	{
+function hideUserCard(qid,type)	{
+	
+}
+function showUserCard(e,token,qid,type)	{
+	var x=e.clientX,y=e.clientY;
+	var userCardId=document.getElementById("user-card-"+type+"-"+qid);
+	var setTime1;
 	if(token == 0)	{
-		$("#user-card-"+qid).fadeIn(200);
+		var topY=(y+5)+"px";
+		var leftX=(x+5)+"px";	
+		$("#user-card-"+type+"-"+qid).css({"top":""+topY,"left":""+leftX});
+		$("#user-card-"+type+"-"+qid).fadeIn(200);
 	}
-	else if(token == 1)	{
-		$("#user-card-"+qid).delay(300).fadeOut('fast');
-	}
+    else if(token == 1)	{
+		$("#user-card-"+type+"-"+qid).delay(200).fadeOut('fast');
+	}  
 	else if(token == 2)	{
-		$("#user-card-"+qid).stop(true,false).show();
+		$("#user-card-"+type+"-"+qid).stop(true,false).show();
 	}
 } 
-function updateFollower(userid,flag,id)	{
+function updateFollower(slashes,userid,flag,id,loggedIn,type)	{
+	if(loggedIn == 1)	{
+		$.ajax({
+			type:"post",
+			url:slashes+"updt_follower.php",
+			data:
+			{
+				"user_id":userid,
+				"flag":flag
+			},
+			success:function(result)	{
+				if(flag == 0)	{
+					$("#unfollow-"+type+"-"+id).removeClass("disabled btn-disabled");
+					$("#follow-"+type+"-"+id).addClass("disabled btn-disabled");
+					$("#follow-"+type+"-"+id).removeAttr("onclick");
+					$("#unfollow-"+type+"-"+id).attr("onclick","updateFollower('"+slashes+"','"+userid+"',1,"+id+",1,'"+type+"')");
+				}
+				else if(flag == 1)	{
+					$("#follow-"+type+"-"+id).removeClass("disabled btn-disabled");
+					$("#unfollow-"+type+"-"+id).addClass("disabled btn-disabled");
+					$("#follow-"+type+"-"+id).attr("onclick","updateFollower('"+slashes+"','"+userid+"',0,"+id+",1,'"+type+"')");
+					$("#unfollow-"+type+"-"+id).removeAttr("onclick");
+				}
+				$("#follow-message-"+type+"-"+id).html(result);
+			}
+		});
+	}
+	else	{
+		$("#follow-message-"+id).html("Please login to follow");
+	}
+}
+
+function showAlert(flag,loggedIn)	{
+	
+	if(loggedIn==0)	{
+		if(flag == 0)	{
+			$(".comment-inp").val("");
+			$(".comment-inp").blur();
+			alert('Please login to post a comment');
+		}
+		else if(flag == 1)	{
+			$(".ans-inp").val("");
+			$(".ans-inp").blur();
+			alert('Please login to post an answer');
+		}
+	}
+}
+function showMessageBox(num,divId)	{
+	if(num==0)	{
+		$("#block-bg").show();
+		$("#msg-box-"+divId).show();
+	}
+	else if(num==1)	{
+		$("#msg-box-"+divId).hide();
+		$("#block-bg").hide();
+	}
+}
+
+function sendMessage(root,divId,sender,recp)	{
+	msgTxt=document.getElementById("msg-text-"+divId).value;
+	if(msgTxt.trim()!="")	{
+		$.ajax({
+			type:"post",
+			url:root+"send_message.php",
+			data:
+			{
+				"sender_id":sender,
+				"recp_id":recp,
+				"msg-text":msgTxt
+			},
+			beforeSend:function()	{
+				$("#msg-text-"+divId).attr("disabled","disabled");
+				$("#load-"+divId).show();
+			},
+			success:function(res)	{
+				$("#load-"+divId).hide();
+				$("#main-sec-"+divId).hide();
+				$("#btn1-"+divId).hide();
+				document.getElementById("msg-text-"+divId).value="";
+				$("#msg-text-"+divId).removeAttr("disabled");
+				document.getElementById(divId).innerHTML=res;
+			}
+		});
+	}
+}
+
+function addBookmark(root,qid)	{
+	var ele=document.getElementById("bkmrk-"+qid);
+	var setFlag=parseInt(ele.dataset.flag);
+	if(setFlag==0)	{
+		$("#bkmrk-"+qid+" img").attr("src",root+"img/svg/heart_new.svg");
+	}
+	else if(setFlag==1)	{
+		$("#bkmrk-"+qid+" img").attr("src",root+"img/svg/up.svg");
+	}
 	$.ajax({
 		type:"post",
-		url:"updt_follower.php",
+		url:root+"add_bookmarks.php",
+		dataType:"json",
 		data:
 		{
-			"user_id":userid,
-			"flag":flag
+			"qid":qid,
+			"setFlag":setFlag
 		},
-		success:function(result)	{
-			if(flag == 0)	{
-				$("#unfollow-"+id).removeClass("disabled btn-disabled");
-				$("#follow-"+id).addClass("disabled btn-disabled");
-				$("#follow-"+id).removeAttr("onclick");
-				$("#unfollow-"+id).attr("onclick","updateFollower('"+userid+"',1,'"+id+"')");
+		success:function(res)	{
+			var err_cd=res.err_cd;
+			var err_desc=res.err_desc;
+			if(err_cd != 0)	{
+				if(setFlag==0)	{
+					$("#bkmrk-"+qid+" img").attr("src",root+"img/svg/up.svg");
+				}
+				else if(setFlag==1)	{
+					$("#bkmrk-"+qid+" img").attr("src",root+"img/svg/heart_new.svg");
+				}	
 			}
-			else if(flag == 1)	{
-				$("#follow-"+id).removeClass("disabled btn-disabled");
-				$("#unfollow-"+id).addClass("disabled btn-disabled");
-				$("#follow-"+id).attr("onclick","updateFollower('"+userid+"',0,'"+id+"')");
-				$("#unfollow-"+id).removeAttr("onclick");
+			else	{
+				if(setFlag==0)
+					ele.dataset.flag="1";
+				else if(setFlag==1)
+					ele.dataset.flag="0";
 			}
-			$("#follow-message-"+id).html(result);
 		}
-	});
+	}); 
+	
 }
+
+/* 
+function to toggle the answer container (show and hide)
+
+function toggleAnswers(qid)	{
+	var curNode=document.getElementById("show-hide-link-"+qid);
+	if(curNode.getAttribute("data-visible")=="1")	{
+		$("#ans-cont-"+qid).slideToggle();
+		curNode.setAttribute("data-visible","0");
+		curNode.innerHTML="Show answers";
+	}
+	else if(curNode.getAttribute("data-visible")=="0")	{
+		$("#ans-cont-"+qid).slideToggle();
+		curNode.setAttribute("data-visible","1");
+		curNode.innerHTML="Hide answers";
+	}
+} */
