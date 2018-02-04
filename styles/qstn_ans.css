@@ -40,13 +40,15 @@ body	{
 	/*background-image:url('../ajax-loader.gif');/* scroll no-repeat 5px 50% transparent;*/
 }
 .ans-section	{
-	/*border:1px solid #DDDCDC;*/
-	background-color:#F7F7F7;
-	padding: 1.3%;
+	border:1px solid #eee;
+	background-color:#fdfdfd;
+	text-align:justify;
+	box-shadow:1px 1px 2px #eee;
+	padding: 15px 15px;
 }
 .msg-section	{
 	color:#fff;
-	background-color:#258E03;
+	background-color:#ECECEC;
 	padding:3px 2px 3px 2px;
 }
 
@@ -211,4 +213,206 @@ body	{
 	height:40px;
 	border-radius:30px;
 	float:left;
+}
+.user-card-section	{
+	width:300px;
+	/*max-width:350px;*/
+	/*max-height:250px;*/
+	min-height:260px;
+	word-wrap:break-word;
+	position:absolute;
+	left:70px;
+	background-color:rgba(255,255,255,1);
+	display:none;
+	/*border:1px solid #ddd;*/
+	z-index:100;
+    box-shadow: 1px 1px 7px 1px #ABABAB;
+}
+
+.user-card-image	{
+	width:80px;
+	height:100px;
+	border-radius:10px;
+	/*float:left;*/
+	margin-left:10px;
+	margin-top:5px;
+}
+.user-card-image:hover	{
+	
+}
+.user-name-card	{
+	color:#fff;
+	float:right;
+	margin-right:10px;
+}
+
+.card-top-bar	{
+	background-color:#008CBA;
+	height:30px;
+}
+.card-disp-name	{
+	font-family:"Calibri",sans-serif;
+	font-size:16px;
+}
+.interest-user-card	{
+	font-size:13px;
+	margin-left:10px;
+	margin-right:10px;
+}
+.about-user-card{
+	text-align:center;
+	font-size:12px;
+	float:left;
+	width:200px;
+	margin-left:20px;
+	margin-right:20px;
+	white-space: nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+.card-more-text	{
+	float:left;
+	font-size:12px;
+}
+
+.vote-data-card	{
+	text-align:center;
+}
+
+.label-text	{
+	height:20px;
+}
+
+.interest-badge	{
+	background-color:#17A589 !important;
+	border-radius:2px !important;
+}
+
+.upvote-logo,.downvote-logo	{
+	width:20px;
+	height:20px;
+	border-radius:20px;
+	float:left;
+}
+.vote-up-card,.vote-down-card	{
+	float:left;
+	text-align:center;
+	margin-right:auto;
+}
+.line-follow-card	{
+	font-family:'Calibri',sans-serif;
+	font-size:15px;
+}
+.vote-down-card	{
+	margin-left:10px;
+}
+.upvote-logo	{
+	background-color:#BEFFA6;
+}
+.downvote-logo	{
+	background-color:#FFB5B5;
+}
+.follow-logo	{	
+	background-color:#AAE8FF;
+}
+
+.vote-section-card	{
+	text-align:center;
+	margin-left:auto;
+	margin-right:auto;
+}
+.follow-user-card{
+	text-align:center;
+}
+.follow-user-card button	{
+	font-family:'Calibri',sans;
+	font-size:16px;
+	padding:1px 5px;
+	text-align:center;
+}
+.btn-disabled	{
+	background-color:#ddd !important;
+	border:none !important;
+}
+
+.follow-msg-section	{
+	text-align:center;
+	font-size:12px;
+}
+
+/*end of card */
+
+.qstn-desc-section	{
+	font-family: 'Calibri', sans-serif;
+	font-size:18px;
+}
+
+.comment-box {
+	/*display:none;*/
+	overflow-y:auto;
+}
+
+.user-comment-sec	{
+	background-color: #f9f9f9;
+    padding: 5px 5px 5px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    box-shadow: 1px 2px 2px #ddd;
+}
+
+.comment-section	{
+	background-color:#fff;
+	/*border:1px solid #ddd;*/
+	font-size:12px;
+	display:none;
+	margin-left:10px;
+}
+.cmnt-section	{
+	max-height: 220px;
+    overflow-y: auto;
+	margin-left:10px;
+}
+.comment-inp	{
+	width:500px !important;
+
+}
+
+.comments-list	{
+    margin-right: 30px;
+}
+
+.show-comment-text	{
+	font-size:13px;
+	cursor:pointer;
+	color:#337ab7;
+	
+}
+#left-section	{
+	min-height:450px;
+}
+
+.userid-text	{
+	font-family:"Courier new",sans-serif;
+}
+
+.right-column	{
+	border-left:1px solid #ddd;
+}
+.profile-link	{
+	margin-left:10px;
+	font-family:'Calibri',sans;
+	font-size:12px;
+}
+
+.msg-profile	{
+	margin-top:5px !important;
+	padding:3px 10px !important;
+	text-align:center !important;
+}
+
+.message-section button	{
+	text-align:center;
+}
+.msg-textarea	{
+	font-family:"Quicksand",sans-serif;
 }
