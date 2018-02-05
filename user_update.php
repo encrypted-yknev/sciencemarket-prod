@@ -72,7 +72,10 @@ try		{
 	$error_code=$row_sp['error_code'];
 	$error_desc=$row_sp['error_desc'];
 	if(!strcmp($error_code,'00000'))	{
-		$userid=$_SESSION['user'];
+		if($user != $_SESSION['user'])
+			$userid=$user;
+		else
+			$userid=$_SESSION['user'];
 		include "session.php";
 		if($request_type == 4)
 			echo "<div class='alert alert-warning msg-profile'>Account de-activated</div>";
