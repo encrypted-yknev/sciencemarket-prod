@@ -1,5 +1,5 @@
 <?php
-/*	Connection parameters */
+/*	Connection parameters to connect to mysqlDb */
 $username="root";
 $password="mysqlroot";
 $servername="localhost";
