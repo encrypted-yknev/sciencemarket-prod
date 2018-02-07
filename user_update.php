@@ -11,10 +11,10 @@ $user_dtls["request_type"]=$request_type;
 $user_dtls["user_id"]=$_SESSION['user'];
 
 if($request_type == 1)	{
-	$user=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["user"]))));
+	$user=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["user"])),ENT_QUOTES));
 	if(strlen(trim($user))==0)
 		$user=$_SESSION['user'];
-	$name=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["name"]))));
+	$name=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["name"])),ENT_QUOTES));
 	if(strlen(trim($name))==0)
 		$name=$_SESSION['name'];
 	$mail=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["mail"]))));
@@ -23,8 +23,8 @@ if($request_type == 1)	{
 	$mob=htmlspecialchars(stripslashes(trim($_REQUEST["mob"])));
 	$location=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["place"]))));
 	$dob=trim($_REQUEST["dob"]);
-	$desc=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["desc"]))));
-	$shrt_bio=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["shrt_bio"]))));
+	$desc=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["desc"])),ENT_QUOTES));
+	$shrt_bio=addslashes(htmlspecialchars(stripslashes(trim($_REQUEST["shrt_bio"])),ENT_QUOTES));
 	if(strlen(trim($desc))==0)
 		$desc=$_SESSION['desc'];
 	if(strlen(trim($shrt_bio))==0)
