@@ -522,8 +522,8 @@ else if($count_slash==4)
 				<div class="user-ans-section">
 				<?php if($logged_in == 1)	{	?>
 					<div class="ans-cap alert-info" id="ans-cap-<?php echo $qid; ?>">						
-						<span>Type your quick answer below and press Enter to post. To write detailed answer, <a href="<?php echo $slashes; ?>qstn_ans.php?qid=<?php echo $qid; ?>" target="_blank"> <strong>click here</strong>
-						<img src="<?php echo $slashes; ?>img/svg/external-link.svg" width=2.8% height=2.8%></span></a>					
+						<span>Type your quick answer below and press Enter to post. To write detailed answer, <a href="<?php echo $slashes; ?>qstn_ans.php?qid=<?php echo $qid; ?>" target="_blank"> <strong>click here</strong></a>
+				<!--		<img src="<?php #echo $slashes; ?>img/svg/external-link.svg" width=2.5% height=2.5%></span>				-->
 					</div>
 				<?php }		else	{?>
 					<div class="ans-cap" id="ans-cap-<?php echo $qid; ?>"></div>
