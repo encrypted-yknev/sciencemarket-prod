@@ -171,7 +171,7 @@ include "header.php";
 	<div id="ans_container">
 	<?php
 	try	{
-	$sql_ans = "select ans_id,ans_desc,up_votes,down_votes,posted_by,created_ts,last_updt_ts from answers where qstn_id=".$qid." order by created_ts desc";
+	$sql_ans = "select ans_id,ans_desc,up_votes,down_votes,posted_by,created_ts,last_updt_ts from answers where qstn_id=".$qid." order by created_ts";
 	foreach($conn->query($sql_ans) as $row_ans)	{
 		$ansid=$row_ans["ans_id"];
 		$upvotes=$row_ans["up_votes"];
@@ -276,8 +276,8 @@ include "header.php";
 			<span class="glyphicon glyphicon-thumbs-down"></span>
 			<span id="down-vote-ans-<?php echo $ansid; ?>" class="vote-count-area"><?php echo $downvotes; ?></span>
 			<?php } ?>
-		</span>
-		<a class="comment-link" href="javascript:void(0)" onclick="showComment(<?php echo $ansid; ?>)">View comments</a>
+		</span> 
+		<a class="comment-link" id="comment-link-<?php echo $ansid; ?>" href="javascript:void(0)" onclick="showComment(<?php echo $ansid; ?>)">View comments</a>
 		</br>
 		<div class="comment-section" id="comment-front-<?php echo $ansid; ?>">
 		</br>
