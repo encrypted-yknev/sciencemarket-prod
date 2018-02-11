@@ -155,7 +155,7 @@ function showComment(ansid)	{
 	var query1 = $("#comment-front-"+ansid).is(':visible');
 	if(query1)	{
 		$("#comment-front-"+ansid).hide();
-		$("#comment-link-"+ansid).text("Show comments");
+		$("#comment-link-"+ansid).text("View comments");
 	}
 	else	{
 		$("#comment-front-"+ansid).show();
