@@ -492,3 +492,18 @@
 	border-radius:4px !important;
 	font-size:14px !important;
 }
+
+/* start of ans caption add*/
+
+.ans-cap {
+	display:none;
+	font-size:13px;
+	color:#195971;
+	width:100%;
+	background-color:#fff;
+	padding:2px; 
+	border-top-right-radius:5px;
+	border-top-left-radius:5px;
+	/*padding-bottom:0px;*/
+}
+/* end */
