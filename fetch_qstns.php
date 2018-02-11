@@ -501,7 +501,15 @@ while($start_qstn <= $end_qstn)	{
 				<div style="font-size:14px;color:#65A668;" class "ans-msg" id="ans-msg-<?php echo $qid; ?>" ></div>
 				
 				<div class="user-ans-section">
-					<input type="text" class="form-control ans-inp" id="ans-<?php echo $qid; ?>" onfocus="showAlert(1,<?php echo $logged_in; ?>)" placeholder="Your answer here" 
+					<?php if($logged_in == 1)	{	?>
+					<div class="ans-cap alert-info" id="ans-cap-<?php echo $qid; ?>">						
+						<span>Type your quick answer below and press Enter to post. To write detailed answer, <a href="<?php echo $slashes; ?>qstn_ans.php?qid=<?php echo $qid; ?>" target="_blank"> <strong>click here</strong>
+						<img src="<?php echo $slashes; ?>img/svg/external-link.svg" width=2.5% height=2.5%></span></a>					
+					</div>
+					<?php }		else	{?>
+						<div class="ans-cap" id="ans-cap-<?php echo $qid; ?>"></div>
+					<?php	}	?>
+					<input type="text" class="form-control ans-inp" id="ans-<?php echo $qid; ?>" onfocus="showAlert(1,<?php echo $logged_in; ?>); $('#ans-cap-<?php echo $qid; ?>').slideToggle();  " placeholder="Your answer here" onblur="$('#ans-cap-<?php echo $qid; ?>').slideToggle();"
 					onkeypress="postAnswer(event,'<?php echo $slashes; ?>',this.value,<?php echo $qid.",'".$posted_by."'"; ?>,0)"/>
 					</br>
 				</div>
