@@ -68,7 +68,7 @@ include "functions/get_time_offset.php";
 								where b.tag_id = ".$url_tag_id;
 						}
 						else	{
-					$query_string="";
+					/* $query_string="";
 					$sql_fetch_user_interests="select b.tag_name 
 									   from user_tags a
 									   inner join tags b
@@ -77,9 +77,19 @@ include "functions/get_time_offset.php";
 					foreach($conn->query($sql_fetch_user_interests) as $result_user_interest)	{
 						$query_string=$query_string.$result_user_interest['tag_name']." ";
 					}
-					$query_string=substr($query_string,0,strlen($query_string)-1);
-					
-					$sql="select     a.qstn_id,
+					$query_string=substr($query_string,0,strlen($query_string)-1); */
+					$sql="select  a.qstn_id,
+								  a.qstn_titl,
+								  a.qstn_desc,
+								  a.posted_by,
+								  a.topic_id,
+								  a.up_votes,
+								  a.down_votes,
+								  a.created_ts 
+						from questions a
+						order by a.created_ts desc limit 10"; 
+						
+					/* $sql="select     a.qstn_id,
 								 a.qstn_titl,
 								 a.qstn_desc,
 								 a.posted_by,
@@ -119,7 +129,7 @@ include "functions/get_time_offset.php";
 									where a.rnum=1
 									order by a.created_ts
 									limit 10
-									";
+									"; */
 						}
 					} 
 					else	{
@@ -190,7 +200,10 @@ include "functions/get_time_offset.php";
 													where b.tag_id=".$_GET['tag'];
 							}
 							else	{
-							$sql_fetch_all_qstn = "select a.qstn_id,
+							$sql_fetch_all_qstn = "select a.qstn_id
+										from questions a
+										order by a.created_ts desc";
+							/* $sql_fetch_all_qstn = "select a.qstn_id,
 														  a.created_ts
 												   from
 													 (
@@ -215,7 +228,7 @@ include "functions/get_time_offset.php";
 													and match(a.qstn_titl,a.qstn_desc) against ('".$query_string."' in NATURAL LANGUAGE MODE)
 													) a
 													where a.rnum=1
-													order by a.created_ts";
+													order by a.created_ts"; */
 							}
 						}
 						else	{
